@@ -12,6 +12,9 @@ def fcnsTest2(msgClass):
   else:
     return "you didn't tell me anything to say", "kmccabe2"
 
+def myLogger(msgClass):
+  #print "line from IRC: %s" % msgClass.splitMessage
+  pass
 
 if __name__ == '__main__':
   #parameters needed to allow bot to connect to IRC room:
@@ -21,7 +24,7 @@ if __name__ == '__main__':
   room = ["#room-a","#room-b"]
 
   #create bot object
-  myBot = Legobot.Listener(host,port,nick,room)
+  myBot = Legobot.Listener(host,port,nick,room,myLogger)
   
   #add the functions manually to the bot
   myBot.addFcns("!hello", fcnsTest)

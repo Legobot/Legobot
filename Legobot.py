@@ -4,11 +4,12 @@ import select
 import string
 
 class Listener():
-  def __init__(self,host,port,nick,room):
+  def __init__(self,host,port,nick,rooms, logfcns = ""):
     self.host = host
     self.port = port
     self.nick = nick
-    self.room = room
+    self.rooms = rooms
+    self.logfcns = logfcns
     self.fcns = {}
   
   def addFcns(self, name, fcns):
@@ -24,7 +25,8 @@ class Listener():
     self.connection.connect((self.host, self.port))
     self.connection.sendall("NICK %s\r\n" % self.nick)
     self.connection.sendall("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
-    self.connection.sendall("JOIN %s\r\n" % self.room)
+    for room in self.rooms:
+      self.connection.sendall("JOIN %s\r\n" % room)
     
   def listen(self):
     while 1:
@@ -39,7 +41,7 @@ class Listener():
           if len(line.strip(' \t\n\r')) == 0:
             continue
           msg = Message(line)
-          reply = msg.read(self.host, self.fcns, self.nick)
+          reply = msg.read(self.host, self.fcns, self.nick, self.logfcns)
           if reply:
             self.connection.sendall(reply)
 
@@ -55,7 +57,7 @@ class Message():
     self.arg3 = None
     self.caseNum = None
       
-  def read(self,host, fcns, nick):
+  def read(self,host, fcns, nick, logfcns):
     self.host = host
     if self.splitMessage[0][0:4] == "PING":
       return self.reply(host, {}, nick)
@@ -71,6 +73,10 @@ class Message():
         self.arg3 = self.splitMessage[6].lower()
       except:
         pass
+      
+      if logfcns:
+        #pass line to our logging fcns
+        logfcns(self)
         
       return self.reply(host, fcns, nick)
         
