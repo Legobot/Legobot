@@ -3,7 +3,7 @@ import socket
 import select
 import string
 
-class Listener():
+class legoBot():
   def __init__(self,host,port,nick,rooms, logfcns = ""):
     self.host = host
     self.port = port
@@ -27,8 +27,12 @@ class Listener():
     self.connection.sendall("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
     for room in self.rooms:
       self.connection.sendall("JOIN %s\r\n" % room)
-    
-  def listen(self):
+    self.__listen()
+  
+  def sendMsg(self, msgToSend):
+    self.connection.sendall(msgToSend)
+  
+  def __listen(self):
     while 1:
       if select.select([self.connection],[],[],1.0)[0]:
         readbuffer = self.connection.recv(1024)
@@ -50,12 +54,12 @@ class Message():
     self.splitMessage = message.strip("\r").split(" ",7)
     self.length = len(self.splitMessage)
     self.userInfo = None
+    self.actualUserName = None
     self.target = None
     self.cmd = None
     self.arg1 = None
     self.arg2 = None
     self.arg3 = None
-    self.caseNum = None
       
   def read(self,host, fcns, nick, logfcns):
     self.host = host

@@ -24,7 +24,7 @@ if __name__ == '__main__':
   room = ["#room-a","#room-b"]
 
   #create bot object
-  myBot = Legobot.Listener(host,port,nick,room,myLogger)
+  myBot = Legobot.legoBot(host,port,nick,room,myLogger)
   
   #add the functions manually to the bot
   myBot.addFcns("!hello", fcnsTest)
@@ -32,7 +32,3 @@ if __name__ == '__main__':
 
   #have bot connect to IRC server and log into room specified
   myBot.connect()
-
-  #have bot listen to incoming messages. This is required, because he needs to respond to pings to stay alive
-  myBot.listen()
-
