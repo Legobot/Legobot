@@ -10,8 +10,6 @@ class Listener():
     self.nick = nick
     self.room = room
     self.fcns = {}
-    #self.connect()
-    #self.listen()
   
   def addFcns(self, name, fcns):
     #name should be str, fcns should be a function object
@@ -41,7 +39,7 @@ class Listener():
           if len(line.strip(' \t\n\r')) == 0:
             continue
           msg = Message(line)
-          reply = msg.read(self.host, self.room, self.fcns)
+          reply = msg.read(self.host, self.fcns, self.nick)
           if reply:
             self.connection.sendall(reply)
 
@@ -57,10 +55,10 @@ class Message():
     self.arg3 = None
     self.caseNum = None
       
-  def read(self,host, room, fcns):
+  def read(self,host, fcns, nick):
     self.host = host
     if self.splitMessage[0][0:4] == "PING":
-      return self.reply(host, room, {})
+      return self.reply(host, {}, nick)
       
     else:
       try:
@@ -74,17 +72,26 @@ class Message():
       except:
         pass
         
-      return self.reply(host,room, fcns)
+      return self.reply(host, fcns, nick)
         
-  def reply(self, host, room, fcns):
+  def reply(self, host, fcns, nick):
     if self.splitMessage[0][0:4] == "PING":
       return "PONG :%s\r\n" % host
     
     if self.cmd:
       if self.cmd[1:] in fcns:
-        returnVal = fcns[self.cmd[1:]](self)
-        if returnVal:
-          return "PRIVMSG %s :%s\r\n" % (room, returnVal)
-    
+        returnVal, returnRoom = fcns[self.cmd[1:]](self)        
+        if returnVal and returnRoom:
+          #respond to room/person that function told us to
+          return "PRIVMSG %s :%s\r\n" % (returnRoom, returnVal)
+          
+        elif returnVal and self.target.lower() == nick.lower():
+          #if no room/person and it's a PM, reply to a PM with a PM
+          return "PRIVMSG %s :%s\r\n" % (self.actualUserName, returnVal)
+          
+        elif returnVal and not returnRoom:
+          #if no room/person returned just respond back to same room
+          return "PRIVMSG %s :%s\r\n" % (self.target, returnVal)
+
   def __len__(self):
     return self.length
