@@ -46,6 +46,6 @@ Raw string input, this method is used to send a message to the server.  Typicall
 ###addFcns
 input: name as string, this would be the command that users would run to call the fcns; fcns as function which is the function that will be run.
 		
-###addMassFcns
+###batchAddFunc
 input d ad dictionary; used to add a bunch of fcns's at the same time.  dictionary keys should be the string you want used to call your fcns and the value should be a fcns
 		
