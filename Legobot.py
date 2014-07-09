@@ -4,26 +4,27 @@ import select
 import string
 
 class legoBot():
-  def __init__(self,host,port,nick,rooms, logfcns = ""):
+  def __init__(self,host,port,nick,rooms, logfunc = ""):
     self.host = host
     self.port = port
     self.nick = nick
     self.rooms = rooms
-    self.logfcns = logfcns
-    self.fcns = {}
+    self.logfunc = logfunc
+    self.func = {}
   
-  def addFcns(self, name, fcns):
-    #name should be str, fcns should be a function object
-    self.fcns[name] = fcns
+  def addFunc(self, name, function):
+    #name should be str, function should be a function object (as in a function without the parens)
+    self.func[name] = function
   
-  def addMassFcns(self, d):
-    #merge a dictionary into fcns dicts
-    self.fcns.update(d)
+  def batchAddFunc(self, d):
+    #merge a dictionary of functions into the existing function dictionary
+    self.func.update(d)
   
   def connect(self):
     self.connection = socket.socket()
     self.connection.connect((self.host, self.port))
     self.connection.sendall("NICK %s\r\n" % self.nick)
+    #TO DO: add functionality to create separate nick, realname, etc
     self.connection.sendall("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
     for room in self.rooms:
       self.connection.sendall("JOIN %s\r\n" % room)
@@ -45,7 +46,7 @@ class legoBot():
           if len(line.strip(' \t\n\r')) == 0:
             continue
           msg = Message(line)
-          reply = msg.read(self.host, self.fcns, self.nick, self.logfcns)
+          reply = msg.read(self.host, self.func, self.nick, self.logfuncs)
           if reply:
             self.connection.sendall(reply)
 
@@ -61,7 +62,7 @@ class Message():
     self.arg2 = None
     self.arg3 = None
       
-  def read(self,host, fcns, nick, logfcns):
+  def read(self,host, func, nick, logfunc):
     self.host = host
     if self.splitMessage[0][0:4] == "PING":
       return self.reply(host, {}, nick)
@@ -78,19 +79,19 @@ class Message():
       except:
         pass
       
-      if logfcns:
-        #pass line to our logging fcns
-        logfcns(self)
+      if logfunc:
+        #pass line to our logging function
+        logfunc(self)
         
-      return self.reply(host, fcns, nick)
+      return self.reply(host, func, nick)
         
-  def reply(self, host, fcns, nick):
+  def reply(self, host, func, nick):
     if self.splitMessage[0][0:4] == "PING":
       return "PONG :%s\r\n" % host
     
     if self.cmd:
-      if self.cmd[1:] in fcns:
-        returnVal, returnRoom = fcns[self.cmd[1:]](self)        
+      if self.cmd[1:] in func:
+        returnVal, returnRoom = func[self.cmd[1:]](self)
         if returnVal and returnRoom:
           #respond to room/person that function told us to
           return "PRIVMSG %s :%s\r\n" % (returnRoom, returnVal)
