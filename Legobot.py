@@ -46,7 +46,7 @@ class legoBot():
           if len(line.strip(' \t\n\r')) == 0:
             continue
           msg = Message(line)
-          reply = msg.read(self.host, self.func, self.nick, self.logfuncs)
+          reply = msg.read(self.host, self.func, self.nick, self.logfunc)
           if reply:
             self.connection.sendall(reply)
 
@@ -61,6 +61,7 @@ class Message():
     self.arg1 = None
     self.arg2 = None
     self.arg3 = None
+    self.allArgs = None
       
   def read(self,host, func, nick, logfunc):
     self.host = host
@@ -73,6 +74,7 @@ class Message():
         self.actualUserName = self.splitMessage[0][1:self.splitMessage[0].find("!")].lower()
         self.target = self.splitMessage[2].lower()
         self.cmd = self.splitMessage[3].lower()
+        self.allArgs = self.splitMessage[4:]
         self.arg1 = self.splitMessage[4].lower()
         self.arg2 = self.splitMessage[5].lower()
         self.arg3 = self.splitMessage[6].lower()
