@@ -20,8 +20,11 @@ userInfo, IRC user info for who sent the message, eg: :username!~username
 actualUserName, an attempt to grab out the username from userInfo, should grab everything between the : and !
 target, context this was sent to, either room name or user for PM's
 cmd, this is the first word typed in the chat, typically this would be what command a user wants to run.  This is what Legobot will use to check against the calling parameters.
+
 arg1, second word typed
+
 arg2, third word typed
+
 arg3, fourth word typed
 
 If any of the above parameters do not exist, the value will contain None.
@@ -29,8 +32,11 @@ If any of the above parameters do not exist, the value will contain None.
 ##Instantiating legoBot
 ###Required Parameters:
 host, type string, server IP or FQDN eg: irc.example.com
+
 port, type integer, port server is listening on
+
 nick, type string, value you wish to use for the bot's nickname
+
 room, type list of strings, rooms that you wish to join, at least one room required
 
 ###Optional Parameter:

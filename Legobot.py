@@ -2,6 +2,7 @@ import sys
 import socket
 import select
 import string
+import ssl
 
 class legoBot():
   def __init__(self,host,port,nick,chans, logfunc = ""):
@@ -20,8 +21,13 @@ class legoBot():
     #merge a dictionary of functions into the existing function dictionary
     self.func.update(d)
   
-  def connect(self):
-    self.connection = socket.socket()
+  def connect(self, isSSL=False):
+    if isSSL:
+      sock=socket.socket()
+      self.connecton = ssl.wrap_socket(sock)
+    else:
+      self.connection = socket.socket()
+      
     self.connection.connect((self.host, self.port))
     self.connection.sendall("NICK %s\r\n" % self.nick)
     #TO DO: add functionality to create separate nick, realname, etc
