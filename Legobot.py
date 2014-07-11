@@ -4,11 +4,11 @@ import select
 import string
 
 class legoBot():
-  def __init__(self,host,port,nick,rooms, logfunc = ""):
+  def __init__(self,host,port,nick,chans, logfunc = ""):
     self.host = host
     self.port = port
     self.nick = nick
-    self.rooms = rooms
+    self.chans = chans
     self.logfunc = logfunc
     self.func = {}
   
@@ -26,7 +26,7 @@ class legoBot():
     self.connection.sendall("NICK %s\r\n" % self.nick)
     #TO DO: add functionality to create separate nick, realname, etc
     self.connection.sendall("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
-    for room in self.rooms:
+    for room in self.chans:
       self.connection.sendall("JOIN %s\r\n" % room)
     self.__listen()
   
