@@ -1,5 +1,8 @@
 #Legobot
 =======
+##Authors
+Bren Briggs and Kevin McCabe developed this IRC Bot framework starting in late 2013.
+
 ##Introduction
 Legobot is a python IRC bot framework.  The bot provides connectivity and the ability to listen and respond to users.
 
