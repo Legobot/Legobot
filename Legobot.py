@@ -4,6 +4,12 @@ import select
 import string
 import ssl
 
+__author__ = "Bren Briggs and Kevin McCabe"
+__copyright__ = "Copyright 2014"
+__license__ = "GPL"
+__version__ = "0.1"
+__status__ = "Development"
+
 class legoBot():
   def __init__(self,host,port,nick,chans, logfunc = ""):
     self.host = host

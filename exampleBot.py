@@ -1,6 +1,12 @@
 #!/bin/python
 import Legobot
 
+__author__ = "Bren Briggs and Kevin McCabe"
+__copyright__ = "Copyright 2014"
+__license__ = "GPL"
+__version__ = "0.1"
+__status__ = "Development"
+
 #All functions need to accept the message object as input
 
 #simple function that simply prints hello world when called
