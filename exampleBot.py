@@ -26,13 +26,16 @@ def myLogger(msgObj):
 
 def main():
     #parameters needed to allow bot to connect to IRC room:
-    host = "irc.sithmail.com"
+    host = "irc.cisco.com"
     port = 6667
-    nick = "mybot"
-    room = ["#social","#test"] #Must be list, even for one item
+    nick = "EvilMrCase"
+    room = ["#dcn-solutions","#dcn-test"] #Must be list, even for one item
+    #isSSL = True
 
     #create bot object
     myBot = Legobot.legoBot(host,port,nick,room,myLogger)
+
+    #to-do: test with SSL (OpenSSL and GnuTLS)
 
     #add the functions manually to the bot
     #first param is the trigger, second is the name of the function to run on match

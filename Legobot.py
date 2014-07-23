@@ -3,6 +3,8 @@ import socket
 import select
 import string
 import ssl
+import threading
+import Queue
 
 __author__ = "Bren Briggs and Kevin McCabe"
 __copyright__ = "Copyright 2014"
@@ -43,6 +45,7 @@ class legoBot():
     self.__listen()
   
   def sendMsg(self, msgToSend):
+    #msgtoSend must be str
     self.connection.sendall(msgToSend)
   
   def __listen(self):
@@ -98,25 +101,32 @@ class Message():
         logfunc(self)
         
       return self.reply(host, func, nick)
-        
+
+  def getReturnVal(self,q,func,nick):
+    returnVal, returnRoom = func[self.cmd[1:]](self)
+    if returnVal and returnRoom:
+      #respond to room/person that function told us to
+       q.put("PRIVMSG %s :%s\r\n" % (returnRoom, returnVal))
+      
+    elif returnVal and self.target.lower() == nick.lower():
+      #if no room/person and it's a PM, reply to a PM with a PM
+      q.put("PRIVMSG %s :%s\r\n" % (self.actualUserName, returnVal))
+      
+    elif returnVal and not returnRoom:
+      #if no room/person returned just respond back to same room
+      q.put("PRIVMSG %s :%s\r\n" % (self.target, returnVal))
+  
   def reply(self, host, func, nick):
     if self.splitMessage[0][0:4] == "PING":
       return "PONG :%s\r\n" % host
     
     if self.cmd:
       if self.cmd[1:] in func:
-        returnVal, returnRoom = func[self.cmd[1:]](self)
-        if returnVal and returnRoom:
-          #respond to room/person that function told us to
-          return "PRIVMSG %s :%s\r\n" % (returnRoom, returnVal)
-          
-        elif returnVal and self.target.lower() == nick.lower():
-          #if no room/person and it's a PM, reply to a PM with a PM
-          return "PRIVMSG %s :%s\r\n" % (self.actualUserName, returnVal)
-          
-        elif returnVal and not returnRoom:
-          #if no room/person returned just respond back to same room
-          return "PRIVMSG %s :%s\r\n" % (self.target, returnVal)
+        q = Queue.Queue()
+        t = threading.Thread(target=self.getReturnVal, args=(q,func,nick))
+        t.start()
+        s = q.get()
+        return s
 
   def __len__(self):
     return self.length
