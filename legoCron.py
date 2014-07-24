@@ -11,58 +11,58 @@ allMatch = AllMatch()
 
 def conv_to_set(obj, divisibleVal):  # Allow single integer to be provided
   #obj should come in as a string
-  #try:
+  try:
     
-  # * means match on everything ########################################
-  if obj == "*":
-    return allMatch
+    # * means match on everything ########################################
+    if obj == "*":
+      return allMatch
   
-  # just an int ########################################################
-  if fIsNum(obj):
-    if int(obj) > divisibleVal -1:
-      return False
-    return int(obj)
+    # just an int ########################################################
+    if fIsNum(obj):
+      if int(obj) > divisibleVal -1:
+        return False
+      return int(obj)
     
-  # slash option #######################################################
-  if "/" in obj:
-    #allow slash notation
-    divisor = obj[obj.find("/")+1:]
+    # slash option #######################################################
+    if "/" in obj:
+      #allow slash notation
+      divisor = obj[obj.find("/")+1:]
   
-    if fIsNum(divisor):
-      return [x for x in range(divisibleVal) if x % int(divisor) == 0]
+      if fIsNum(divisor):
+        return [x for x in range(divisibleVal) if x % int(divisor) == 0]
     
-    else:
-      return False
-
-  # already a set #####################################################
-  if isinstance(obj, set):
-    return set(obj)
-
-  # iterate and change all ranges to a list eg: 1-3 becomes 1,2,3 #####
-  if obj.find(",") != -1 or obj.find("-") != -1:
-    tempList = obj.split(",")
-    finalList = []
-    for itm in tempList:
-      if re.search(r"(\d+)-(\d+)", itm):
-        matchObj = re.search(r"(\d+)-(\d+)", itm)
-        beginNum = matchObj.group(1)
-        endNum = matchObj.group(2)
-        lst = range(int(beginNum), int(endNum) + 1)
-        finalList.extend(lst)
-      elif fIsNum(itm):
-        finalList.append(int(itm))
       else:
         return False
+
+    # already a set #####################################################
+    if isinstance(obj, set):
+      return set(obj)
+
+    # iterate and change all ranges to a list eg: 1-3 becomes 1,2,3 #####
+    if obj.find(",") != -1 or obj.find("-") != -1:
+      tempList = obj.split(",")
+      finalList = []
+      for itm in tempList:
+        if re.search(r"(\d+)-(\d+)", itm):
+          matchObj = re.search(r"(\d+)-(\d+)", itm)
+          beginNum = matchObj.group(1)
+          endNum = matchObj.group(2)
+          lst = range(int(beginNum), int(endNum) + 1)
+          finalList.extend(lst)
+        elif fIsNum(itm):
+          finalList.append(int(itm))
+        else:
+          return False
     
-    #check if values are too big/small
-    badList = [x for x in finalList if x > divisibleVal -1]
-    if len(badList) != 0:
-      return False
+      #check if values are too big/small
+      badList = [x for x in finalList if x > divisibleVal -1]
+      if len(badList) != 0:
+        return False
     
-    return finalList
+      return finalList
      
-  #except:
-  return False
+  except:
+    return False
   
 # The actual Event class
 class Event(object):
