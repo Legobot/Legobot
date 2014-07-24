@@ -38,6 +38,8 @@ class legoBot():
     self.logfunc = logfunc
     self.func = {}
     self.timerFunc = []
+    self.threadQueue = None
+    self.threadList = []
   
   def addTimerFunc(self, function, interval):
     self.timerFunc.append(timerFunc(function, interval))
@@ -70,6 +72,7 @@ class legoBot():
     self.connection.sendall(msgToSend)
   
   def __listen(self):
+    self.threadQueue = Queue.Queue()
     while 1:
       for func in self.timerFunc:
         timerReply = func.runIfNeeded()
@@ -87,9 +90,13 @@ class legoBot():
           if len(line.strip(' \t\n\r')) == 0:
             continue
           msg = Message(line)
-          reply = msg.read(self.host, self.func, self.nick, self.logfunc)
-          if reply:
-            self.connection.sendall(reply)
+          self.threadList.append(threading.Thread(target= msg.read, args = (self.host, self.func, self.nick, self.logfunc, self.threadQueue)))
+          self.threadList[-1].start()
+      
+      if not self.threadQueue.empty():
+        response = self.threadQueue.get(block=False)
+        if response:
+          self.connection.sendall(response)
       time.sleep(0.5)
 
 class Message():
@@ -105,11 +112,13 @@ class Message():
     self.arg3 = None
     self.allArgs = None
       
-  def read(self,host, func, nick, logfunc):
+  def read(self,host, func, nick, logfunc, threadQueue):
     self.host = host
     if self.splitMessage[0][0:4] == "PING":
-      return self.reply(host, {}, nick)
-      
+      tempReply = self.reply(host, {}, nick)
+      if tempReply:
+        threadQueue.put(tempReply)
+        
     else:
       try:
         self.userInfo = self.splitMessage[0].lower()
@@ -126,22 +135,23 @@ class Message():
       if logfunc:
         #pass line to our logging function
         logfunc(self)
-        
-      return self.reply(host, func, nick)
+      
+      replyVal = self.reply(host, func, nick)
+      threadQueue.put(replyVal)
 
-  def getReturnVal(self,q,func,nick):
+  def getReturnVal(self,func,nick):
     returnVal, returnRoom = func[self.cmd[1:]](self)
     if returnVal and returnRoom:
       #respond to room/person that function told us to
-       q.put("PRIVMSG %s :%s\r\n" % (returnRoom, returnVal))
+      return "PRIVMSG %s :%s\r\n" % (returnRoom, returnVal)
       
     elif returnVal and self.target.lower() == nick.lower():
       #if no room/person and it's a PM, reply to a PM with a PM
-      q.put("PRIVMSG %s :%s\r\n" % (self.actualUserName, returnVal))
+      return "PRIVMSG %s :%s\r\n" % (self.actualUserName, returnVal)
       
     elif returnVal and not returnRoom:
       #if no room/person returned just respond back to same room
-      q.put("PRIVMSG %s :%s\r\n" % (self.target, returnVal))
+      return "PRIVMSG %s :%s\r\n" % (self.target, returnVal)
   
   def reply(self, host, func, nick):
     if self.splitMessage[0][0:4] == "PING":
@@ -149,11 +159,8 @@ class Message():
     
     if self.cmd:
       if self.cmd[1:] in func:
-        q = Queue.Queue()
-        t = threading.Thread(target=self.getReturnVal, args=(q,func,nick))
-        t.start()
-        s = q.get()
-        return s
+        val = self.getReturnVal(func, nick)
+        return val
 
   def __len__(self):
     return self.length

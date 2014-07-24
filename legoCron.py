@@ -6,6 +6,11 @@ import re
 class AllMatch(set):
   """Universal set - match everything"""
   def __contains__(self, item): return True
+  
+  def __bool__(self):
+    return True
+  
+  __nonzero__=__bool__
 
 allMatch = AllMatch()
 
@@ -21,7 +26,7 @@ def conv_to_set(obj, divisibleVal):  # Allow single integer to be provided
     if fIsNum(obj):
       if int(obj) > divisibleVal -1:
         return False
-      return int(obj)
+      return list([int(obj)])
     
     # slash option #######################################################
     if "/" in obj:
@@ -62,31 +67,63 @@ def conv_to_set(obj, divisibleVal):  # Allow single integer to be provided
       return finalList
      
   except:
+    print "HIT ERROR!"
     return False
   
 # The actual Event class
 class Event(object):
   def __init__(self, func, min=allMatch, hour=allMatch, 
-               day=allMatch, month=allMatch, dow=allMatch):
+               day=allMatch, month=allMatch, dow=allMatch, sec=allMatch):
              
     self.mins = conv_to_set(min, 60)
-    self.hours= conv_to_set(hour, 60)
+    self.hours= conv_to_set(hour, 24)
     self.days = conv_to_set(day, 31)
     self.months = conv_to_set(month, 31)
     self.dow = conv_to_set(dow, 7)
+    self.sec = conv_to_set(sec, 60)
     self.func = func
+    
+    if not(self.mins and self.hours and self.days and self.months and self.dow and self.sec):
+      self.goodCron = False
+    else:
+      self.goodCron = True
+      
+    self.lastRun = datetime.fromordinal(1)
 
-  def matchtime(self, t):
+  def __matchtime__(self, t):
     """Return True if this event should trigger at the specified datetime"""
-    return ((t.minute   in self.mins) and
-           (t.hour     in self.hours) and
-           (t.day    in self.days) and
-           (t.month    in self.months) and
-           (t.weekday()  in self.dow))
+    if not self.goodCron:
+      #never run if we don't have good cron variables
+      return False
+    
+    if not self.__runAlready__(t):
+      return ((t.minute   in self.mins) and
+             (t.hour     in self.hours) and
+             (t.day    in self.days) and
+             (t.month    in self.months) and
+             (t.weekday()  in self.dow) and
+             (t.second in self.sec))
+    else:
+      return False
+           
+  def __runAlready__(self, t):
+    """check to see if it has been triggered this second"""
+    lr = self.lastRun
+      
+    if (lr.minute == t.minute and
+        lr.hour == t.hour and
+        lr.day == t.day and
+        lr.month == t.month and
+        lr.weekday() == t.weekday() and
+        lr.second == t.second):
+      return True
+    else:
+      return False
 
   def check(self, t):
-    if self.matchtime(t):
-      self.action()
+    if self.__matchtime__(t):
+      self.lastRun = t
+      self.func()
 
 def fIsNum(val):
   """
@@ -110,3 +147,12 @@ def fIsNum(val):
     return True
   except:
     return False
+    
+def printTest():
+  print "%s Test" % str(datetime.now())
+
+if __name__ == '__main__':
+  testCron = Event(printTest, min = "*", hour = "*", day = "*", month="*", dow="*", sec = "1,5,10,30")
+  print testCron.goodCron
+  while True:
+    testCron.check(datetime.now())

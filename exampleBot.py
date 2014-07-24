@@ -1,5 +1,6 @@
 #!/bin/python
 import Legobot
+import time
 
 __author__ = "Bren Briggs and Kevin McCabe"
 __copyright__ = "Copyright 2014"
@@ -24,12 +25,17 @@ def myLogger(msgObj):
     #print "line from IRC: %s" % msgClass.splitMessage
     pass
 
+
+def test(msgObj):
+    time.sleep(5)
+    return "testing long wait", ""
+
 def main():
     #parameters needed to allow bot to connect to IRC room:
     host = "irc.cisco.com"
     port = 6667
     nick = "EvilMrCase"
-    room = ["#dcn-solutions","#dcn-test"] #Must be list, even for one item
+    room = ["#dcn-dev"] #Must be list, even for one item
     #isSSL = True
 
     #create bot object
@@ -39,7 +45,7 @@ def main():
 
     #add the functions manually to the bot
     #first param is the trigger, second is the name of the function to run on match
-    myBot.addFunc("!hello", example)
+    myBot.addFunc("!hello", test)
     myBot.addFunc("!test", example2)
 
     #have bot connect to IRC server and log into room(s) specified
