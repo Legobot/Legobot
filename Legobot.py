@@ -12,8 +12,8 @@ import legoCron
 __author__ = "Bren Briggs and Kevin McCabe"
 __copyright__ = "Copyright 2014"
 __license__ = "GPL"
-__version__ = "0.1"
-__status__ = "Development"
+#__version__ = "0.1"
+__status__ = "Beta"
 
 class timerFunc():
   def __init__(self, func, interval = -1, timeOfDay=None):
