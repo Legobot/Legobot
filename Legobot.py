@@ -5,6 +5,9 @@ import string
 import ssl
 import threading
 import Queue
+import datetime
+import time
+import legoCron
 
 __author__ = "Bren Briggs and Kevin McCabe"
 __copyright__ = "Copyright 2014"
@@ -12,6 +15,20 @@ __license__ = "GPL"
 #__version__ = "0.1"
 __status__ = "Beta"
 
+class timerFunc():
+  def __init__(self, func, interval = -1, timeOfDay=None):
+    self.func = func
+    self.interval = interval
+    self.lastRun = datetime.datetime.fromordinal(1)
+    self.timeOfDay = timeOfDay
+
+  def runIfNeeded(self):
+    if (datetime.datetime.now() - self.lastRun).total_seconds() > self.interval and self.interval != -1:
+      #run
+      self.func()
+      self.lastRun = datetime.datetime.now()
+    
+    
 class legoBot():
   def __init__(self,host,port,nick,chans, logfunc = ""):
     self.host = host
@@ -20,6 +37,10 @@ class legoBot():
     self.chans = chans
     self.logfunc = logfunc
     self.func = {}
+    self.timerFunc = []
+  
+  def addTimerFunc(self, function, interval):
+    self.timerFunc.append(timerFunc(function, interval))
   
   def addFunc(self, name, function):
     #name should be str, function should be a function object (as in a function without the parens)
@@ -50,6 +71,11 @@ class legoBot():
   
   def __listen(self):
     while 1:
+      for func in self.timerFunc:
+        timerReply = func.runIfNeeded()
+        if timerReply:
+          self.connection.sendall(timerReply)
+        
       if select.select([self.connection],[],[],1.0)[0]:
         readbuffer = self.connection.recv(1024)
         print readbuffer
@@ -64,6 +90,7 @@ class legoBot():
           reply = msg.read(self.host, self.func, self.nick, self.logfunc)
           if reply:
             self.connection.sendall(reply)
+      time.sleep(0.5)
 
 class Message():
   def __init__(self, message):
