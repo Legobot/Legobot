@@ -37,12 +37,12 @@ class legoBot():
     self.chans = chans
     self.logfunc = logfunc
     self.func = {}
-    self.timerFunc = []
+    self.timerFuncList = []
     self.threadQueue = None
     self.threadList = []
   
-  def addTimerFunc(self, function, interval):
-    self.timerFunc.append(timerFunc(function, interval))
+  def addTimerFunc(self, function, min = "*", hour = "*", day = "*", month="*", dow="*", sec = "*"):
+    self.timerFuncList.append(legoCron.Event(function, min, hour, day, month, dow, sec))
   
   def addFunc(self, name, function):
     #name should be str, function should be a function object (as in a function without the parens)
@@ -72,32 +72,45 @@ class legoBot():
     self.connection.sendall(msgToSend)
   
   def __listen(self):
+    #initiate queue to read off of
     self.threadQueue = Queue.Queue()
-    while 1:
-      for func in self.timerFunc:
-        timerReply = func.runIfNeeded()
-        if timerReply:
-          self.connection.sendall(timerReply)
-        
+    
+    #spin up threads for timerFuncs
+    for timerFunc in self.timerFuncList:
+      self.threadList.append(threading.Thread(target=timerDaemon, args=(timerFunc, self.threadQueue)))
+      self.threadList[-1].daemon = True
+      self.threadList[-1].start()
+      
+    while True:
+      print "ran while"
       if select.select([self.connection],[],[],1.0)[0]:
         readbuffer = self.connection.recv(1024)
         print readbuffer
         #split into lines
         temp = string.split(readbuffer, "\n")
-        
+    
         #iterate through any lines received
         for line in temp:
           if len(line.strip(' \t\n\r')) == 0:
             continue
           msg = Message(line)
           self.threadList.append(threading.Thread(target= msg.read, args = (self.host, self.func, self.nick, self.logfunc, self.threadQueue)))
+          self.threadList[-1].daemon = True
           self.threadList[-1].start()
-      
+  
       if not self.threadQueue.empty():
         response = self.threadQueue.get(block=False)
         if response:
           self.connection.sendall(response)
       time.sleep(0.5)
+
+def timerDaemon(func, q):
+  while True:
+    tempVal = func.check(datetime.datetime.now())
+    if tempVal:
+      q.put("PRIVMSG %s :%s\r\n" % ("#dcn-dev", tempVal))
+    time.sleep(0.5)
+
 
 class Message():
   def __init__(self, message):

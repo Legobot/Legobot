@@ -1,6 +1,7 @@
 #!/bin/python
 import Legobot
 import time
+import sys
 
 __author__ = "Bren Briggs and Kevin McCabe"
 __copyright__ = "Copyright 2014"
@@ -30,6 +31,9 @@ def test(msgObj):
     time.sleep(5)
     return "testing long wait", ""
 
+def myTimerFunc():
+    return "testing hello world"
+
 def main():
     #parameters needed to allow bot to connect to IRC room:
     host = "irc.cisco.com"
@@ -47,8 +51,10 @@ def main():
     #first param is the trigger, second is the name of the function to run on match
     myBot.addFunc("!hello", test)
     myBot.addFunc("!test", example2)
-
+    myBot.addTimerFunc(myTimerFunc, sec = "*/20")
+    
     #have bot connect to IRC server and log into room(s) specified
     myBot.connect()
+
 if __name__ == '__main__':
     main()

@@ -123,7 +123,7 @@ class Event(object):
   def check(self, t):
     if self.__matchtime__(t):
       self.lastRun = t
-      self.func()
+      return self.func()
 
 def fIsNum(val):
   """
