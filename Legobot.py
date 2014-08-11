@@ -30,8 +30,9 @@ class timerFunc():
     
     
 class legoBot():
-  def __init__(self,host,port,nick,chans, logfunc = ""):
+  def __init__(self,host,port,nick,chans, logfunc = "", hostpw = ""):
     self.host = host
+    self.hostpw = hostpw
     self.port = port
     self.nick = nick
     self.chans = chans
@@ -60,11 +61,16 @@ class legoBot():
       self.connection = socket.socket()
       
     self.connection.connect((self.host, self.port))
+    if self.hostpw:
+      self.connection.sendall("PASS %s\r\n" % self.hostpw)
     self.connection.sendall("NICK %s\r\n" % self.nick)
     #TO DO: add functionality to create separate nick, realname, etc
     self.connection.sendall("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
-    for room in self.chans:
-      self.connection.sendall("JOIN %s\r\n" % room)
+    for room, pw in self.chans:
+      if pw:
+        self.connection.sendall("JOIN %s %s\r\n" % room, pw)
+      else:
+        self.connection.sendall("JOIN %s\r\n" % room)
     self.__listen()
   
   def sendMsg(self, msgToSend):
