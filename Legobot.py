@@ -8,6 +8,7 @@ import Queue
 import datetime
 import time
 import legoCron
+import random
 
 __author__ = "Bren Briggs and Kevin McCabe"
 __copyright__ = "Copyright 2014"
@@ -28,7 +29,12 @@ class timerFunc():
       self.func()
       self.lastRun = datetime.datetime.now()
     
-    
+class randTimerFunc():
+  def __init__(self, func, randMin, randMax):
+    self.func = func
+    self.randMin = randMin
+    self.randMax = randMax
+
 class legoBot():
   def __init__(self,host,port,nick,chans, logfunc = "", hostpw = ""):
     self.host = host
@@ -39,6 +45,7 @@ class legoBot():
     self.logfunc = logfunc
     self.func = {}
     self.timerFuncList = []
+    self.randTimerFuncList = []
     self.threadQueue = None
     self.threadList = []
   
@@ -49,6 +56,9 @@ class legoBot():
     #name should be str, function should be a function object (as in a function without the parens)
     self.func[name] = function
   
+  def addRandTimerFunc(self, func, randMin, randMax):
+    self.randTimerFuncList.append(randTimerFunc(func, randMin, randMax))
+  
   def batchAddFunc(self, d):
     #merge a dictionary of functions into the existing function dictionary
     self.func.update(d)
@@ -56,22 +66,26 @@ class legoBot():
   def connect(self, isSSL=False):
     if isSSL:
       sock=socket.socket()
-      self.connecton = ssl.wrap_socket(sock)
+      self.connection = ssl.wrap_socket(sock)
     else:
       self.connection = socket.socket()
-      
-    self.connection.connect((self.host, self.port))
+    
+    self.connection.connect((self.host, self.port))    
     if self.hostpw:
       self.connection.sendall("PASS %s\r\n" % self.hostpw)
+      
     self.connection.sendall("NICK %s\r\n" % self.nick)
+    
     #TO DO: add functionality to create separate nick, realname, etc
     self.connection.sendall("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
+    
     for room, pw in self.chans:
       if pw:
         self.connection.sendall("JOIN %s %s\r\n" % room, pw)
       else:
         self.connection.sendall("JOIN %s\r\n" % room)
     self.__listen()
+
   
   def sendMsg(self, msgToSend):
     #msgtoSend must be str
@@ -83,15 +97,19 @@ class legoBot():
     
     #spin up threads for timerFuncs
     for timerFunc in self.timerFuncList:
-      self.threadList.append(threading.Thread(target=timerDaemon, args=(timerFunc, self.threadQueue)))
+      self.threadList.append(threading.Thread(target=timerDaemon, args=(timerFunc, self.threadQueue, self.chans)))
       self.threadList[-1].daemon = True
       self.threadList[-1].start()
-      
+    
+    #spin up threads for random timer funcs
+    for randTimerFunc in self.randTimerFuncList:
+      self.threadList.append(threading.Thread(target=randTimerDaemon, args=(randTimerFunc.func, self.threadQueue, randTimerFunc.randMin, randTimerFunc.randMax, self.chans)))
+      self.threadList[-1].daemon = True
+      self.threadList[-1].start()
+    
     while True:
-      print "ran while"
       if select.select([self.connection],[],[],1.0)[0]:
         readbuffer = self.connection.recv(1024)
-        print readbuffer
         #split into lines
         temp = string.split(readbuffer, "\n")
     
@@ -103,20 +121,38 @@ class legoBot():
           self.threadList.append(threading.Thread(target= msg.read, args = (self.host, self.func, self.nick, self.logfunc, self.threadQueue)))
           self.threadList[-1].daemon = True
           self.threadList[-1].start()
-  
-      if not self.threadQueue.empty():
+      
+      while not self.threadQueue.empty():
         response = self.threadQueue.get(block=False)
         if response:
           self.connection.sendall(response)
       time.sleep(0.5)
 
-def timerDaemon(func, q):
+def timerDaemon(func, q, rooms):
   while True:
     tempVal = func.check(datetime.datetime.now())
     if tempVal:
-      q.put("PRIVMSG %s :%s\r\n" % ("#dcn-dev", tempVal))
+      for room in rooms:
+        q.put("PRIVMSG %s :%s\r\n" % (room[0], tempVal))
     time.sleep(0.5)
 
+def randTimerDaemon(func, q, randMin, randMax, rooms):
+  #set random timer
+  lastRan = datetime.datetime.now()
+  randTimer = random.randrange(randMin, randMax)
+  while True:
+    #get diff in now and last ran, run if it's greater than randTimer
+    if (datetime.datetime.now() - lastRan).total_seconds() > randTimer:
+      #run the function
+      returnVal = func()
+      for room in rooms:
+        q.put("PRIVMSG %s :%s\r\n" % (room[0], returnVal))
+      
+      #set lastRan
+      lastRan = datetime.datetime.now()
+      
+      #regenerate random timer
+      randTimer = random.randrange(randMin, randMax)
 
 class Message():
   def __init__(self, message):
@@ -156,7 +192,9 @@ class Message():
         logfunc(self)
       
       replyVal = self.reply(host, func, nick)
-      threadQueue.put(replyVal)
+      
+      if replyVal:
+        threadQueue.put(replyVal)
 
   def getReturnVal(self,func,nick):
     returnVal, returnRoom = func[self.cmd[1:]](self)
