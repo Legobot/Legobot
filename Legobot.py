@@ -91,15 +91,19 @@ class legoBot():
       self.connection.sendall("PASS %s\r\n" % self.hostpw)
       
     self.connection.sendall("NICK %s\r\n" % self.nick)
+    print "sending: " + "NICK %s\r\n" % self.nick
     
     #TO DO: add functionality to create separate nick, realname, etc
     self.connection.sendall("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
+    print "sending: " + "USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick)
     
+    time.sleep(1)
     for room, pw in self.chans:
       if pw:
         self.connection.sendall("JOIN %s %s\r\n" % room, pw)
       else:
         self.connection.sendall("JOIN %s\r\n" % room)
+        print "sending: " + "JOIN %s\r\n" % room
     self.__listen()
 
   
@@ -131,6 +135,7 @@ class legoBot():
     
         #iterate through any lines received
         for line in temp:
+          print "Read in line: " + line
           if len(line.strip(' \t\n\r')) == 0:
             continue
           msg = Message(line)
