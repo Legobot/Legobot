@@ -16,6 +16,7 @@ __license__ = "GPL"
 #__version__ = "0.1"
 __status__ = "Beta"
 
+
 class timerFunc():
   def __init__(self, func, interval = -1, timeOfDay=None):
     self.func = func
@@ -48,13 +49,28 @@ class legoBot():
     self.randTimerFuncList = []
     self.threadQueue = None
     self.threadList = []
+    self.funcHelp = {}
+    
+    #add in default help function
+    self.addFunc("!help", self.defaultHelp, "Function used to display help, this default help value can be overridden with a custom function")
+    
+  def defaultHelp(self, msgObj):
+    if not msgObj.arg1:
+      return "Available functions: %s" % ", ".join(sorted(self.func.keys()))
+    
+    try:
+      helpText = self.funcHelp[msgObj.arg1]
+      return helpText
+    except:
+      return "couldn't find help text"
   
   def addTimerFunc(self, function, min = "*", hour = "*", day = "*", month="*", dow="*", sec = "*"):
     self.timerFuncList.append(legoCron.Event(function, min, hour, day, month, dow, sec))
   
-  def addFunc(self, name, function):
+  def addFunc(self, name, function, helpText = ""):
     #name should be str, function should be a function object (as in a function without the parens)
     self.func[name] = function
+    self.funcHelp[name] = helpText
   
   def addRandTimerFunc(self, func, randMin, randMax):
     self.randTimerFuncList.append(randTimerFunc(func, randMin, randMax))
@@ -173,6 +189,7 @@ class Message():
       tempReply = self.reply(host, {}, nick)
       if tempReply:
         threadQueue.put(tempReply)
+        return
         
     else:
       try:
@@ -197,7 +214,14 @@ class Message():
         threadQueue.put(replyVal)
 
   def getReturnVal(self,func,nick):
-    returnVal, returnRoom = func[self.cmd[1:]](self)
+    tempVal = func[self.cmd[1:]](self)
+    if isinstance(tempVal, tuple):
+      returnVal, returnRoom = tempVal
+    else:
+      #we weren't passed a tuple back, assume the user only passed back something to the room which it was sent from
+      returnRoom = ""
+      returnVal = tempVal
+      
     if returnVal and returnRoom:
       #respond to room/person that function told us to
       return "PRIVMSG %s :%s\r\n" % (returnRoom, returnVal)

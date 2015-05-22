@@ -51,12 +51,12 @@ def myTimerFunc():
 
 def main():
     #parameters needed to allow bot to connect to IRC room:
-    host = "irc.cisco.com"    #hostname we want to connect to, must be resolvable
+    host = "dcns.cisco.com"    #hostname we want to connect to, must be resolvable
     hostpw = ""               #password for IRC server if needed
-    port = 6667               #port to connect on, standard IRC is typically 6667, SSL IRC is 6697
+    port = 6697               #port to connect on, standard IRC is typically 6667, SSL IRC is 6697
     nick = "testBot"          #nick for bot
     room = [("#dcn-dev","")]  #Rooms we wish the bot to join, Must be a list of tuples, even for one item.  tuple has items ("roomname","roompw") if you don't have a password, just pass a blank string
-    isSSL = False             #whether or not the bot will be connecting via SSL
+    isSSL = True             #whether or not the bot will be connecting via SSL
 
     #create bot object, note the logging function option and hostpw are optional
     myBot = Legobot.legoBot(host, port, nick, room, myLogger, hostpw)
@@ -64,8 +64,8 @@ def main():
     #add functions manually to the bot
     
     #for addFunc, the first param is the trigger, second is the name of the function to run on match
-    myBot.addFunc("!hello", test)
-    myBot.addFunc("!test", example2)
+    myBot.addFunc("!hello", test, "This is a test function, it will sleep for 5 seconds and then return some text, takes no args. Usage !test")
+    myBot.addFunc("!test", example2, "This is a hello world function and takes no args. Usage: !hello")
     
     #add in a bot that will run every 20 seconds, this func takes cron like options
     myBot.addTimerFunc(myTimerFunc, sec = "*/20")
@@ -74,7 +74,7 @@ def main():
     myBot.addRandTimerFunc(myRandomTimer, 60, 1800)
     
     #have bot connect to IRC server and log into room(s) specified
-    myBot.connect()
+    myBot.connect(isSSL)
 
 if __name__ == '__main__':
     main()
