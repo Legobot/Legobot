@@ -180,6 +180,7 @@ class Message():
     self.splitMessage = message.strip("\r").split(" ",7)
     self.length = len(self.splitMessage)
     self.userInfo = None
+    self.nick = None
     self.actualUserName = None
     self.target = None
     self.cmd = None
@@ -199,6 +200,7 @@ class Message():
     else:
       try:
         self.userInfo = self.splitMessage[0].lower()
+        self.nick = self.userInfo.split("!")[0][1:]
         self.actualUserName = self.splitMessage[0][1:self.splitMessage[0].find("!")].lower()
         self.target = self.splitMessage[2].lower()
         self.cmd = self.splitMessage[3].lower()
