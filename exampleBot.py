@@ -51,12 +51,12 @@ def myTimerFunc():
 
 def main():
     #parameters needed to allow bot to connect to IRC room:
-    host = "irc.example.com"    #hostname we want to connect to, must be resolvable
+    host = "dcns.cisco.com"    #hostname we want to connect to, must be resolvable
     hostpw = ""                 #password for IRC server if needed
-    port = 6667                 #port to connect on, standard IRC is typically 6667, SSL IRC is 6697
+    port = 6697                 #port to connect on, standard IRC is typically 6667, SSL IRC is 6697
     nick = "examplebot"         #nick for bot
-    room = [("#example","")]    #Rooms we wish the bot to join, Must be a list of tuples, even for one item.  tuple has items ("roomname","roompw") if you don't have a password, just pass a blank string
-    isSSL = False               #whether or not the bot will be connecting via SSL
+    room = [("#dcn-test","")]    #Rooms we wish the bot to join, Must be a list of tuples, even for one item.  tuple has items ("roomname","roompw") if you don't have a password, just pass a blank string
+    isSSL = True               #whether or not the bot will be connecting via SSL
 
     #create bot object, note the logging function option and hostpw are optional
     myBot = Legobot.legoBot(host, port, nick, room, myLogger, hostpw)

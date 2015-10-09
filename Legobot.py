@@ -1,4 +1,3 @@
-import sys
 import socket
 import select
 import string
@@ -18,11 +17,12 @@ __status__ = "Beta"
 
 
 class timerFunc():
-  def __init__(self, func, interval = -1, timeOfDay=None):
+  def __init__(self, func, interval = -1, timeOfDay=None, chans = []):
     self.func = func
     self.interval = interval
     self.lastRun = datetime.datetime.fromordinal(1)
     self.timeOfDay = timeOfDay
+    self.chans = chans
 
   def runIfNeeded(self):
     if (datetime.datetime.now() - self.lastRun).total_seconds() > self.interval and self.interval != -1:
@@ -37,7 +37,7 @@ class randTimerFunc():
     self.randMax = randMax
 
 class legoBot():
-  def __init__(self,host,port,nick,chans, logfunc = "", hostpw = ""):
+  def __init__(self,host,port,nick,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = ""):
     self.host = host
     self.hostpw = hostpw
     self.port = port
@@ -50,6 +50,8 @@ class legoBot():
     self.threadQueue = None
     self.threadList = []
     self.funcHelp = {}
+    self.defaultFunc = defaultFunc
+    self.defaultFuncChar = defaultFuncChar
     
     #add in default help function
     self.addFunc("!help", self.defaultHelp, "Function used to display help, this default help value can be overridden with a custom function")
@@ -66,6 +68,12 @@ class legoBot():
   
   def addTimerFunc(self, function, min = "*", hour = "*", day = "*", month="*", dow="*", sec = "*"):
     self.timerFuncList.append(legoCron.Event(function, min, hour, day, month, dow, sec))
+  
+  def addDefaultFunc(self, func, char):
+    #adds a func to run whenever char is seen as the first character if we don't match any
+    #other function
+    self.defaultFunc = func
+    self.defaultFuncChar = char
   
   def addFunc(self, name, function, helpText = ""):
     #name should be str, function should be a function object (as in a function without the parens)
@@ -135,18 +143,22 @@ class legoBot():
     
         #iterate through any lines received
         for line in temp:
-          print "Read in line: " + line
           if len(line.strip(' \t\n\r')) == 0:
             continue
+          print "Read in line: " + line
           msg = Message(line)
-          self.threadList.append(threading.Thread(target= msg.read, args = (self.host, self.func, self.nick, self.logfunc, self.threadQueue)))
+          self.threadList.append(threading.Thread(target= msg.read, args = (self.host, self.func, self.nick, self.logfunc, self.threadQueue, self.defaultFunc, self.defaultFuncChar)))
           self.threadList[-1].daemon = True
           self.threadList[-1].start()
       
       while not self.threadQueue.empty():
         response = self.threadQueue.get(block=False)
         if response:
-          self.connection.sendall(response)
+          try:
+            self.connection.sendall(response)
+          except:
+            print "Hit error with response: %s" % str(response)
+            raise
       time.sleep(0.5)
 
 def timerDaemon(func, q, rooms):
@@ -154,7 +166,11 @@ def timerDaemon(func, q, rooms):
     tempVal = func.check(datetime.datetime.now())
     if tempVal:
       for room in rooms:
-        q.put("PRIVMSG %s :%s\r\n" % (room[0], tempVal))
+        if isinstance(tempVal, list):
+          for itm in tempVal:
+            q.put("PRIVMSG %s :%s\r\n" % (room[0], itm))
+        else:
+          q.put("PRIVMSG %s :%s\r\n" % (room[0], tempVal))
     time.sleep(0.5)
 
 def randTimerDaemon(func, q, randMin, randMax, rooms):
@@ -177,6 +193,7 @@ def randTimerDaemon(func, q, randMin, randMax, rooms):
 
 class Message():
   def __init__(self, message):
+    self.fullMessage = message
     self.splitMessage = message.strip("\r").split(" ",7)
     self.length = len(self.splitMessage)
     self.userInfo = None
@@ -188,17 +205,26 @@ class Message():
     self.arg2 = None
     self.arg3 = None
     self.allArgs = None
+    self.isPM = None
       
-  def read(self,host, func, nick, logfunc, threadQueue):
+  def read(self,host, func, nick, logfunc, threadQueue, defaultFunc, defaultFuncChar):
     self.host = host
     if self.splitMessage[0][0:4] == "PING":
-      tempReply = self.reply(host, {}, nick)
+      tempReply = self.reply(host, {}, nick, defaultFunc, defaultFuncChar)
       if tempReply:
         threadQueue.put(tempReply)
         return
         
     else:
       try:
+        
+        #check to see if this was a PM to us
+        if "privmsg %s" % nick in self.fullMessage:
+          self.isPM = True
+        else:
+          self.isPM = False
+        
+        #load message lines into self vars
         self.userInfo = self.splitMessage[0].lower()
         self.nick = self.userInfo.split("!")[0][1:]
         self.actualUserName = self.splitMessage[0][1:self.splitMessage[0].find("!")].lower()
@@ -209,16 +235,41 @@ class Message():
         self.arg2 = self.splitMessage[5].lower()
         self.arg3 = self.splitMessage[6].lower()
       except:
+        if len(self.splitMessage) >= 4:
+          if "!" in self.splitMessage[3]:
+            #raise
+            pass
         pass
       
       if logfunc:
         #pass line to our logging function
         logfunc(self)
       
-      replyVal = self.reply(host, func, nick)
-      
+      replyVal = self.reply(host, func, nick, defaultFunc, defaultFuncChar)
       if replyVal:
-        threadQueue.put(replyVal)
+        if isinstance(replyVal, list):
+          for itm in replyVal:
+            threadQueue.put(itm)
+        else:
+          
+          threadQueue.put(replyVal)
+  
+  def reply(self, host, func, nick, defaultFunc, defaultFuncChar):
+    if self.splitMessage[0][0:4] == "PING":
+      return "PONG :%s\r\n" % host
+    
+    if self.cmd:
+      if self.cmd[1:] in func:
+        val = self.getReturnVal(func, nick)
+        return val
+        
+      if len(self.cmd) >= 2:
+        if self.cmd[1] == defaultFuncChar:          
+          #hack to make this work
+          d = {self.cmd[1:]:defaultFunc}
+          
+          val = self.getReturnVal(d, nick)
+          return val
 
   def getReturnVal(self,func,nick):
     tempVal = func[self.cmd[1:]](self)
@@ -231,24 +282,31 @@ class Message():
       
     if returnVal and returnRoom:
       #respond to room/person that function told us to
+      if isinstance(returnVal, list):
+        returnList = []
+        for itm in returnVal:
+          returnList.append("PRIVMSG %s :%s\r\n" % (returnRoom, itm))
+        return returnList
       return "PRIVMSG %s :%s\r\n" % (returnRoom, returnVal)
       
     elif returnVal and self.target.lower() == nick.lower():
       #if no room/person and it's a PM, reply to a PM with a PM
+      if isinstance(returnVal, list):
+        returnList = []
+        for itm in returnVal:
+          returnList.append("PRIVMSG %s :%s\r\n" % (self.actualUserName, itm))
+        return returnList
       return "PRIVMSG %s :%s\r\n" % (self.actualUserName, returnVal)
       
     elif returnVal and not returnRoom:
       #if no room/person returned just respond back to same room
+      if isinstance(returnVal, list):
+        returnList = []
+        for itm in returnVal:
+          returnList.append("PRIVMSG %s :%s\r\n" % (self.target, itm))
+        return returnList
+      
       return "PRIVMSG %s :%s\r\n" % (self.target, returnVal)
-  
-  def reply(self, host, func, nick):
-    if self.splitMessage[0][0:4] == "PING":
-      return "PONG :%s\r\n" % host
-    
-    if self.cmd:
-      if self.cmd[1:] in func:
-        val = self.getReturnVal(func, nick)
-        return val
 
   def __len__(self):
     return self.length
