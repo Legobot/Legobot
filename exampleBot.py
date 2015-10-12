@@ -51,11 +51,11 @@ def myTimerFunc():
 
 def main():
     #parameters needed to allow bot to connect to IRC room:
-    host = "dcns.cisco.com"    #hostname we want to connect to, must be resolvable
+    host = "irc.sithmail.com"    #hostname we want to connect to, must be resolvable
     hostpw = ""                 #password for IRC server if needed
     port = 6697                 #port to connect on, standard IRC is typically 6667, SSL IRC is 6697
     nick = "examplebot"         #nick for bot
-    room = [("#dcn-test","")]    #Rooms we wish the bot to join, Must be a list of tuples, even for one item.  tuple has items ("roomname","roompw") if you don't have a password, just pass a blank string
+    room = [("#social","")]    #Rooms we wish the bot to join, Must be a list of tuples, even for one item.  tuple has items ("roomname","roompw") if you don't have a password, just pass a blank string
     isSSL = True               #whether or not the bot will be connecting via SSL
 
     #create bot object, note the logging function option and hostpw are optional
