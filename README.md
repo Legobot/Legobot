@@ -13,6 +13,10 @@
 ## Introduction
 Legobot is an API around IRC to make interactive bots easy to build. The bot provides connectivity and the ability to listen and respond to users. 
 
+## Installtion
+
+Just run `pip install Legobot`. You can also install and run this as a non-privileged user by using `pip install --user Legobot` instead (recommended).
+
 ## Usage
 
 Legobot is intended to be simple in usage, flexible, and allow the user to drive all functionality. Therefore it is a given that it doesn't do much on its own outside of managing the IRC connection and watching conversations. Any triggers and responses are yours to build. 
