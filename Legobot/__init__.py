@@ -9,13 +9,6 @@ import time
 import legoCron
 import random
 
-__author__ = "Bren Briggs and Kevin McCabe"
-__copyright__ = "Copyright 2016"
-__license__ = "GPLv2"
-#__version__ = "0.1"
-__status__ = "Beta"
-
-
 class timerFunc():
   def __init__(self, func, interval = -1, timeOfDay=None, chans = []):
     self.func = func
