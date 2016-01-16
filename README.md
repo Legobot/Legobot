@@ -11,14 +11,12 @@
 5. [Copyright](#copyright)
 
 ## Introduction
-Legobot is an API around IRC to make interactive bots easy to build. The bot provides connectivity and the ability to listen and respond to users. 
+Legobot is a platform which makes interactive IRC bots easy to build. The bot provides connectivity and the ability to listen and respond to users. The bot provides user functions a usable "message" object when needed, eliminating the need to parse raw IRC strings.
 
-## Installtion
-
+## Installation
 Just run `pip install Legobot`. You can also install and run this as a non-privileged user by using `pip install --user Legobot` instead (recommended).
 
 ## Usage
-
 Legobot is intended to be simple in usage, flexible, and allow the user to drive all functionality. Therefore it is a given that it doesn't do much on its own outside of managing the IRC connection and watching conversations. Any triggers and responses are yours to build. 
 
 Legobot's primary functionality centers around a few methods:
@@ -71,17 +69,19 @@ Congratulations, you just wrote an IRC bot!
 
 **host** _String._ IRC host to connect to.
 
-**port** _Int._ IRCd port to connect to.
+**port** _Int._ IRCd port to connect to (port IRC server is listening on).
 
 **nick** _String._ Nickname you want your bot to use. Also sets realname value in IRC. 
 
-**chans** _List._ This is actually a list of tuples in the form of (channel,channel_password). Example: [('#admins'),('supersecretpassword'),('#social','')]
+**chans** _List._ This is actually a list of tuples in the form of (channel,channel_password). Example: [('#admins','supersecretpassword'),('#social','')]
 
-**logfunc** _Function.__ Function object (without parens). Instead of writing output to stdout, send output from Legobot as input to logfunc. Implements a custom logging within Legobot. 
+**logfunc** _Function.__ Function object (without parens). logfunc is called with a msg objet for every line read in from irc. Essentially allowing a bot to log all conversations in the room. Can be useful for lookback bots.
 
 **hostpw** _String._ Password for the IRCd, if necessary.
 
 **defaultFunc** _Function.__ Function object (without parens). Supply a fallback function to trigger if your users ask for a function that doesn't exist. 
+
+**defaultFuncChar** _String._ Predicating character for which to call your default func.  Typically bots are written to respond to a special character, eg: exclamation point. The bot would be expected to respond to things like !help, !tip, etc. defaultFunc and defaultFuncChar allow us to respond to unknown calls, eg !blah would then run the default function if there was not a function specifically written for !blah.
 
 #### Legobot.addFunc()
 
