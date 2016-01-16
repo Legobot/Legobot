@@ -5,7 +5,7 @@
 1. [Usage](#usage)
 2. [API Details](#api-details)
     * [Legobot](#legobot-class)
-    * [The Message Object](#the-`Message()`-object-and-class)
+    * [The Message Object](#message)
 3. [How to contribute](#how-to-contribute)
 
 ## Introduction
@@ -109,7 +109,7 @@ Congratulations, you just wrote an IRC bot!
 
 **msgToSend** _String._ Line to send to IRC channel. 
 
-### The `Message()` object and class. 
+### Message 
 
 *Parameters:*
 
