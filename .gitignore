@@ -1,3 +1,5 @@
 test.py
 *.pyc
 .idea/
+Legobot/*.pyc
+Legobot.egg-info/

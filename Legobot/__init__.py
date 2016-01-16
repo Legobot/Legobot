@@ -10,8 +10,8 @@ import legoCron
 import random
 
 __author__ = "Bren Briggs and Kevin McCabe"
-__copyright__ = "Copyright 2014"
-__license__ = "GPL"
+__copyright__ = "Copyright 2016"
+__license__ = "GPLv2"
 #__version__ = "0.1"
 __status__ = "Beta"
 
@@ -70,7 +70,7 @@ class legoBot():
     self.timerFuncList.append(legoCron.Event(function, min, hour, day, month, dow, sec))
   
   def addDefaultFunc(self, func, char):
-    #adds a func to run whenever char is seen as the first character if we don't match any
+    #adds a func to run whenever trigger char is seen as the first character if we don't match any
     #other function
     self.defaultFunc = func
     self.defaultFuncChar = char
@@ -145,7 +145,7 @@ class legoBot():
         for line in temp:
           if len(line.strip(' \t\n\r')) == 0:
             continue
-          print "Read in line: " + line
+          print line
           msg = Message(line)
           self.threadList.append(threading.Thread(target= msg.read, args = (self.host, self.func, self.nick, self.logfunc, self.threadQueue, self.defaultFunc, self.defaultFuncChar)))
           self.threadList[-1].daemon = True

@@ -1,60 +1,207 @@
-#Legobot
-=======
-##Authors
-Bren Briggs and Kevin McCabe developed this IRC Bot framework starting in late 2013.
+# Legobot
 
-##Introduction
-Legobot is a python IRC bot framework.  The bot provides connectivity and the ability to listen and respond to users.
+#### Table of Contents
 
-An example .py file exists for how to create a simple IRC Bot.
+1. [Usage](#usage)
+2. [Installation](#installation)
+3. [API Details](#api-details)
+    * [Legobot](#legobot-class)
+    * [The Message Object](#message)
+4. [How to contribute](#how-to-contribute)
+5. [Copyright](#copyright)
 
-##Functions
-###Logging function
-This function gets called anytime we receive anything on our socket.  It gets passed a message object. Logging functions can't return anything to Legobot.
+## Introduction
+Legobot is a platform which makes interactive IRC bots easy to build. The bot provides connectivity and the ability to listen and respond to users. The bot provides user functions a usable "message" object when needed, eliminating the need to parse raw IRC strings.
 
-###FUNC Function
-FUNC functions are associated with a calling parameter.  For example "!hello" could be the way to call a FUNC, Legobot checks to see if a user puts any of those calling parameters at the beginning of their irc message.  It must be called at the beginning, eg: "!hello" would work "call !hello" would not.  FUNC functions MUST return a tuple, first value is the value to be returned back and sent to IRC, the other value is where the value should be sent. If the first value is blank, nothing will be printed (no blank line either), if the value exists, it should be of type string, although if it isn't a string casting will be attempted so lists and dicts should work as well.  If the second value is blank, the output will be sent to the same context which it received an input.  So if you sent your bot a message in #myroom, the bot will return the output back to #myroom.  If you PM the bot and the second message is blank, the output will be PM'd back.  You can also specify a username instead of a room for this value, meaning every output from that func would be sent to a user instead of the room.
+## Installation
+Just run `pip install Legobot`. You can also install and run this as a non-privileged user by using `pip install --user Legobot` instead (recommended).
 
-##Message Object
-Both the Logging function and FUNC's recieve must accept one and only one variable. It's a message object with these values that can be accessed:
-splitMessage, this is a list of the incoming message which was delimited by spaces
-length, len of splitMessage
-userInfo, IRC user info for who sent the message, eg: :username!~username
-actualUserName, an attempt to grab out the username from userInfo, should grab everything between the : and !
-target, context this was sent to, either room name or user for PM's
-cmd, this is the first word typed in the chat, typically this would be what command a user wants to run.  This is what Legobot will use to check against the calling parameters.
+## Usage
+Legobot is intended to be simple in usage, flexible, and allow the user to drive all functionality. Therefore it is a given that it doesn't do much on its own outside of managing the IRC connection and watching conversations. Any triggers and responses are yours to build. 
 
-arg1, second word typed
+Legobot's primary functionality centers around a few methods:
 
-arg2, third word typed
+First, let's initialize our bot:
 
-arg3, fourth word typed
+```python
+import Legobot
+HOST = 'irc.freenode.com'
+PORT = 6667
+NICK = 'legobot'
+CHANS = [('#freenoode',''),('#bitcoin',''),('#legobot','')] #List of tuples. Format is (channel,password)
+myBot = Legobot.legoBot(host=HOST,port=PORT,nick=NICK,chans=CHANS)
+```
 
-If any of the above parameters do not exist, the value will contain None.
+#### Great, now what?
 
-##Instantiating legoBot
-###Required Parameters:
-host, type string, server IP or FQDN eg: irc.example.com
+Write a function, add it to Legobot, then connect!
 
-port, type integer, port server is listening on
+```python
+def helloWorld(msg):
+    return "Hello, world!"
 
-nick, type string, value you wish to use for the bot's nickname
+myBot.addFunc("!helloworld", helloWorld, "Ask your bot to say hello. Usage: !helloworld")
+mybot.connect(isSSL=False)
+```
 
-room, type list of strings, rooms that you wish to join, at least one room required
+Then watch your creation come to life:
 
-###Optional Parameter:
-loggingFunc type function, function you wish run on every line sent to IRC
- 
-##Utilizing LegoBot (Methods)
-###connect
-No inputs, after defining a legoBot object, you can use this to connect to the IRC room
-		
-###sendMsg
-Raw string input, this method is used to send a message to the server.  Typically this shouldn't be used to provide output for users and should only be used if your func function needs to join a room or grab op or something.
-		
-###addFunc
-input: name as string, this would be the command that users would run to call the func; func as function which is the function that will be run.
-		
-###batchAddFunc
-input d as dictionary; used to add a bunch of func's at the same time.  dictionary keys should be the string you want used to call your func and the value should be a func
-		
+```
+<bbriggs> !helloworld
+<legobot> Hello, world!
+<bbriggs> !help
+<legobot> Available functions: !helloworld, !help
+<bbriggs> !help !helloworld
+<legobot> Ask your bot to say hello. Usage: !helloworld
+```
+
+Congratulations, you just wrote an IRC bot!
+
+## API details
+
+### Legobot class
+
+#### Legobot.legobot()
+
+`Legobot.legobot(host,port,nick,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = "")`
+
+*Parameters:*
+
+**host** _String._ IRC host to connect to.
+
+**port** _Int._ IRCd port to connect to (port IRC server is listening on).
+
+**nick** _String._ Nickname you want your bot to use. Also sets realname value in IRC. 
+
+**chans** _List._ This is actually a list of tuples in the form of (channel,channel_password). Example: [('#admins','supersecretpassword'),('#social','')]
+
+**logfunc** _Function.__ Function object (without parens). logfunc is called with a msg objet for every line read in from irc. Essentially allowing a bot to log all conversations in the room. Can be useful for lookback bots.
+
+**hostpw** _String._ Password for the IRCd, if necessary.
+
+**defaultFunc** _Function.__ Function object (without parens). Supply a fallback function to trigger if your users ask for a function that doesn't exist. 
+
+**defaultFuncChar** _String._ Predicating character for which to call your default func.  Typically bots are written to respond to a special character, eg: exclamation point. The bot would be expected to respond to things like !help, !tip, etc. defaultFunc and defaultFuncChar allow us to respond to unknown calls, eg !blah would then run the default function if there was not a function specifically written for !blah.
+
+#### Legobot.addFunc()
+
+`addFunc(self, name, function, helpText = "")`
+
+*Parameters:*
+
+**name** _String._ The word you want to trigger the function. Legobot only considers the first word in a message for this. Example: if name="!helloworld" and you say "!helloworld" in IRC, that will trigger the function. However, "will !helloworld work?" will not trigger the function.
+
+**function** _Function._ Function object (without parens). It's usually helpful to name the function the same as the trigger. This is the function that gets called when the trigger word in the `name` parameter is seen.
+
+**helpText** _String._ Describe in a few words what this function does. Gets displayed when user requests `!help !yourfunction` in IRC. 
+
+#### `addDefaultFunc(self, func, char)`
+
+*Parameters:*
+
+**func** _Function._ Function object (without parens). Set the default, fallback function to trigger when users spam nonsense that starts with your trigger character. ie, `!xyzzy` could trigger `!help`. If you're not in the mood to be helpful, why not insult your users for being silly?
+
+**char** _String._ Single character to serve as a trigger to let Legobot know we're talking to it. Example: setting `char` to `'!'` and just saying `!` in chat would trigger the default function. 
+
+#### `connect(self, isSSL=False)`
+
+*Parameters*
+
+**isSSL** _Boolean._ Use SSL when connecting to the IRCd host
+
+#### `sendMsg(self, msgToSend)`
+
+*Parameters:*
+
+**msgToSend** _String._ Line to send to IRC channel. 
+
+### Message 
+
+*Parameters:*
+
+None.
+
+Every line that comes in from the IRC connection generates a `Message` object in Legobot which is then parsed by the bot. Messages where the `Message.cmd` property (discussed below) matches a trigger will run the corresponding function. Legobot then passes the message object to the newly triggered function as a parameter. Example:
+
+```python
+def cointoss(msg):
+    """
+    Inputs:
+      takes msg object
+
+    Outputs:
+      returns string to echo back to user in IRC
+
+    Purpose:
+      flip an imaginary coin or roll an imaginary N-sided die
+      Usage:
+      !roll [# of sides]
+    """
+
+    if not msg.arg1:
+        toss = random.randint(0,1)
+        if toss == 0:
+            returnVal = "Heads"
+        else:
+            returnVal = "Tails"
+    else:
+        if not is_num(msg.arg1):
+            returnVal = "Incorrect syntax. You must use a (sane) number"
+        elif is_num(msg.arg1) and not int(msg.arg1) >= 2:
+            returnVal = "Use at least two sides, weirdo."
+        elif is_num(msg.arg1) and int(msg.arg1) == 2:
+            toss = random.randint(1,2)
+            if toss == 1:
+                returnVal = "Heads"
+            else:
+                returnVal = "Tails"
+        else:
+            toss = random.randint(1,int(msg.arg1))
+            returnVal = str(toss)
+    return returnVal
+```
+
+Note: If you want your function to reply back to the channel or user the bot receieved from, return a just a string. To respond or forward to a specific channel, return a tuple of two strings in the form (message,channel_or_user)
+
+**Properties:**
+
+`Message.fullMessage`, _String._ full, raw IRC line. 
+
+`Message.splitMessage`, _String._ IRC line split on whitespaces, truncated to 7 items. The 7th item is all remaining text, if it exists.
+
+`Message.length`, _String._ The value of `len(self.splitMessage)`
+
+`Message.userInfo`, _String._ The nick, realname, and host (or hostmask) of the IRC user who sent the message.
+
+`Message.actualUserName`, _String._ Realname of IRC the user who sent the message. 
+
+`Message.target`, _String._ where the message was addressed. ie, channel or individual user. Used to detect if message sent was a private message. 
+
+`Message.cmd`, _String._ First word in user's actual message. In 'Hello world!', Message.cmd is 'Hello'
+
+`Message.arg1`, `arg2`, and `arg3`, _String._ Additional positional arguments to evaluate when parsing a triggered command. May or may not be present depending on the length of the input line. 
+
+`Message.isPM`, _Boolean._ False if message was sent to whole #channel, True if sent to just the bot.  
+
+## How to contribute
+
+Issues and pull requests welcome. Please send PRs to the development branch. 
+
+## Copyright
+
+Legobot
+Copyright (c) 2016 Bren Briggs and Kevin McCabe
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
