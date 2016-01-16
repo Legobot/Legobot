@@ -3,10 +3,12 @@
 #### Table of Contents
 
 1. [Usage](#usage)
-2. [API Details](#api-details)
+2. [Installation](#installation)
+3. [API Details](#api-details)
     * [Legobot](#legobot-class)
     * [The Message Object](#message)
-3. [How to contribute](#how-to-contribute)
+4. [How to contribute](#how-to-contribute)
+5. [Copyright](#copyright)
 
 ## Introduction
 Legobot is an API around IRC to make interactive bots easy to build. The bot provides connectivity and the ability to listen and respond to users. 
