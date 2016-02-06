@@ -15,7 +15,6 @@ __license__ = "GPLv2"
 #__version__ = "0.1"
 __status__ = "Beta"
 
-
 class timerFunc():
   def __init__(self, func, interval = -1, timeOfDay=None, chans = []):
     self.func = func
@@ -87,6 +86,10 @@ class legoBot():
     #merge a dictionary of functions into the existing function dictionary
     self.func.update(d)
   
+  def _send_raw_to_socket(txt_to_send):
+    print "trying to send to socket: %s" % txt_to_send
+    self.connection.sendall(txt_to_send)
+  
   def connect(self, isSSL=False):
     if isSSL:
       sock=socket.socket()
@@ -96,28 +99,66 @@ class legoBot():
     
     self.connection.connect((self.host, self.port))    
     if self.hostpw:
-      self.connection.sendall("PASS %s\r\n" % self.hostpw)
-      
-    self.connection.sendall("NICK %s\r\n" % self.nick)
-    print "sending: " + "NICK %s\r\n" % self.nick
+      self._send_raw_to_socket("PASS %s\r\n" % self.hostpw)
     
-    #TO DO: add functionality to create separate nick, realname, etc
-    self.connection.sendall("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
-    print "sending: " + "USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick)
+    iterate_nick = True
+    orig_nick = self.nick
+    
+    i = 0
+    while iterate_nick:
+      #TO DO: add functionality to create separate nick, realname, etc
+      if i:
+        self.nick = orig_nick + "_" + str(i)
+        print "set new nick to: %s" % self.nick
+      
+      print "Attempting to log in with nick: %s" % self.nick
+      
+      self._send_raw_to_socket("NICK %s\r\n" % self.nick)
+
+      self._send_raw_to_socket("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
+    
+      #read in socket to check if we got somethign like:
+      # :ircd2.abc.com 433 * test_nick :Nickname already in use
+
+      t = datetime.datetime.now()
+      iterate_nick = False
+      read_line = False
+      
+      while not read_line and (datetime.datetime.now() - t).total_seconds() < 60:
+        print "in while"
+        if select.select([self.connection],[],[],1.0)[0]:
+          readbuffer = self.connection.recv(1024)
+          #split into lines
+          temp = string.split(readbuffer, "\n")
+          
+          #iterate through any lines received
+          for line in temp:
+            if len(line.strip(' \t\n\r')) == 0:
+              continue
+            read_line = True
+            
+            if "nick" in line.lower() and "already in use" in line.lower():
+              print "Nick already registered, iterating nick"
+              iterate_nick = True
+              i += 1
+              break
+            print line
+        else:
+          time.sleep(.5)
+    
     
     time.sleep(1)
     for room, pw in self.chans:
       if pw:
-        self.connection.sendall("JOIN %s %s\r\n" % room, pw)
+        self._send_raw_to_socket("JOIN %s %s\r\n" % room, pw)
       else:
-        self.connection.sendall("JOIN %s\r\n" % room)
-        print "sending: " + "JOIN %s\r\n" % room
+        self._send_raw_to_socket("JOIN %s\r\n" % room)
     self.__listen()
 
   
   def sendMsg(self, msgToSend):
     #msgtoSend must be str
-    self.connection.sendall(msgToSend)
+    self._send_raw_to_socket(msgToSend)
   
   def __listen(self):
     #initiate queue to read off of
@@ -155,7 +196,7 @@ class legoBot():
         response = self.threadQueue.get(block=False)
         if response:
           try:
-            self.connection.sendall(response)
+            self._send_raw_to_socket(response)
           except:
             print "Hit error with response: %s" % str(response)
             raise
