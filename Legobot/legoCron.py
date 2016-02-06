@@ -73,7 +73,7 @@ def conv_to_set(obj, divisibleVal):  # Allow single integer to be provided
 # The actual Event class
 class Event(object):
   def __init__(self, func, min=allMatch, hour=allMatch, 
-               day=allMatch, month=allMatch, dow=allMatch, sec=allMatch):
+               day=allMatch, month=allMatch, dow=allMatch, sec=allMatch, logging_obj = None):
              
     self.mins = conv_to_set(min, 60)
     self.hours= conv_to_set(hour, 24)
@@ -82,6 +82,7 @@ class Event(object):
     self.dow = conv_to_set(dow, 7)
     self.sec = conv_to_set(sec, 60)
     self.func = func
+    self.logging_obj = logging_obj
     
     if not(self.mins and self.hours and self.days and self.months and self.dow and self.sec):
       self.goodCron = False
