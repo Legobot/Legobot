@@ -8,6 +8,8 @@ import datetime
 import time
 import legoCron
 import random
+import logging
+import six
 
 __author__ = "Bren Briggs and Kevin McCabe"
 __copyright__ = "Copyright 2016"
@@ -36,26 +38,79 @@ class randTimerFunc():
     self.randMax = randMax
 
 class legoBot():
-  def __init__(self,host,port,nick,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = ""):
-    self.host = host
-    self.hostpw = hostpw
-    self.port = port
-    self.nick = nick
-    self.chans = chans
-    self.logfunc = logfunc
-    self.func = {}
-    self.timerFuncList = []
-    self.randTimerFuncList = []
-    self.threadQueue = None
-    self.threadList = []
-    self.funcHelp = {}
-    self.defaultFunc = defaultFunc
-    self.defaultFuncChar = defaultFuncChar
+  def __init__(self,host,port,nick,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = "", logging_obj = None):
+    """
+    Legobot is a framework for creating and connecting IRC bots to IRC servers / channels
+    """
+    
+    #sanitize user input
+    assert isinstance(host, six.string_types)
+    assert isinstance(port, six.integer_types)
+    assert isinstance(nick, six.string_types)
+    assert isinstance(chans, list)
+    if logfunc: assert hasattr(logfunc, '__call__')
+    if hostpw: assert isinstance(hostpw, six.string_types)
+    if defaultFunc: assert hasattr(defaultFunc, '__call__')
+    if defaultFuncChar: assert isinstance(defaultFuncChar, six.string_types)
+    if logging_obj: assert isinstance(logging_obj, logging._loggerClass)
+    
+    #class variable assignment
+    self.host = host                        #ip / fqdn of irc server
+    self.hostpw = hostpw                    #password for irc server
+    self.port = port                        #port to connect to
+    self.nick = nick                        #nick to use
+    self.chans = chans                      #list of tuples like [("#channel_name","channel password")]
+    self.logfunc = logfunc                  #function to use for all read in information from an irc room, allows chat logging
+    self.func = {}                          #function dictionary (should never be added to manually)
+    self.timerFuncList = []                 #list of functions to be run on a timer
+    self.randTimerFuncList = []             #list of functions to be run on a random timer
+    self.threadQueue = None                 #queue to be used for communication within threads, internal only
+    self.threadList = []                    #used internally only, list of all spun up threads
+    self.funcHelp = {}                      #dictionary of help text for each function
+    self.defaultFunc = defaultFunc          #function to be run anytime defaultFuncChar is seen but no func exists for that command
+    self.defaultFuncChar = defaultFuncChar  #character that will be looked for at the beginning of a chat message to call defaultFunc
+    self.logging_obj = logging_obj          #an object of type logging
     
     #add in default help function
-    self.addFunc("!help", self.defaultHelp, "Function used to display help, this default help value can be overridden with a custom function")
+    default_char = self.defaultFuncChar or "!"
+    self.addFunc(name = "%shelp" % (default_char,),
+                 function = self.defaultHelp,
+                 helpText = "Function used to display help, this default help value can be overridden with a custom function")
+  
+  def _log_me(self, message, sev_level = "INFO", loop_prevent = False):
+    """
+    This function is used for all textual output from LegoBot, if a logger object has been provided, we will use that
+    otherwise we will print to the screen using the format we like best :-D
+    """
+    message = message.strip()
+    if not message:
+      return
+      
+    if not self.logging_obj:
+      unix_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+      print "{}[{}] - {}".format(unix_timestamp, sev_level, message)
     
+    else:
+      try:
+        logFun = getattr(self.logging_obj, sev_level.lower())
+        logFun(message)
+        
+      except AttributeError:
+        if loop_prevent:
+          #since we call ourselves, we want to make sure it never happens twice.
+          print "Entered into a loop while tryping to print: {} at sev: {}".format(message, sev_level)
+          raise
+        print_log("Original message could not be logged due to an invalid sev_level of: %s" % sev_level.lower(), sev_level = "WARNING", loop_prevent = True)
+      
+      logFun(message)
+  
   def defaultHelp(self, msgObj):
+    """
+    Default function that is used to provide output when users run !help (or help predicated by whatever defaultFunchChar is
+    This method may be overridden
+    """
+    
+    #if we ask for help on a particular function, return that functions help, otherwise return list of functions
     if not msgObj.arg1:
       return "Available functions: %s" % ", ".join(sorted(self.func.keys()))
     
@@ -66,7 +121,7 @@ class legoBot():
       return "couldn't find help text"
   
   def addTimerFunc(self, function, min = "*", hour = "*", day = "*", month="*", dow="*", sec = "*"):
-    self.timerFuncList.append(legoCron.Event(function, min, hour, day, month, dow, sec))
+    self.timerFuncList.append(legoCron.Event(function, min, hour, day, month, dow, sec, self.logging_obj))
   
   def addDefaultFunc(self, func, char):
     #adds a func to run whenever trigger char is seen as the first character if we don't match any
@@ -86,8 +141,8 @@ class legoBot():
     #merge a dictionary of functions into the existing function dictionary
     self.func.update(d)
   
-  def _send_raw_to_socket(txt_to_send):
-    print "trying to send to socket: %s" % txt_to_send
+  def _send_raw_to_socket(self, txt_to_send):
+    self._log_me("trying to send to socket: %s" % txt_to_send, "INFO")
     self.connection.sendall(txt_to_send)
   
   def connect(self, isSSL=False):
@@ -109,9 +164,9 @@ class legoBot():
       #TO DO: add functionality to create separate nick, realname, etc
       if i:
         self.nick = orig_nick + "_" + str(i)
-        print "set new nick to: %s" % self.nick
+        self._log_me("set new nick to: %s" % self.nick, "WARNING")
       
-      print "Attempting to log in with nick: %s" % self.nick
+      self._log_me("Attempting to log in with nick: %s" % self.nick, "INFO")
       
       self._send_raw_to_socket("NICK %s\r\n" % self.nick)
 
@@ -125,7 +180,6 @@ class legoBot():
       read_line = False
       
       while not read_line and (datetime.datetime.now() - t).total_seconds() < 60:
-        print "in while"
         if select.select([self.connection],[],[],1.0)[0]:
           readbuffer = self.connection.recv(1024)
           #split into lines
@@ -138,11 +192,11 @@ class legoBot():
             read_line = True
             
             if "nick" in line.lower() and "already in use" in line.lower():
-              print "Nick already registered, iterating nick"
+              self._log_me("Nick already registered, iterating nick", "WARNING")
               iterate_nick = True
               i += 1
               break
-            print line
+            self._log_me(line, "INFO")
         else:
           time.sleep(.5)
     
@@ -186,7 +240,7 @@ class legoBot():
         for line in temp:
           if len(line.strip(' \t\n\r')) == 0:
             continue
-          print line
+          self._log_me(line, "INFO")
           msg = Message(line)
           self.threadList.append(threading.Thread(target= msg.read, args = (self.host, self.func, self.nick, self.logfunc, self.threadQueue, self.defaultFunc, self.defaultFuncChar)))
           self.threadList[-1].daemon = True
@@ -198,7 +252,7 @@ class legoBot():
           try:
             self._send_raw_to_socket(response)
           except:
-            print "Hit error with response: %s" % str(response)
+            self._log_me("Hit error with response: %s" % str(response), "CRITICAL")
             raise
       time.sleep(0.5)
 
