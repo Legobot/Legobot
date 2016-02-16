@@ -3,3 +3,5 @@ test.py
 .idea/
 Legobot/*.pyc
 Legobot.egg-info/
+.vagrant/
+dist/
