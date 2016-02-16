@@ -10,6 +10,7 @@ import legoCron
 import random
 import logging
 import six
+import re
 
 __author__ = "Bren Briggs and Kevin McCabe"
 __copyright__ = "Copyright 2016"
@@ -17,6 +18,8 @@ __license__ = "GPLv2"
 #__version__ = "0.1"
 __status__ = "Beta"
 
+"""
+Depricated, now we use legoCron
 class timerFunc():
   def __init__(self, func, interval = -1, timeOfDay=None, chans = []):
     self.func = func
@@ -30,7 +33,8 @@ class timerFunc():
       #run
       self.func()
       self.lastRun = datetime.datetime.now()
-    
+"""
+
 class randTimerFunc():
   def __init__(self, func, randMin, randMax):
     self.func = func
@@ -38,11 +42,24 @@ class randTimerFunc():
     self.randMax = randMax
 
 class legoBot():
+  """
+  Legobot is a framework for creating and connecting IRC bots to IRC servers / channels
+  """
   def __init__(self,host,port,nick,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = "", logging_obj = None):
     """
-    Legobot is a framework for creating and connecting IRC bots to IRC servers / channels
-    """
+    Legobot must be initialized with at least a:
+    host - IP/FQDN of IRC Server
+    port - Port to connect to (6667 if you don't know otherwise)
+    nick - Nickname for your bot
+    chans - list of tuples like: [("#channel_name","channel password")]
     
+    Optional variables include:
+    logfunc - function to be run everytime we read something in from IRC, used for a chat logger
+    hostpw - password for the IRC server itself (not the rooms)
+    defaultFunc - Function to be run when defaultFuncChar is is seen at the beginning of the line, but the characters following don't match a value in our function dictionary
+    defaultFuncChar - Typically IRC bots listen for commands like !help, where the command is predicated by a special character, this signifies what that special character should be so we can listen for all things said starting with that character
+    logging_obj - a logging function like would be recieved by logging.getLogger(), used to output all neccessary messages instead of print
+    """
     #sanitize user input
     assert isinstance(host, six.string_types)
     assert isinstance(port, six.integer_types)
@@ -76,7 +93,9 @@ class legoBot():
     self.addFunc(name = "%shelp" % (default_char,),
                  function = self.defaultHelp,
                  helpText = "Function used to display help, this default help value can be overridden with a custom function")
-  
+    
+    self._log_me("Legobot object successfully initialized","DEBUG")
+    
   def _log_me(self, message, sev_level = "INFO", loop_prevent = False):
     """
     This function is used for all textual output from LegoBot, if a logger object has been provided, we will use that
@@ -143,7 +162,14 @@ class legoBot():
   
   def _send_raw_to_socket(self, txt_to_send):
     self._log_me("trying to send to socket: %s" % txt_to_send, "INFO")
-    self.connection.sendall(txt_to_send)
+    #dt = txt_to_send.decode("ascii", errors="ignore")
+    #self._log_me("ascii only text: {}".format(dt))
+    #print [dt]
+    #remove null char \x00 as it causes problems
+    dt = txt_to_send.replace('\x00', '')
+    response = self.connection.sendall(txt_to_send)
+    
+    self._log_me("msg sent, response is: %s" % response)
   
   def connect(self, isSSL=False):
     if isSSL:
@@ -208,11 +234,6 @@ class legoBot():
       else:
         self._send_raw_to_socket("JOIN %s\r\n" % room)
     self.__listen()
-
-  
-  def sendMsg(self, msgToSend):
-    #msgtoSend must be str
-    self._send_raw_to_socket(msgToSend)
   
   def __listen(self):
     #initiate queue to read off of
@@ -248,7 +269,9 @@ class legoBot():
       
       while not self.threadQueue.empty():
         response = self.threadQueue.get(block=False)
-        if response:
+        if isinstance(response, str) and response.startswith("thread_exception"):
+          self._log_me("Thread saw exception: %s" % str(response))
+        else:
           try:
             self._send_raw_to_socket(response)
           except:
@@ -256,16 +279,36 @@ class legoBot():
             raise
       time.sleep(0.5)
 
+def sanitize_output(txt_to_send):
+  #we'll store our output here
+  output_list = []
+  
+  #remove any wrapping blankspace/newlines
+  txt_to_send = txt_to_send.strip()
+  
+  #split our lines on \n or \r and strip the result
+  lines = [itm.strip() for itm in re.split("\n|\r", txt_to_send) if itm.strip()]
+  
+  #if no newlines in output, simply return it
+  output_list = lines
+  
+  return [output_list[0]]
+
 def timerDaemon(func, q, rooms):
   while True:
-    tempVal = func.check(datetime.datetime.now())
+    try:
+      tempVal = func.check(datetime.datetime.now())
+    except Exception as e:
+      q.put("thread_exception: error seen in function: %s, error: %s" % (func.__name__, str(e)))
     if tempVal:
       for room in rooms:
         if isinstance(tempVal, list):
           for itm in tempVal:
-            q.put("PRIVMSG %s :%s\r\n" % (room[0], itm))
+            for msg in sanitize_output(itm):
+              q.put("PRIVMSG %s :%s\r\n" % (room[0], msg))
         else:
-          q.put("PRIVMSG %s :%s\r\n" % (room[0], tempVal))
+          for msg in sanitize_output(tempVal):
+            q.put("PRIVMSG %s :%s\r\n" % (room[0], msg))
     time.sleep(0.5)
 
 def randTimerDaemon(func, q, randMin, randMax, rooms):
@@ -278,7 +321,8 @@ def randTimerDaemon(func, q, randMin, randMax, rooms):
       #run the function
       returnVal = func()
       for room in rooms:
-        q.put("PRIVMSG %s :%s\r\n" % (room[0], returnVal))
+        for msg in sanitize_output(returnVal):
+          q.put("PRIVMSG %s :%s\r\n" % (room[0], msg))
       
       #set lastRan
       lastRan = datetime.datetime.now()
@@ -303,6 +347,9 @@ class Message():
     self.isPM = None
       
   def read(self,host, func, nick, logfunc, threadQueue, defaultFunc, defaultFuncChar):
+    """
+    Parse message from IRC into usable variables
+    """
     self.host = host
     if self.splitMessage[0][0:4] == "PING":
       tempReply = self.reply(host, {}, nick, defaultFunc, defaultFuncChar)
@@ -350,6 +397,9 @@ class Message():
           threadQueue.put(replyVal)
   
   def reply(self, host, func, nick, defaultFunc, defaultFuncChar):
+    """
+    Quick replies to PING messages, determines if we have a func to be run and calls getReturnVal to execute that func if needed
+    """
     if self.splitMessage[0][0:4] == "PING":
       return "PONG :%s\r\n" % host
     
@@ -367,41 +417,83 @@ class Message():
           return val
 
   def getReturnVal(self,func,nick):
+    """
+    Executes the function (func) and creates a list of messages (if any) to return to IRC
+    """
+    #get raw return from function
     tempVal = func[self.cmd[1:]](self)
+    
+    #determine what info we got back, tuples would indicate user passed back a room and a message
     if isinstance(tempVal, tuple):
       returnVal, returnRoom = tempVal
     else:
       #we weren't passed a tuple back, assume the user only passed back something to the room which it was sent from
       returnRoom = ""
       returnVal = tempVal
+    
+    #if we didn't get anything back, quit
+    if not returnVal:
+      return
+    
+    returnList = []
+    final_dest = ""
+    
+    
+    #get target to send message to
+    if not returnRoom and self.target.lower() == nick.lower():
+      #this was a PM and no room was specified, respond with a PM
+      final_dest = self.actualUserName
       
+    elif not returnRoom:
+      #no room was specified and this wasn't a PM, send back to source
+      final_dest = self.target
+      
+    else:
+      #room was specified use that
+      final_dest = returnRoom
+    
+    if isinstance(returnVal, six.string_types):
+      returnVal = [returnVal]
+    
+    #iterate through all intended messages back
+    for return_msg in returnVal:
+      #iterate through all lines of response
+      for final_msg in sanitize_output(return_msg):
+        returnList.append("PRIVMSG %s :%s\r\n" % (final_dest, final_msg))
+    
+    return returnList
+    
+    """
+    #get destination:
     if returnVal and returnRoom:
       #respond to room/person that function told us to
       if isinstance(returnVal, list):
-        returnList = []
         for itm in returnVal:
-          returnList.append("PRIVMSG %s :%s\r\n" % (returnRoom, itm))
+          for i in sanitize_output(itm):
+            returnList.append("PRIVMSG %s :%s\r\n" % (returnRoom, i))
         return returnList
       return "PRIVMSG %s :%s\r\n" % (returnRoom, returnVal)
       
     elif returnVal and self.target.lower() == nick.lower():
       #if no room/person and it's a PM, reply to a PM with a PM
       if isinstance(returnVal, list):
-        returnList = []
         for itm in returnVal:
-          returnList.append("PRIVMSG %s :%s\r\n" % (self.actualUserName, itm))
+          for i in sanitize_output(itm):
+            returnList.append("PRIVMSG %s :%s\r\n" % (self.actualUserName, i))
         return returnList
+      
+      
       return "PRIVMSG %s :%s\r\n" % (self.actualUserName, returnVal)
       
     elif returnVal and not returnRoom:
       #if no room/person returned just respond back to same room
       if isinstance(returnVal, list):
-        returnList = []
         for itm in returnVal:
           returnList.append("PRIVMSG %s :%s\r\n" % (self.target, itm))
         return returnList
       
       return "PRIVMSG %s :%s\r\n" % (self.target, returnVal)
-
+      """
+      
   def __len__(self):
     return self.length
