@@ -18,6 +18,31 @@ __license__ = "GPLv2"
 #__version__ = "0.1"
 __status__ = "Beta"
 
+logger = logging.getLogger(__name__)
+
+
+def _log_me(message, sev_level = "INFO", loop_prevent = False):
+  """
+  This function is used for all textual output from LegoBot, if a logger object has been provided, we will use that
+  otherwise we will print to the screen using the format we like best :-D
+  """
+  message = message.strip()
+  if not message:
+    return
+    
+  try:
+    logFun = getattr(logger, sev_level.lower())
+    logFun(message)
+    
+  except AttributeError:
+    if loop_prevent:
+      #since we call ourselves, we want to make sure it never happens twice.
+      print "Entered into a loop while tryping to print: {} at sev: {}".format(message, sev_level)
+      raise
+    _log_me("Original message could not be logged due to an invalid sev_level of: %s" % sev_level.lower(), sev_level = "WARNING", loop_prevent = True)
+    
+    logFun(message)
+
 """
 Depricated, now we use legoCron
 class timerFunc():
@@ -45,7 +70,7 @@ class legoBot():
   """
   Legobot is a framework for creating and connecting IRC bots to IRC servers / channels
   """
-  def __init__(self,host,port,nick,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = "", logging_obj = None):
+  def __init__(self,host,port,nick,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = ""):
     """
     Legobot must be initialized with at least a:
     host - IP/FQDN of IRC Server
@@ -58,7 +83,6 @@ class legoBot():
     hostpw - password for the IRC server itself (not the rooms)
     defaultFunc - Function to be run when defaultFuncChar is is seen at the beginning of the line, but the characters following don't match a value in our function dictionary
     defaultFuncChar - Typically IRC bots listen for commands like !help, where the command is predicated by a special character, this signifies what that special character should be so we can listen for all things said starting with that character
-    logging_obj - a logging function like would be recieved by logging.getLogger(), used to output all neccessary messages instead of print
     """
     #sanitize user input
     assert isinstance(host, six.string_types)
@@ -69,7 +93,10 @@ class legoBot():
     if hostpw: assert isinstance(hostpw, six.string_types)
     if defaultFunc: assert hasattr(defaultFunc, '__call__')
     if defaultFuncChar: assert isinstance(defaultFuncChar, six.string_types)
-    if logging_obj: assert isinstance(logging_obj, logging._loggerClass)
+    
+    #if bot hasn't defined a handler, create one by default
+    #basicConfig only works if a format hasn't already been set
+    logging.basicConfig(format="%(asctime)s - [%(name)s] - [%(levelname)s] - %(message)s", level = logging.INFO)
     
     #class variable assignment
     self.host = host                        #ip / fqdn of irc server
@@ -86,7 +113,6 @@ class legoBot():
     self.funcHelp = {}                      #dictionary of help text for each function
     self.defaultFunc = defaultFunc          #function to be run anytime defaultFuncChar is seen but no func exists for that command
     self.defaultFuncChar = defaultFuncChar  #character that will be looked for at the beginning of a chat message to call defaultFunc
-    self.logging_obj = logging_obj          #an object of type logging
     
     #add in default help function
     default_char = self.defaultFuncChar or "!"
@@ -94,34 +120,8 @@ class legoBot():
                  function = self.defaultHelp,
                  helpText = "Function used to display help, this default help value can be overridden with a custom function")
     
-    self._log_me("Legobot object successfully initialized","DEBUG")
+    _log_me("Legobot object successfully initialized","DEBUG")
     
-  def _log_me(self, message, sev_level = "INFO", loop_prevent = False):
-    """
-    This function is used for all textual output from LegoBot, if a logger object has been provided, we will use that
-    otherwise we will print to the screen using the format we like best :-D
-    """
-    message = message.strip()
-    if not message:
-      return
-      
-    if not self.logging_obj:
-      unix_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-      print "{}[{}] - {}".format(unix_timestamp, sev_level, message)
-    
-    else:
-      try:
-        logFun = getattr(self.logging_obj, sev_level.lower())
-        logFun(message)
-        
-      except AttributeError:
-        if loop_prevent:
-          #since we call ourselves, we want to make sure it never happens twice.
-          print "Entered into a loop while tryping to print: {} at sev: {}".format(message, sev_level)
-          raise
-        print_log("Original message could not be logged due to an invalid sev_level of: %s" % sev_level.lower(), sev_level = "WARNING", loop_prevent = True)
-      
-      logFun(message)
   
   def defaultHelp(self, msgObj):
     """
@@ -161,15 +161,15 @@ class legoBot():
     self.func.update(d)
   
   def _send_raw_to_socket(self, txt_to_send):
-    self._log_me("trying to send to socket: %s" % txt_to_send, "INFO")
+    _log_me("trying to send to socket: %s" % txt_to_send, "INFO")
     #dt = txt_to_send.decode("ascii", errors="ignore")
-    #self._log_me("ascii only text: {}".format(dt))
+    #_log_me("ascii only text: {}".format(dt))
     #print [dt]
     #remove null char \x00 as it causes problems
     dt = txt_to_send.replace('\x00', '')
     response = self.connection.sendall(txt_to_send)
     
-    self._log_me("msg sent, response is: %s" % response)
+    _log_me("msg sent, response is: %s" % response)
   
   def connect(self, isSSL=False):
     if isSSL:
@@ -190,9 +190,9 @@ class legoBot():
       #TO DO: add functionality to create separate nick, realname, etc
       if i:
         self.nick = orig_nick + "_" + str(i)
-        self._log_me("set new nick to: %s" % self.nick, "WARNING")
+        _log_me("set new nick to: %s" % self.nick, "WARNING")
       
-      self._log_me("Attempting to log in with nick: %s" % self.nick, "INFO")
+      _log_me("Attempting to log in with nick: %s" % self.nick, "INFO")
       
       self._send_raw_to_socket("NICK %s\r\n" % self.nick)
 
@@ -218,11 +218,11 @@ class legoBot():
             read_line = True
             
             if "nick" in line.lower() and "already in use" in line.lower():
-              self._log_me("Nick already registered, iterating nick", "WARNING")
+              _log_me("Nick already registered, iterating nick", "WARNING")
               iterate_nick = True
               i += 1
               break
-            self._log_me(line, "INFO")
+            _log_me(line, "DEBUG") #debug level prints all messages back and forth from IRC server including chats
         else:
           time.sleep(.5)
     
@@ -261,7 +261,7 @@ class legoBot():
         for line in temp:
           if len(line.strip(' \t\n\r')) == 0:
             continue
-          self._log_me(line, "INFO")
+          _log_me(line, "INFO")
           msg = Message(line)
           self.threadList.append(threading.Thread(target= msg.read, args = (self.host, self.func, self.nick, self.logfunc, self.threadQueue, self.defaultFunc, self.defaultFuncChar)))
           self.threadList[-1].daemon = True
@@ -270,12 +270,12 @@ class legoBot():
       while not self.threadQueue.empty():
         response = self.threadQueue.get(block=False)
         if isinstance(response, str) and response.startswith("thread_exception"):
-          self._log_me("Thread saw exception: %s" % str(response))
+          _log_me("Thread saw exception: %s" % str(response))
         else:
           try:
             self._send_raw_to_socket(response)
           except:
-            self._log_me("Hit error with response: %s" % str(response), "CRITICAL")
+            _log_me("Hit error with response: %s" % str(response), "CRITICAL")
             raise
       time.sleep(0.5)
 

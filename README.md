@@ -1,5 +1,4 @@
 # Legobot
-
 #### Table of Contents
 
 1. [Usage](#usage)
@@ -163,6 +162,28 @@ def cointoss(msg):
 
 Note: If you want your function to reply back to the channel or user the bot receieved from, return a just a string. To respond or forward to a specific channel, return a tuple of two strings in the form (message,channel_or_user)
 
+###LegoBot Logging
+Legobot will honor handlers/formatting for the python logging module.  For example if you were to do the following:
+
+```python
+import logging
+
+#set a file stream handler with info level threshold that only dumps out the message
+logging.basicConfig(format="%(message)s", level=logging.INFO, filename="/path/to/file")
+```
+Legobot would then write using those parameters ot that filename.  If you don't wish to specify anything, by default Legobot will use a handler with the following format: 
+
+```python
+logging.basicConfig(format="%(asctime)s - [%(name)s] - [%(levelname)s] - %(message)s", level = logging.INFO)
+```
+Example output:
+```
+2016-02-29 15:09:10,425 - [Legobot] - [INFO] - Attempting to log in with nick: test_bot
+```
+
+
+One important caveat here is that if you wish to define your own logging parameters, you must do so prior to creating your legobot object, on object creation we check for logging handlers and if one doesn't exist, we create it. After that you cannot use basicConfig anymore, it can only be used once.
+
 **Properties:**
 
 `Message.fullMessage`, _String._ full, raw IRC line. 
@@ -201,3 +222,7 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.}
