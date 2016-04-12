@@ -162,13 +162,13 @@ def cointoss(msg):
 
 Note: If you want your function to reply back to the channel or user the bot receieved from, return a just a string. To respond or forward to a specific channel, return a tuple of two strings in the form (message,channel_or_user)
 
-###LegoBot Logging
+### LegoBot Logging
 Legobot will honor handlers/formatting for the python logging module.  For example if you were to do the following:
 
 ```python
 import logging
 
-#set a file stream handler with info level threshold that only dumps out the message
+# Set a file stream handler with info level threshold that only dumps out the message
 logging.basicConfig(format="%(message)s", level=logging.INFO, filename="/path/to/file")
 ```
 Legobot would then write using those parameters ot that filename.  If you don't wish to specify anything, by default Legobot will use a handler with the following format: 
