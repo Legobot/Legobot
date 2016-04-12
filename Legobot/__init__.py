@@ -140,7 +140,7 @@ class legoBot():
       return "couldn't find help text"
   
   def addTimerFunc(self, function, min = "*", hour = "*", day = "*", month="*", dow="*", sec = "*"):
-    self.timerFuncList.append(legoCron.Event(function, min, hour, day, month, dow, sec, self.logging_obj))
+    self.timerFuncList.append(legoCron.Event(function, min, hour, day, month, dow, sec))
   
   def addDefaultFunc(self, func, char):
     #adds a func to run whenever trigger char is seen as the first character if we don't match any
