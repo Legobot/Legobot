@@ -11,6 +11,7 @@ import random
 import logging
 import six
 import re
+import sys
 
 __author__ = "Bren Briggs and Kevin McCabe"
 __copyright__ = "Copyright 2016"
@@ -298,6 +299,10 @@ def timerDaemon(func, q, rooms):
   while True:
     try:
       tempVal = func.check(datetime.datetime.now())
+    except SystemExit:
+        _log_me("thread is trying to kill bot, we will allow this - disabling this is not yet allowed, please open a git issue if you wish to dissalow this for any reason", "critical")
+        raise
+    
     except Exception as e:
       q.put("thread_exception: error seen in function: %s, error: %s" % (func.__name__, str(e)))
     if tempVal:
@@ -319,7 +324,14 @@ def randTimerDaemon(func, q, randMin, randMax, rooms):
     #get diff in now and last ran, run if it's greater than randTimer
     if (datetime.datetime.now() - lastRan).total_seconds() > randTimer:
       #run the function
-      returnVal = func()
+      try:
+        returnVal = func()
+      except SystemExit:
+        _log_me("thread is trying to kill bot, we will allow this - disabling this is not yet allowed, please open a git issue if you wish to dissalow this for any reason", "critical")
+        raise
+      except Exception as e:
+        q.put("thread_exception: error seen in function: %s, error: %s" % (func.__name__, str(e)))
+        
       for room in rooms:
         for msg in sanitize_output(returnVal):
           q.put("PRIVMSG %s :%s\r\n" % (room[0], msg))
@@ -345,11 +357,15 @@ class Message():
     self.arg3 = None
     self.allArgs = None
     self.isPM = None
+    _log_me(self.fullMessage, "debug")
       
   def read(self,host, func, nick, logfunc, threadQueue, defaultFunc, defaultFuncChar):
     """
     Parse message from IRC into usable variables
     """
+    
+    _log_me("reading message with following attributes: nick:%s, host:%s, defaultFuncChar:%s" % (nick, host, defaultFuncChar), "debug")
+    
     self.host = host
     if self.splitMessage[0][0:4] == "PING":
       tempReply = self.reply(host, {}, nick, defaultFunc, defaultFuncChar)
@@ -361,7 +377,7 @@ class Message():
       try:
         
         #check to see if this was a PM to us
-        if "privmsg %s" % nick in self.fullMessage:
+        if "privmsg %s" % nick.lower() in self.fullMessage.lower():
           self.isPM = True
         else:
           self.isPM = False
