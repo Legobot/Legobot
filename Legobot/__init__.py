@@ -16,7 +16,7 @@ import sys
 __author__ = "Bren Briggs and Kevin McCabe"
 __copyright__ = "Copyright 2016"
 __license__ = "GPLv2"
-#__version__ = "0.1"
+__version__ = "0.1"
 __status__ = "Beta"
 
 logger = logging.getLogger(__name__)
@@ -271,7 +271,7 @@ class legoBot():
       while not self.threadQueue.empty():
         response = self.threadQueue.get(block=False)
         if isinstance(response, str) and response.startswith("thread_exception"):
-          _log_me("Thread saw exception: %s" % str(response))
+          _log_me("Thread saw exception: %s" % str(response), "WARNING")
         else:
           try:
             self._send_raw_to_socket(response)
@@ -296,15 +296,20 @@ def sanitize_output(txt_to_send):
   return [output_list[0]]
 
 def timerDaemon(func, q, rooms):
+  _log_me("Starting timer daemon for %s" % func.__name__, sev_level="DEBUG")
+  tempVal = ""
   while True:
     try:
+      _log_me("Checking thread:%s for output" % func.__name__, sev_level="DEBUG")
       tempVal = func.check(datetime.datetime.now())
+      
     except SystemExit:
         _log_me("thread is trying to kill bot, we will allow this - disabling this is not yet allowed, please open a git issue if you wish to dissalow this for any reason", "critical")
         raise
     
     except Exception as e:
-      q.put("thread_exception: error seen in function: %s, error: %s" % (func.__name__, str(e)))
+      _log_me("thread_exception: error seen in function: %s, error: %s" % (func.__name__, str(e)), "WARNING")
+      
     if tempVal:
       for room in rooms:
         if isinstance(tempVal, list):

@@ -83,6 +83,8 @@ class Event(object):
     self.sec = conv_to_set(sec, 60)
     self.func = func
     
+    self.__name__ = func.__name__
+    
     if not(self.mins and self.hours and self.days and self.months and self.dow and self.sec):
       self.goodCron = False
     else:
