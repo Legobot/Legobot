@@ -26,7 +26,7 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
 
-    packages=find_packages(exclude=['contrib', 'docs']),
+    packages=find_packages(exclude=['contrib', 'docs'])
 
-    #install_requires=['socket','select','string','ssl','threading','Queue','datetime','time','random'],
+    # install_requires=['socket','select','string','ssl','threading','Queue','datetime','time','random'],
 )
