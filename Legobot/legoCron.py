@@ -26,7 +26,7 @@ def conv_to_set(obj, divisible_val):  # Allow single integer to be provided
             return allMatch
 
         # just an int
-        if f_is_num(obj):
+        if is_integer(obj):
             if int(obj) > divisible_val - 1:
                 return False
             return list([int(obj)])
@@ -36,7 +36,7 @@ def conv_to_set(obj, divisible_val):  # Allow single integer to be provided
             # allow slash notation
             divisor = obj[obj.find("/") + 1:]
 
-            if f_is_num(divisor):
+            if is_integer(divisor):
                 return [x for x in range(divisible_val) if x % int(divisor) == 0]
 
             else:
@@ -57,7 +57,7 @@ def conv_to_set(obj, divisible_val):  # Allow single integer to be provided
                     end_num = match_obj.group(2)
                     lst = range(int(begin_num), int(end_num) + 1)
                     final_list.extend(lst)
-                elif f_is_num(itm):
+                elif is_integer(itm):
                     final_list.append(int(itm))
                 else:
                     return False
@@ -132,27 +132,21 @@ class Event(object):
             return self.func()
 
 
-def f_is_num(val):
+def is_integer(val):
     """
-    Inputs:
-      takes val which should either be string, int or float type, but can be anything
+    Determine whether a value is an integer.
 
-    Outputs:
-      returns whether or not val was able to be successfully cast as an int
-
-    Purpose:
-      Used to determine if a value is an integer or not, especially when taking input from IRC
+    :param val: a string, int, or float type
+    :return: whether val could be successfully cast as an int without loss of precision
     """
 
     try:
-        if float(val) != int(val):
+        float_cast = float(val)
+        int_cast = int(float_cast)
+        if float_cast != int_cast:
             return False
-
-        test = int(val)
-        test = int(float(val))
-
         return True
-    except:
+    except TypeError:
         return False
 
 
