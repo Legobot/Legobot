@@ -1,0 +1,14 @@
+language: python
+python:
+- '2.7'
+- pypy
+deploy:
+  provider: pypi
+  user: briggsb
+  password:
+    secure: btmbln/0zwP7geZxfi2oJNCsLHgoQ2Iwl/lPkjN6HBqJJm6MrorPBUUCiD9lSu4UQSAPD0ctGhdJP5GkHzMgmdOum2qMnX15btRSB+FIdoIKNB8THob9ViAlRv4t80f5eS5Yuqief/m1I4nM/2MoJDX0EEP/4ikOgvXavttIzC5SuLVJQoC3vFOV7pG84F7hLOWGXCrkSwnovNV99ReORLbwqoEiiCUkY6PMePv1EuXZybkJpEv1BqIF7+m4AuOgXJqthg1WuDsC1bAacPIPISlfKgme78vLXqFxBBKEER9jlkiLIOGAC9cJtbnqPKPr3uqoTYwnckCx9/geqNh3LFN+Cds5WPb3adQh5f1788miq38MOrGQWciltmMiUGBV5oEeW205pUztBWnWtk9A8x2BbLJi6YybYcG/UQlUru2zhQWQTnxHx0I3SnAbOBoiv7ndF2BMO5vmj4TAlWffRrmB4XALiNkLfpCPg9Jt0exxtnNFjLwA/rXV4AofywyEG7ab92TqPaJs6ygz4BPv41T5uARhbTSeIC1ZfjIMPzyvpQ1XU0508e5WUmuD4az/PWlwF7UENZKsFdBwIQ5iZPe1uZ8pzegJbQ+PzUOc+XNWQmshCdj4CqbHhcGUV77Ksuub0lGdzHVvh7mqc5lriVzHZFtQdc4v4bn2HULsrSY=
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: bbriggs/Legobot
+    branch: master
