@@ -42,6 +42,7 @@ class legoBot():
     self.randTimerFuncList = []
     self.threadQueue = None
     self.threadList = []
+    self.throttle = 0
     self.funcHelp = {}
     self.defaultFunc = defaultFunc
     self.defaultFuncChar = defaultFuncChar
@@ -67,6 +68,9 @@ class legoBot():
     #other function
     self.defaultFunc = func
     self.defaultFuncChar = char
+
+  def setThrottle(self, val):
+      self.throttle = val
 
   def addFunc(self, name, function, helpText = ""):
     #name should be str, function should be a function object (as in a function without the parens)
@@ -148,6 +152,7 @@ class legoBot():
         if response:
           try:
             self.connection.sendall(response)
+            time.sleep(self.throttle)
           except:
             print "Hit error with response: %s" % str(response)
             raise
