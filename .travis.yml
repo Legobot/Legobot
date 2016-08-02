@@ -2,6 +2,10 @@ language: python
 python:
 - '2.7'
 - pypy
+install: 
+  - pip install -r requirements.txt
+script:
+  - echo 'No tests yet #yolo'
 deploy:
   provider: pypi
   user: briggsb
