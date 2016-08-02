@@ -5,7 +5,7 @@ python:
 install: 
   - pip install -r requirements.txt
 script:
-  - echo 'No tests yet #yolo'
+  - echo 'No tests yet. yolo.'
 deploy:
   provider: pypi
   user: briggsb
