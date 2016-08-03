@@ -2,10 +2,10 @@ language: python
 python:
 - '2.7'
 - pypy
-install: 
-  - pip install -r requirements.txt
+install:
+- pip install -r requirements.txt
 script:
-  - echo 'No tests yet. yolo.'
+- echo 'No tests yet. yolo.'
 deploy:
   provider: pypi
   user: briggsb
@@ -17,7 +17,6 @@ deploy:
     repo: bbriggs/Legobot
     branch: master
 notifications:
-  irc: 
-    channels:
-      secure: VNUGqBXIFZvtX7Lf3H0bDt9vkBHS42tMSDAGZevWvh1vmfQfgmyJI0ZRvV5KkwK6gROQjK0ZGL9vB0BGOvCPEinwzETkwMQPgyI/670DVY1i50V8nH/VB7IgDF+9GhkY24tfJTAodHYpdhFl4hf2eke0F+aaxtFqZHt3NAaIwf99blM4P54d6LRHMIPj/MB72tAulXERoQ3nSkWPW9iA5h4KRC19e8JtmMyHxX0mTVJYIgu9CeLNTaoEV1rrKTcrJUYpA6Ea1PXkO2jC7EdMTEayM5pcaVhMcyYk7ddCKyz9N1YyPI6cbc5dr/FNzu1jKdDsX5d8xApIPPcInnMslGkHnGaMBKdc4sznABWBZa680NAPAx/oj9aWDRk/iXLnWeNwtUKLIJSuk9TCi+1UFJH/UisJR5lQiycbz3D8K53HdFKeWyGjANqwzKwH8esVfz2rO3uC33w9ZYX0Aaa5wJqZXwBmnEO5mVdJGpnCjp1G/yOYrnwbCEHc1RnVXcawVhtMiIAi6QMxN+z47L4KFTD38AfRyyBLcUOrBs+IqNfCJw7WMVKi0bObUkLGo0243WfjzecLPlp12bADaNK+7Mky8omKz6qgiyNBtp2bRt/BzN5hUBQUxdnRrfKYnAUU3xqcPw/C2K18tQgh1Fff3XTiNy/yvhWD9iCnFZeXeu8=
-      use_notice: true
+  irc:
+    channels: 
+      secure: U8Kd6T3g1bDvWEz8yd6AKnyUPlgpi2+5cSE19YpE8Hhn0ufE9Ml/hntR1B37C/YQQ5ec7mQu4LBrRypiAOhV2NJtUD46MamtPuoTPri64H6nNPTRiFDXxLr/w7M4W/VR079VCUHDdBJc1zP2sHGg9OqAOo6FksRohZW6IKbmBWW4/nLEsNEoHeyd3buOTw9xOEtGWFZptmza9JrNKJ+4WeHOMLd3QywYD9po0GKvcfHN4vV8310puwcHVYagx7vIK7eTr+33e++OCOsnS6dtL00ObqbmlqRE3I6vpdkXfT51vcTom1n9z8dJPoKR0n/3yEMr1DcofhvZ05E4k6brCgd/ocn/uMJGu24ZiIwKiyfxJOcGHK8T9+qME8oY95l6MQXXgr7gdPj+1eoWbLQGoxHb9sg7EpUfK7pSHGWGVmj7JFOZv/0DCubqkzoxWyNU5xQWKwWMInEwKfSHCgjGEb1CsFr7Dkpaqp1X9aWqpOu1xiGy/v2G1I8Rsb1wLGWH34GbbRWuIH2PvhDpfX+fc/Jmm5yLDzrT+CPXymKC/EcvSxlfJPVrFTtjh/ZAd/ypTHGUpmSeQg286pKWmri0E9lU/O62eCGBbpyw/Art2QFpLUa8VOnhTRz8nkG5P73BKmKgDsUsPR6GLCH91Q3MQMAPH0TXHNzRXHCP77WvQKo=
