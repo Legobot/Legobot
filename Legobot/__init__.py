@@ -30,11 +30,12 @@ class randTimerFunc():
     self.randMax = randMax
 
 class legoBot():
-  def __init__(self,host,port,nick,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = ""):
+  def __init__(self,host,port,nick,nickpass,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = ""):
     self.host = host
     self.hostpw = hostpw
     self.port = port
     self.nick = nick
+    self.nickpass = nickpass
     self.chans = chans
     self.logfunc = logfunc
     self.func = {}
@@ -102,6 +103,10 @@ class legoBot():
     self.connection.sendall("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
     print "sending: " + "USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick)
 
+    if self.nickpass != "":
+        print "sending: " + "PRIVMSG NickServ :IDENTIFY %s\r\n" % self.nickpass
+        self.connection.sendall("PRIVMSG NickServ :IDENTIFY %s\r\n" % self.nickpass)
+                
     time.sleep(1)
     for room, pw in self.chans:
       if pw:
