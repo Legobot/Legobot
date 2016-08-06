@@ -1,14 +1,15 @@
 class Message:
     def __init__(self):
         self.text = None
-        
+
+
 class Lego:
     def __init__(self):
-        self.finished = False
         self.children = []
+        self.finished = False
         
     def listening_for(self, message):
-        """Return whether this Lego is listening for a Message."""
+        """Return whether this Lego or a child is listening for a Message."""
         return (self.self_listening_for(message) or
                 self.child_listening_for(message))
         
@@ -17,7 +18,7 @@ class Lego:
         return False
     
     def child_listening_for(self, message):
-        """Return whether a child Lego is listening for a Message."""
+        """Return whether a child of this Lego is listening for a Message."""
         for child in self.children:
             if child.listening_for(message):
                 return True
@@ -38,9 +39,16 @@ class Lego:
         
     def cleanup(self):
         """Clean up finished children."""
+        for child in self.children:
+            child.cleanup()
         self.children = [child for child in self.children
                          if not child.finished]
-        
+        self.self_cleanup()
+
+    def self_cleanup(self):
+        """Clean up this Lego."""
+        return
+
 
 class Weather(Lego):
     class ZipCode(Lego):
@@ -48,34 +56,41 @@ class Weather(Lego):
             return message.text == '90210'
             
         def self_handle(self, message):
-            print 'The weather is sunny. It\'s California, after all.'
+            print('The weather is sunny. It\'s California, after all.')
             self.finished = True
-    
+
     def self_listening_for(self, message):
         return '!weather' in message.text
 
     def self_handle(self, message):
-        if self.self_listening_for(message):
-            zipcodeLego = self.ZipCode()
-            self.children.append(zipcodeLego)
+        zipcodeLego = self.ZipCode()
+        self.children.append(zipcodeLego)
+
+    # def self_cleanup(self):
+    #     if len(self.children) == 0:
+    #         self.finished = True
 
 
-baseplate = Lego()
-baseplate.children.append(Weather())
+def handle_incoming_message(message, baseplate):
+    """Handle an incoming Message."""
+    if baseplate.listening_for(message):
+        baseplate.handle(message)
+        baseplate.cleanup()
 
 
 message = Message()
 message.text = "!weather"
-
 message2 = Message()
 message2.text = '90210'
-
 messages = [message, message2]
 
-for message in messages:
-    if baseplate.listening_for(message):
-        baseplate.handle(message)
+baseplate = Lego()
+baseplate.children.append(Weather())
 
+for message in messages:
+    handle_incoming_message(message, baseplate)
+
+print(baseplate)
 
 # weather = Weather()
 # weather.handle(message)
