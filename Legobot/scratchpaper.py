@@ -1,6 +1,7 @@
 class Message:
     def __init__(self):
         self.text = None
+        self.metadata = None
 
 
 class Lego:
@@ -38,7 +39,7 @@ class Lego:
         return
         
     def cleanup(self):
-        """Clean up finished children."""
+        """Clean up this Lego and its children."""
         for child in self.children:
             child.cleanup()
         self.children = [child for child in self.children
@@ -78,6 +79,17 @@ def handle_incoming_message(message, baseplate):
         baseplate.cleanup()
 
 
+class Legobot:
+    def __init__(self):
+        self.legos = []
+        self.connections = []
+
+    def poll(self):
+        for connection in self.connections:
+            for message in connection.messages:
+                self.messages.append
+
+
 message = Message()
 message.text = "!weather"
 message2 = Message()
@@ -91,12 +103,3 @@ for message in messages:
     handle_incoming_message(message, baseplate)
 
 print(baseplate)
-
-# weather = Weather()
-# weather.handle(message)
-# print weather.children
-# print weather.listening_for(message2)
-# weather.handle(message2)
-# weather.cleanup()
-# print weather.children
-# print weather.listening_for(message2)
