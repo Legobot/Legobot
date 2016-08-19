@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import threading
 
 from Legobot.Lego import Lego
