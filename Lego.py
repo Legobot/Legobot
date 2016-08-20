@@ -14,17 +14,20 @@ class Lego(pykka.ThreadingActor):
             self.handler(self.message)
 
     def __init__(self, baseplate):
-        super(Lego, self).__init__()
+        super(pykka.ThreadingActor, self).__init__()
         self.baseplate = baseplate
         self.children = []
         self.finished = False
 
     def on_receive(self, message):
+        print(message)
         if self.listening_for(message):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
         for child in self.children:
+            print('Querying a child:' + str(child))
             child.tell(message)
+
 
     def listening_for(self, message):
         """
