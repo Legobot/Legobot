@@ -31,16 +31,18 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
 
 class IRCLego(Lego):
     def __init__(self, channel, nickname, server, baseplate, port=6667):
-        super(Lego, self).__init__(baseplate)
+        super().__init__(baseplate)
         self.botThread = IRCBot(channel, nickname, server, baseplate, port)
 
     def on_start(self):
         self.botThread.start()
 
     def listening_for(self, message):
-        # print('asking irc listener if it wants that')
-        # return (str(self) != str(message['metadata']['source']))
-        return True
+        return (str(self.botThread) != str(message['metadata']['source']))
+
+    def on_failure(self, exception_type, exception_value, traceback):
+        print(exception_type)
+        print(exception_value)
 
     def handle(self, message):
-        print(message['text'])
+        self.botThread.connection.privmsg("#social", message['text'])
