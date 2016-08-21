@@ -7,16 +7,23 @@ import threading
 from Lego import Lego
 
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
-    def __init__(self, channel, nickname, server, baseplate, port=6667):
+    def __init__(self, channel, nickname, server, baseplate, port=6667, use_ssl=False):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
         threading.Thread.__init__(self)
         self.channel = channel
+        self.nickname = nickname
+        self.server = server
         self.baseplate = baseplate
+        self.port = port
+        self.use_ssl = use_ssl
 
     def connect(self, *args, **kwargs):
-        factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
-        self.connection.connect('irc.sithmail.com', 6697, 'TheOperative', connect_factory=factory)
-        self.connection.join("#social")
+        if self.use_ssl:
+            factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+        else:
+            factory = irc.connection.Factory()
+        self.connection.connect(self.server, self.port, self.nickname, connect_factory=factory)
+        self.connection.join(self.channel)
 
     def on_pubmsg(self, c, e):
         text = e.arguments[0]
@@ -30,9 +37,10 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
 
 
 class IRCLego(Lego):
-    def __init__(self, channel, nickname, server, baseplate, lock, port=6667):
+    def __init__(self, channel, nickname, server, baseplate, lock, port=6667, use_ssl=False):
         super().__init__(baseplate, lock)
-        self.botThread = IRCBot(channel, nickname, server, baseplate, port)
+        self.botThread = IRCBot(channel, nickname, server, baseplate, port, use_ssl)
+        self.channel = channel
 
     def on_start(self):
         self.botThread.start()
@@ -45,4 +53,4 @@ class IRCLego(Lego):
         print(exception_value)
 
     def handle(self, message):
-        self.botThread.connection.privmsg("#social", message['text'])
+        self.botThread.connection.privmsg(self.channel, message['text'])
