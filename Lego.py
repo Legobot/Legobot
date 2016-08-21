@@ -17,14 +17,21 @@ class Lego(pykka.ThreadingActor):
         super(pykka.ThreadingActor, self).__init__()
         self.baseplate = baseplate
         self.children = []
-        self.finished = False
 
     def on_receive(self, message):
         if self.listening_for(message):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
+        new_children = []
         for child in self.children:
-            child.tell(message)
+            try:
+                child.tell(message)
+                new_children.append(child)
+                print(new_children)
+            except pykka.ActorDeadError:
+                print('child dead')
+                pass
+        self.children = new_children
 
 
     def listening_for(self, message):
@@ -48,3 +55,8 @@ class Lego(pykka.ThreadingActor):
         :return: None
         """
         return
+
+    def on_failure(self, exception_type, exception_value, traceback):
+        print('Lego crashed')
+        print(exception_type)
+        print(exception_value)
