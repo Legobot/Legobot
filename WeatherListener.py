@@ -21,3 +21,9 @@ class WeatherListener(Lego):
         response = {"text": "Please enter a zipcode.", "metadata": metadata}
         self.baseplate.tell(response)
         self.children.append(self.ZipCodeListener.start(self.baseplate))
+        print(self.children)
+
+    def on_failure(self, exception_type, exception_value, traceback):
+        print('WeatherListener crashed.')
+        print(exception_type)
+        print(exception_value)
