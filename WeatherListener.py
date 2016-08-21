@@ -28,11 +28,10 @@ class WeatherListener(Lego):
         metadata = {"source": self}
         response = {"text": "Please enter a zipcode.", "metadata": metadata}
         self.baseplate.tell(response)
-        lock = threading.Lock()
-        lock.acquire()
-        self.children.append(self.ZipCodeListener.start(self.baseplate))
+        self.lock.acquire()
+        self.children.append(self.ZipCodeListener.start(self.baseplate, self.lock))
         print(self.children)
-        lock.release()
+        self.lock.release()
 
     def on_failure(self, exception_type, exception_value, traceback):
         print('WeatherListener crashed.')
