@@ -13,27 +13,25 @@ class Lego(pykka.ThreadingActor):
         def run(self):
             self.handler(self.message)
 
-    def __init__(self, baseplate):
+    def __init__(self, baseplate, lock):
         super(pykka.ThreadingActor, self).__init__()
         self.baseplate = baseplate
         self.children = []
         self.finished = False
+        self.lock = lock
 
     def on_receive(self, message):
         if self.listening_for(message):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
-        lock = threading.Lock()
-        lock.acquire()
+        self.lock.acquire()
         proxies = {child: child.proxy() for child in self.children}
         finished = {child: proxies[child].finished.get() for child in self.children}
         self.children = [child for child in self.children if not finished[child]]
+        self.lock.release()
         # self.children = [child for child in self.children if child.is_alive()]
-        if self.baseplate is None:
-            print('Baseplate: ' + str(self.children))
         for child in self.children:
             child.tell(message)
-        lock.release()
 
             # new_children = []
         #  for child in self.children:
