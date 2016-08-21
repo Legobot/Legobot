@@ -14,7 +14,6 @@ class WeatherListener(Lego):
             self.stop()
 
     def listening_for(self, message):
-        print('asking weatherlistener if it wants that')
         return '!weather' in message['text']
 
     def handle(self, message):
