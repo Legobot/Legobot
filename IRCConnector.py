@@ -30,8 +30,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
 
 
 class IRCLego(Lego):
-    def __init__(self, channel, nickname, server, baseplate, port=6667):
-        super().__init__(baseplate)
+    def __init__(self, channel, nickname, server, baseplate, lock, port=6667):
+        super().__init__(baseplate, lock)
         self.botThread = IRCBot(channel, nickname, server, baseplate, port)
 
     def on_start(self):
