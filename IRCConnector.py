@@ -6,10 +6,8 @@ import irc.bot
 import threading
 from Lego import Lego
 
-
-class IRCLego(Lego, threading.Thread, irc.bot.SingleServerIRCBot):
+class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
     def __init__(self, channel, nickname, server, baseplate, port=6667):
-        super(Lego, self).__init__(baseplate)
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
         threading.Thread.__init__(self)
         self.channel = channel
@@ -26,16 +24,23 @@ class IRCLego(Lego, threading.Thread, irc.bot.SingleServerIRCBot):
         message = {"text": text, "metadata": metadata}
         self.baseplate.tell(message)
 
-    def on_start(self):
-        super(threading.Thread, self).start()
-
     def run(self):
         self._connect()
         super(irc.bot.SingleServerIRCBot, self).start()
 
+
+class IRCLego(Lego):
+    def __init__(self, channel, nickname, server, baseplate, port=6667):
+        super(Lego, self).__init__(baseplate)
+        self.botThread = IRCBot(channel, nickname, server, baseplate, port)
+
+    def on_start(self):
+        self.botThread.start()
+
     def listening_for(self, message):
-        print('asking irc listener if it wants that')
-        return (str(self) != str(message['metadata']['source']))
+        # print('asking irc listener if it wants that')
+        # return (str(self) != str(message['metadata']['source']))
+        return True
 
     def handle(self, message):
         print(message['text'])
