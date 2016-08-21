@@ -7,11 +7,12 @@ import IRCConnector
 import Message
 import threading
 
-baseplate = Lego.start(None)
+lock = threading.Lock()
+baseplate = Lego.start(None, lock)
 
-weather_listener = WeatherListener.WeatherListener.start(baseplate)
+weather_listener = WeatherListener.WeatherListener.start(baseplate, lock)
 # cli_printer = CommandLinePrinter.CommandLinePrinter.start(baseplate)
-irc_connector = IRCConnector.IRCLego.start('#social', 'TheOperative', 'irc.sithmail.com', baseplate, 6697)
+irc_connector = IRCConnector.IRCLego.start('#social', 'TheOperative', 'irc.sithmail.com', baseplate, lock, 6697)
 
 
 baseplate_proxy = baseplate.proxy()
