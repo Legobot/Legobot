@@ -1,6 +1,4 @@
 from Lego import Lego
-import Message
-import threading
 
 
 class WeatherListener(Lego):
@@ -12,7 +10,6 @@ class WeatherListener(Lego):
             metadata = {"source": self, "dest": message['metadata']['source']}
             response = {"text": "The weather is sunny!", "metadata": metadata}
             self.baseplate.tell(response)
-            self.finished = True
             self.actor_ref.stop()
 
         def on_stop(self):
@@ -29,8 +26,8 @@ class WeatherListener(Lego):
         response = {"text": "Please enter a zipcode.", "metadata": metadata}
         self.baseplate.tell(response)
         self.lock.acquire()
+        print('Acquired lock in handle for ' + str(self))
         self.children.append(self.ZipCodeListener.start(self.baseplate, self.lock))
-        print(self.children)
         self.lock.release()
 
     def on_failure(self, exception_type, exception_value, traceback):

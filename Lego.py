@@ -17,32 +17,27 @@ class Lego(pykka.ThreadingActor):
         super(pykka.ThreadingActor, self).__init__()
         self.baseplate = baseplate
         self.children = []
-        self.finished = False
         self.lock = lock
 
     def on_receive(self, message):
         if self.listening_for(message):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
-        self.lock.acquire()
-        proxies = {child: child.proxy() for child in self.children}
-        finished = {child: proxies[child].finished.get() for child in self.children}
-        self.children = [child for child in self.children if not finished[child]]
-        self.lock.release()
-        # self.children = [child for child in self.children if child.is_alive()]
+        self.cleanup()
         for child in self.children:
             child.tell(message)
 
-            # new_children = []
-        #  for child in self.children:
-        #     try:
-        #         child.tell(message)
-        #         new_children.append(child)
-        #     except pykka.ActorDeadError:
-        #         print('The child was dead')
-        #         pass
-        # print('New Children for ' + str(self) + str(new_children))
-        # self.children = new_children
+
+    def cleanup(self):
+        """
+        Clean up finished children.
+
+        :return: None
+        """
+        self.lock.acquire()
+        print('Acquired lock in cleanup for ' + str(self))
+        self.children = [child for child in self.children if child.is_alive()]
+        self.lock.release()
 
     def listening_for(self, message):
         """
