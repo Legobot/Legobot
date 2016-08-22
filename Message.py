@@ -13,5 +13,6 @@ class Metadata():
     Message Metadata is passed as a dictionary. This class provides fields corresponding to the keys in that dictionary
     to facilitate the construction of such dictionaries.
     """
-    def __init__(self, source=None):
+    def __init__(self, source=None, dest=None):
         self.source = source
+        self.dest = dest
