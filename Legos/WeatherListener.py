@@ -29,8 +29,3 @@ class WeatherListener(Lego):
         print('Acquired lock in handle for ' + str(self))
         self.children.append(self.ZipCodeListener.start(self.baseplate, self.lock))
         self.lock.release()
-
-    def on_failure(self, exception_type, exception_value, traceback):
-        print('WeatherListener crashed.')
-        print(exception_type)
-        print(exception_value)
