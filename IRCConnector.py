@@ -68,9 +68,5 @@ class IRCLego(Lego):
     def listening_for(self, message):
         return (str(self.botThread) != str(message['metadata']['source']))
 
-    def on_failure(self, exception_type, exception_value, traceback):
-        print(exception_type)
-        print(exception_value)
-
     def handle(self, message):
         self.botThread.connection.privmsg(self.channel, message['text'])
