@@ -18,6 +18,15 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.use_ssl = use_ssl
 
     def connect(self, *args, **kwargs):
+        """
+        Connect to a server.
+
+        This overrides the function in SimpleIRCClient to provide SSL functionality.
+
+        :param args:
+        :param kwargs:
+        :return:
+        """
         if self.use_ssl:
             factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
         else:
@@ -26,12 +35,23 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.connection.join(self.channel)
 
     def on_pubmsg(self, c, e):
+        """
+        This function runs when the bot receives a public message.
+        """
         text = e.arguments[0]
         metadata = {"source": self}
         message = {"text": text, "metadata": metadata}
         self.baseplate.tell(message)
 
     def run(self):
+        """
+        Run the bot in a thread.
+
+        Implementing the IRC listener as a thread allows it to listen without blocking IRCLego's ability to listen
+        as a pykka actor.
+
+        :return: None
+        """
         self._connect()
         super(irc.bot.SingleServerIRCBot, self).start()
 
