@@ -78,6 +78,6 @@ class Lego(pykka.ThreadingActor):
         return
 
     def on_failure(self, exception_type, exception_value, traceback):
-        print('Lego crashed')
+        print('Lego crashed: ' + str(self))
         print(exception_type)
         print(exception_value)
