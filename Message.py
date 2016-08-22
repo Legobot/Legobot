@@ -1,18 +1,17 @@
 class Message():
+    """
+    Messages in pykka must be passed as dictionaries. This class provides fields corresponding to the keys in that
+    dictionary to facilitate the construction of such messages.
+    """
     def __init__(self, text, metadata):
         self.text = text
         self.metadata = metadata
 
-    def build(self):
-        message = {}
-        message['text'] = self.text
-        message['metadata'] = self.metadata
-
 
 class Metadata():
+    """
+    Message Metadata is passed as a dictionary. This class provides fields corresponding to the keys in that dictionary
+    to facilitate the construction of such dictionaries.
+    """
     def __init__(self, source=None):
         self.source = source
-
-    def build(self):
-        metadata = {}
-        metadata['source'] = self.source

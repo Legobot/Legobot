@@ -27,8 +27,8 @@ class BingImageSearch(Lego):
         else:
             url = random.choice(urls)
 
-        metadata = Metadata(source=self).build()
-        message = Message(text=str(url), metadata=metadata).build()
+        metadata = Metadata(source=self).__dict__()
+        message = Message(text=str(url), metadata=metadata).__dict__()
         self.baseplate.tell(message)
 
     def _make_url(self, query):
