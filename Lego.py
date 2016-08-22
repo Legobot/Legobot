@@ -1,4 +1,3 @@
-import time
 import threading
 import pykka
 
@@ -26,7 +25,6 @@ class Lego(pykka.ThreadingActor):
         self.cleanup()
         for child in self.children:
             child.tell(message)
-
 
     def cleanup(self):
         """
