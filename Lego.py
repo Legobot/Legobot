@@ -4,6 +4,10 @@ import pykka
 
 class Lego(pykka.ThreadingActor):
     class HandlerThread(threading.Thread):
+        """
+        This class provides a simple thread for running message handlers. It is used to ensure that message handlers
+        do not block other Legos from running by simply taking too long to execute.
+        """
         def __init__(self, handler, message):
             threading.Thread.__init__(self)
             self.handler = handler
@@ -13,12 +17,26 @@ class Lego(pykka.ThreadingActor):
             self.handler(self.message)
 
     def __init__(self, baseplate, lock):
-        super(pykka.ThreadingActor, self).__init__()
+        """
+        :param baseplate: the baseplate Lego, which should be the same instance of Lego for all Legos
+        :param lock: a threading lock, which should be the same instance of threading.Lock for all Legos
+        """
+        super().__init__()
         self.baseplate = baseplate
         self.children = []
         self.lock = lock
 
     def on_receive(self, message):
+        """
+        Handle being informed of a message.
+
+        This function is called whenever a Lego receives a message, as specified in the pykka documentation.
+
+        Legos should not override this function.
+
+        :param message:
+        :return:
+        """
         if self.listening_for(message):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
