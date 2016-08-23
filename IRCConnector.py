@@ -4,6 +4,7 @@ import irc.client
 import irc.connection
 import irc.bot
 import threading
+from Message import *
 from Lego import Lego
 
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
@@ -39,8 +40,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         This function runs when the bot receives a public message.
         """
         text = e.arguments[0]
-        metadata = {"source": self}
-        message = {"text": text, "metadata": metadata}
+        metadata = Metadata(source=self).__dict__
+        message = Message(text=text, metadata=metadata).__dict__
         self.baseplate.tell(message)
 
     def run(self):
