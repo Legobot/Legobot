@@ -5,3 +5,4 @@ Legobot/*.pyc
 Legobot.egg-info/
 .vagrant/
 dist/
+tips.json
