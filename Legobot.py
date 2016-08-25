@@ -15,7 +15,7 @@ irc_connector = IRCConnector.IRCLego.start('#testing', 'TheOperative', 'irc.sith
 tips = Tip.Tip.start(baseplate, lock)
 tip_printer = PrintTips.PrintTips.start(baseplate, lock)
 
-# img_search = BingImageSearch.BingImageSearch.start(baseplate, lock)
+img_search = BingImageSearch.BingImageSearch.start(baseplate, lock)
 
 baseplate_proxy = baseplate.proxy()
 baseplate_proxy.children.get().append(weather_listener)
@@ -23,4 +23,4 @@ baseplate_proxy.children.get().append(irc_connector)
 baseplate_proxy.children.get().append(tips)
 baseplate_proxy.children.get().append(tip_printer)
 
-# baseplate_proxy.children.get().append(img_search)
+baseplate_proxy.children.get().append(img_search)
