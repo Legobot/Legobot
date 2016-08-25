@@ -11,11 +11,10 @@ class BingImageSearch(Lego):
 
 
     def listening_for(self, message):
-        return '!img'
+        return message['text'].split()[0] == '!img'
 
     def handle(self, message):
-        command_end_index = message['text'].find('!img') + 4
-        query = ' '.join(message['text'][command_end_index:])
+        query = ' '.join(message['text'].split()[1:])
         query = query.replace(' ', '%20')
         req_url = self._make_url(query)
         response = requests.get(req_url)
@@ -27,8 +26,8 @@ class BingImageSearch(Lego):
         else:
             url = random.choice(urls)
 
-        metadata = Metadata(source=self).__dict__()
-        message = Message(text=str(url), metadata=metadata).__dict__()
+        metadata = Metadata(source=self).__dict__
+        message = Message(text=str(url), metadata=metadata).__dict__
         self.baseplate.tell(message)
 
     def _make_url(self, query):
