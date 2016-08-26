@@ -77,6 +77,29 @@ class Lego(pykka.ThreadingActor):
         """
         return
 
+    def add_child(self, child_type, *args, **kwargs):
+        """
+        Initialize and keep track of a child.
+
+        :param child_type: a class inheriting from Lego to initialize an instance of
+        :param args: arguments for initializing the child
+        :param kwargs: keyword arguments for initializing the child
+        :return:
+        """
+        try:
+            baseplate = kwargs['baseplate']
+        except:
+            if self.baseplate is None:
+                baseplate = self.actor_ref
+            else:
+                baseplate = self.baseplate
+        try:
+            lock = kwargs['lock']
+        except:
+            lock = self.lock
+        child = child_type.start(baseplate, lock, *args, **kwargs)
+        self.children.append(child)
+
     def on_failure(self, exception_type, exception_value, traceback):
         print('Lego crashed: ' + str(self))
         print(exception_type)
