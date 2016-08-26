@@ -8,9 +8,7 @@ class WeatherListener(Lego):
             return '90210' in message['text']
 
         def handle(self, message):
-            metadata = Metadata(source=self, dest=message['metadata']['source']).__dict__
-            response = Message(text='The weather is sunny!', metadata=metadata).__dict__
-            self.baseplate.tell(response)
+            self.reply(message, "The weather is sunny.")
             self.actor_ref.stop()
 
         def on_stop(self):
@@ -23,9 +21,7 @@ class WeatherListener(Lego):
         return '!weather' in message['text']
 
     def handle(self, message):
-        metadata = Metadata(source=self, dest=message['metadata']['source']).__dict__
-        response = Message(text='Please enter a zipcode.', metadata=metadata).__dict__
-        self.baseplate.tell(response)
+        self.reply(message, "Please enter a zipcode.")
         self.lock.acquire()
         print('Acquired lock in handle for ' + str(self))
         self.children.append(self.ZipCodeListener.start(self.baseplate, self.lock))
