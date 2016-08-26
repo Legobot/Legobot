@@ -1,6 +1,6 @@
 import threading
 import pykka
-
+from Message import *
 
 class Lego(pykka.ThreadingActor):
     class HandlerThread(threading.Thread):
@@ -99,6 +99,18 @@ class Lego(pykka.ThreadingActor):
             lock = self.lock
         child = child_type.start(baseplate, lock, *args, **kwargs)
         self.children.append(child)
+
+    def reply(self, message, text):
+        """
+        Reply to the sender of the provided message with a message containing the provided text.
+
+        :param message: the message to reply to
+        :param text: the text to reply with
+        :return: None
+        """
+        metadata = Metadata(source=self, dest=message['metadata']['source']).__dict__
+        message = Message(text=text, metadata=metadata).__dict__
+        self.baseplate.tell(message)
 
     def on_failure(self, exception_type, exception_value, traceback):
         print('Lego crashed: ' + str(self))
