@@ -8,7 +8,7 @@ from Message import *
 from Lego import Lego
 
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
-    def __init__(self, channel, nickname, server, baseplate, port=6667, use_ssl=False):
+    def __init__(self,  baseplate, channel, nickname, server, port=6667, use_ssl=False):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
         threading.Thread.__init__(self)
         self.channel = channel
@@ -58,10 +58,15 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
 
 
 class IRCLego(Lego):
-    def __init__(self, channel, nickname, server, baseplate, lock, port=6667, use_ssl=False):
+    # def __init__(self, channel, nickname, server, port=6667, use_ssl=False, baseplate=None, lock=None):
+    #     super().__init__(baseplate=baseplate, lock=lock)
+    #     self.botThread = IRCBot(self.baseplate, channel, nickname, server, port, use_ssl)
+    #     self.channel = channel
+
+    def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
-        self.botThread = IRCBot(channel, nickname, server, baseplate, port, use_ssl)
-        self.channel = channel
+        self.botThread = IRCBot(baseplate, *args, **kwargs)
+        self.channel = args[0]
 
     def on_start(self):
         self.botThread.start()
