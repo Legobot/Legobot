@@ -11,6 +11,6 @@ class WikipediaTopFinder(Lego):
         search_params = '%20'.join(message['text'].split()[1:])
         r = requests.get(baseurl + search_params)
         if r.status_code == 200:
-            return "I found this: " + r.url
+            self.reply(message, "I found this: " + r.url)
         else:
-            return "I could not reach Wikipedia. Sorry."
+            self.reply(message, "I could not reach Wikipedia. Sorry.")

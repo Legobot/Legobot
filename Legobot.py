@@ -6,6 +6,7 @@ from Legos.WeatherListener import WeatherListener
 from Legos.BingImageSearch import BingImageSearch
 from Legos.Tip import Tip
 from Legos.PrintTips import PrintTips
+from Legos.WikipediaTopFinder import WikipediaTopFinder
 
 # Initialize lock and baseplate
 lock = threading.Lock()
@@ -18,3 +19,4 @@ baseplate_proxy.add_child(Tip)
 baseplate_proxy.add_child(PrintTips)
 baseplate_proxy.add_child(BingImageSearch)
 baseplate_proxy.add_child(IRCLego, '#testing', 'TheOperative', 'irc.sithmail.com', 6697, True)
+baseplate_proxy.add_child(WikipediaTopFinder)
