@@ -1,6 +1,11 @@
 import unittest
+<<<<<<< HEAD
 from Legobot.Message import *
 from Legobot.Lego import Lego
+=======
+from Source.Message import *
+from Source.Lego import Lego
+>>>>>>> 8e61541... Adding unit tests for Lego and Message
 import threading
 
 class TestMetadata(unittest.TestCase):
@@ -20,6 +25,7 @@ class TestMessage(unittest.TestCase):
     def test_initialization(self):
         source = Lego(None, threading.Lock())
         metadata = Metadata(source)
+<<<<<<< HEAD
         message = Message('a message', metadata, True)
         assert(message.text == 'a message')
         assert(message.metadata == metadata)
@@ -30,3 +36,8 @@ class TestMessage(unittest.TestCase):
         metadata = Metadata(source)
         message = Message('a message', metadata)
         assert(not message.should_log)
+=======
+        message = Message('a message', metadata)
+        assert(message.text == 'a message')
+        assert(message.metadata == metadata)
+>>>>>>> 8e61541... Adding unit tests for Lego and Message
