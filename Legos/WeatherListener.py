@@ -75,3 +75,9 @@ class WeatherListener(Lego):
             short_forecast_data,
         )
         self.reply(message, reply)
+
+    def get_name(self):
+        return 'weather'
+
+    def get_help(self):
+        return 'Get the weather for a US 5-digit zip code. Usage: !weather <zipcode>'
