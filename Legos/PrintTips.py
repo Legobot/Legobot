@@ -19,7 +19,7 @@ class PrintTips(Lego):
             try:
                 tips = json.loads(json_str)
             except:
-                print('Failed to read in printtips')
+                print('Failed to read in tips')
                 tips = {}
             for tip in tips:
                 metadata = Metadata(source=self, dest=message['metadata']['source']).__dict__

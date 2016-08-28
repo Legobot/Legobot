@@ -1,4 +1,5 @@
 import json
+import os
 
 from Message import *
 from Source.Lego import Lego
@@ -16,6 +17,10 @@ class Tip(Lego):
         user = message['text'].split()[1]
         tip_amount = int(message['text'].split()[2])
         json_str = None
+        if not os.path.isfile(self.tips_file):
+            with open(self.tips_file, 'w') as f:
+                json_str = '{}'
+                f.write(json_str)
         with open(self.tips_file, 'r') as f:
             json_str = f.read()
             print(json_str)
