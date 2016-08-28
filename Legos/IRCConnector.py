@@ -1,11 +1,12 @@
 import ssl
+import threading
 
+import irc.bot
 import irc.client
 import irc.connection
-import irc.bot
-import threading
+
 from Message import *
-from Lego import Lego
+from Source.Lego import Lego
 
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
     def __init__(self,  baseplate, channel, nickname, server, port=6667, use_ssl=False):
