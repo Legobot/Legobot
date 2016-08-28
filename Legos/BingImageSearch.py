@@ -38,3 +38,10 @@ class BingImageSearch(Lego):
         req_url += '?q=' + query
         req_url += '&safesearch=on'
         return req_url
+
+    def get_name(self):
+        return 'img'
+
+    def get_help(self):
+        return ('Search Bing for a random image. Safesearch is enabled, but you have been warned. ' +
+                'Usage: !img <search string>')
