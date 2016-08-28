@@ -39,3 +39,8 @@ class Tip(Lego):
                               metadata=metadata).__dict__
             self.baseplate.tell(message)
 
+    def get_name(self):
+        return 'tip'
+
+    def get_help(self):
+        return 'Tip a user. Usage: !tip <username> <integer>'
