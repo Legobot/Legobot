@@ -1,6 +1,7 @@
 import random
 from Source.Lego import Lego
 
+
 class Roll(Lego):
     def listening_for(self, message):
         return message['text'].split()[0] == '!roll'

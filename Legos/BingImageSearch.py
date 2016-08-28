@@ -10,8 +10,8 @@ from Source.Lego import Lego
 class BingImageSearch(Lego):
     def __init__(self, baseplate, lock):
         super().__init__(baseplate, lock)
-        self.user_agent = 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 1.1.4322)'
-
+        self.user_agent = 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727;' +\
+                          ' InfoPath.2; .NET CLR 1.1.4322)'
 
     def listening_for(self, message):
         return message['text'].split()[0] == '!img'
