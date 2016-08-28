@@ -8,9 +8,9 @@ class WikipediaTopFinder(Lego):
         return message['text'].split()[0] == '!wtf'
 
     def handle(self, message):
-        baseurl = 'https://en.wikipedia.org/w/index.php?search='
+        base_url = 'https://en.wikipedia.org/w/index.php?search='
         search_params = '%20'.join(message['text'].split()[1:])
-        r = requests.get(baseurl + search_params)
+        r = requests.get(base_url + search_params)
         if r.status_code == 200:
             self.reply(message, "I found this: " + r.url)
         else:
