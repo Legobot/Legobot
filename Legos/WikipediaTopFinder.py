@@ -15,3 +15,9 @@ class WikipediaTopFinder(Lego):
             self.reply(message, "I found this: " + r.url)
         else:
             self.reply(message, "I could not reach Wikipedia. Sorry.")
+
+    def get_name(self):
+        return 'wtf'
+
+    def get_help(self):
+        return 'Wikipedia Top Finder. Search Wikipedia. Usage: !wtf <search string>'

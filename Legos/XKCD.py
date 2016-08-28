@@ -16,3 +16,9 @@ class XKCD(Lego):
             altText = comic.group(2).replace("&#39;","'")
             returnVal = "%s %s" %(altText,"http:" + comic.group(1))
         self.reply(message, returnVal)
+
+    def get_name(self):
+        return 'xkcd'
+
+    def get_help(self):
+        return 'Get a random xkcd comic from the web. Usage: !xkcd'

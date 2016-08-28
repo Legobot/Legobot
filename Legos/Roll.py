@@ -16,3 +16,9 @@ class Roll(Lego):
         results = [random.randint(1, num_sides) for i in range(num_dice)]
         self.reply(message, 'You Rolled: ' + ' '.join([str(result) for result in results]))
         self.reply(message, 'Your Total: ' + str(sum(results)))
+
+    def get_name(self):
+        return 'roll'
+
+    def get_help(self):
+        return 'Roll some dice. Usage: !roll 20, !roll 2d8'
