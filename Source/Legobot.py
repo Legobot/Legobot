@@ -11,6 +11,8 @@ from Legos.WikipediaTopFinder import WikipediaTopFinder
 from Legos.Roll import Roll
 from Legos.XKCD import XKCD
 from Legos.Help import Help
+from Legos.Commendations import Commendations
+from Legos.Commendations import PrintCommendations
 
 # Initialize lock and baseplate
 lock = threading.Lock()
@@ -27,3 +29,5 @@ baseplate_proxy.add_child(WikipediaTopFinder)
 baseplate_proxy.add_child(Roll)
 baseplate_proxy.add_child(XKCD)
 baseplate_proxy.add_child(Help)
+baseplate_proxy.add_child(Commendations)
+baseplate_proxy.add_child(PrintCommendations)
