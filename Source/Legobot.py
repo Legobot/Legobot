@@ -1,12 +1,12 @@
 import threading
 
-from Lego import Lego
 from Legos.BingImageSearch import BingImageSearch
 from Legos.IRCConnector import IRCConnector
 from Legos.PrintTips import PrintTips
 from Legos.Tip import Tip
 from Legos.WeatherListener import WeatherListener
 from Legos.WikipediaTopFinder import WikipediaTopFinder
+from Source.Lego import Lego
 
 # Initialize lock and baseplate
 lock = threading.Lock()
