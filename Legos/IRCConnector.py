@@ -77,3 +77,6 @@ class IRCConnector(Lego):
 
     def handle(self, message):
         self.botThread.connection.privmsg(self.channel, message['text'])
+
+    def get_name(self):
+        return None

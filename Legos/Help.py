@@ -19,7 +19,8 @@ class Help(Lego):
             lego_names = []
             for lego in legos:
                 lego_proxy = lego.proxy()
-                lego_names.append(lego_proxy.get_name().get())
+                if lego_proxy.get_name().get() is not None:
+                    lego_names.append(lego_proxy.get_name().get())
             help_str = 'Available functions: ' + ', '.join(lego_names)
 
         if function:
@@ -29,3 +30,6 @@ class Help(Lego):
                     help_str = lego_proxy.get_help().get()
 
         self.reply(message, help_str)
+
+    def get_name(self):
+        return None
