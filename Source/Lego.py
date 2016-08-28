@@ -113,6 +113,22 @@ class Lego(pykka.ThreadingActor):
         message = Message(text=text, metadata=metadata).__dict__
         self.baseplate.tell(message)
 
+    def get_name(self):
+        """
+        Return the name the Lego recognizes from the help function.
+
+        :return: a string
+        """
+        return '?'
+
+    def get_help(self):
+        """
+        Return a helpstring for the function.
+
+        :return: a string
+        """
+        return ''
+
     def on_failure(self, exception_type, exception_value, traceback):
         print('Lego crashed: ' + str(self))
         print(exception_type)
