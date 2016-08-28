@@ -1,7 +1,7 @@
 from Source.Lego import Lego
-import urllib3
 import requests
 import re
+
 
 class XKCD(Lego):
     def listening_for(self, message):
@@ -14,8 +14,10 @@ class XKCD(Lego):
         comic = re.search(r'<div id="comic".*?\n?.*?(//im.+?)".+?\s?title="(.+?)"',webpage)
         if comic:
             altText = comic.group(2).replace("&#39;","'")
-            returnVal = "%s %s" %(altText,"http:" + comic.group(1))
-        self.reply(message, returnVal)
+            return_val = "%s %s" %(altText,"http:" + comic.group(1))
+        else:
+            return_val = 'Error encountered.'
+        self.reply(message, return_val)
 
     def get_name(self):
         return 'xkcd'

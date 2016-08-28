@@ -1,4 +1,7 @@
 from Source.Lego import Lego
+import configparser
+import requests
+import os
 
 
 class WeatherListener(Lego):
@@ -10,19 +13,14 @@ class WeatherListener(Lego):
         # Uses the Weather Underground API to check current conditions and a forecast
         # Pulls its API key from api.cfg file in the same directory as your bot.
 
-        import configparser
-        import re
-        import requests
-        import os
-
         try:
             zipcode = message['text'].split()[1]
-        except:
+        except IndexError:
             self.reply(message, "Please provide a zip code for me to check")
             return
 
         if not len(zipcode) == 5:
-            self.reply("I only support 5 digit, US zip codes.")
+            self.reply(message, "I only support 5 digit, US zip codes.")
 
         api_keys = configparser.ConfigParser()
         if os.path.isfile('api.cfg'):
@@ -31,15 +29,15 @@ class WeatherListener(Lego):
             self.reply(message, "No API keys found. Please initialize your api.cfg file.")
 
         try:
-            WUNDERGROUND_API_KEY = api_keys.get('API', 'wunderground')
+            wunderground_api_key = api_keys.get('API', 'wunderground')
         except Exception as e:
             return e
 
         zipcode = message.arg1
         current = requests.get(
-            "http://api.wunderground.com/api/%s/conditions/q/%s.json" % (WUNDERGROUND_API_KEY, zipcode))
+            "http://api.wunderground.com/api/%s/conditions/q/%s.json" % (wunderground_api_key, zipcode))
         forecast = requests.get(
-            "http://api.wunderground.com/api/%s/forecast/q/%s.json" % (WUNDERGROUND_API_KEY, zipcode))
+            "http://api.wunderground.com/api/%s/forecast/q/%s.json" % (wunderground_api_key, zipcode))
         current = current.json()
         forecast = forecast.json()
         try:
@@ -56,12 +54,16 @@ class WeatherListener(Lego):
             short_forecast_period = forecast['forecast']['txt_forecast']['forecastday'][1]['title']
             short_forecast_data = forecast['forecast']['txt_forecast']['forecastday'][1]['fcttext']
 
-            forecast_url = current['current_observation']['forecast_url']
+            # forecast_url = current['current_observation']['forecast_url']
 
         except:
-            return "Unable to find information on that zip code right now. Please check again later or petition Congress to have it created."
+            self.reply(message, ("Unable to find information on that zip code right now." +
+                                 "Please check again later or petition Congress to have it created."))
+            return
 
-        reply = "The weather in %s is currently %s with a temperature of %s degrees, humidity of %s, and it feels like %s degress. Wind is %s, blowing %s at %s mph with %s mph gusts. Forecast for %s: %s" % (
+        reply = ("The weather in %s is currently %s with a temperature of %s degrees, humidity of %s, " +
+                 "and it feels like %s degress. Wind is %s, blowing %s at %s mph with %s mph gusts. " +
+                 "Forecast for %s: %s") % (
             location,
             condition,
             temp_f,

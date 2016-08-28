@@ -8,6 +8,7 @@ import irc.connection
 from Message import *
 from Source.Lego import Lego
 
+
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
     def __init__(self,  baseplate, channel, nickname, server, port=6667, use_ssl=False):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
@@ -73,7 +74,7 @@ class IRCConnector(Lego):
         self.botThread.start()
 
     def listening_for(self, message):
-        return (str(self.botThread) != str(message['metadata']['source']))
+        return str(self.botThread) != str(message['metadata']['source'])
 
     def handle(self, message):
         self.botThread.connection.privmsg(self.channel, message['text'])
