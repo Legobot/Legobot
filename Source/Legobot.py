@@ -1,5 +1,7 @@
 import threading
 
+from Source.Lego import Lego
+
 from Legos.BingImageSearch import BingImageSearch
 from Legos.IRCConnector import IRCConnector
 from Legos.PrintTips import PrintTips
@@ -8,7 +10,7 @@ from Legos.WeatherListener import WeatherListener
 from Legos.WikipediaTopFinder import WikipediaTopFinder
 from Legos.Roll import Roll
 from Legos.XKCD import XKCD
-from Source.Lego import Lego
+from Legos.Help import Help
 
 # Initialize lock and baseplate
 lock = threading.Lock()
@@ -24,3 +26,4 @@ baseplate_proxy.add_child(IRCConnector, '#testing', 'TheOperative', 'irc.sithmai
 baseplate_proxy.add_child(WikipediaTopFinder)
 baseplate_proxy.add_child(Roll)
 baseplate_proxy.add_child(XKCD)
+baseplate_proxy.add_child(Help)
