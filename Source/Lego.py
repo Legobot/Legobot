@@ -16,12 +16,13 @@ class Lego(pykka.ThreadingActor):
         def run(self):
             self.handler(self.message)
 
-    def __init__(self, baseplate, lock):
+    def __init__(self, baseplate, lock: threading.Lock):
         """
         :param baseplate: the baseplate Lego, which should be the same instance of Lego for all Legos
         :param lock: a threading lock, which should be the same instance of threading.Lock for all Legos
         """
         super().__init__()
+        assert(lock is not None)
         self.baseplate = baseplate
         self.children = []
         self.lock = lock
