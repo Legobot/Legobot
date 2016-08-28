@@ -1,4 +1,4 @@
-from Lego import Lego
+from Source.Lego import Lego
 
 class CommandLinePrinter(Lego):
     def listening_for(self, message):

@@ -1,6 +1,8 @@
-from Lego import Lego
-from Message import *
 import json
+
+from Message import *
+from Source.Lego import Lego
+
 
 class PrintTips(Lego):
     def __init__(self, baseplate, lock, tips_file='tips.json'):

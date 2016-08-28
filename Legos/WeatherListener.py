@@ -1,5 +1,4 @@
-from Lego import Lego
-from Message import *
+from Source.Lego import Lego
 
 
 class WeatherListener(Lego):

@@ -1,8 +1,11 @@
-import requests
 import random
 import re
-from Lego import Lego
+
+import requests
+
 from Message import *
+from Source.Lego import Lego
+
 
 class BingImageSearch(Lego):
     def __init__(self, baseplate, lock):
