@@ -3,7 +3,7 @@ import re
 
 import requests
 
-from Message import *
+from Source.Message import *
 from Source.Lego import Lego
 
 
