@@ -1,7 +1,6 @@
 import threading
 import pykka
 from Legobot.Message import *
-import json
 
 class Lego(pykka.ThreadingActor):
     class HandlerThread(threading.Thread):
@@ -17,7 +16,7 @@ class Lego(pykka.ThreadingActor):
         def run(self):
             self.handler(self.message)
 
-    def __init__(self, baseplate, lock: threading.Lock, log_file=None):
+    def __init__(self, baseplate, lock: threading.Lock):
         """
         :param baseplate: the baseplate Lego, which should be the same instance of Lego for all Legos
         :param lock: a threading lock, which should be the same instance of threading.Lock for all Legos
@@ -27,7 +26,6 @@ class Lego(pykka.ThreadingActor):
         self.baseplate = baseplate
         self.children = []
         self.lock = lock
-        self.log_file = log_file
 
     def on_receive(self, message):
         """
@@ -40,11 +38,6 @@ class Lego(pykka.ThreadingActor):
         :param message:
         :return:
         """
-        if self.log_file is not None and message['should_log']:
-            message_copy = Message(message['text'], Metadata(None).__dict__, message['should_log']).__dict__
-            with open(self.log_file, mode='w') as f:
-                f.write(json.dumps(message_copy))
-            print(message['metadata']['source'])
         if self.listening_for(message):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
@@ -117,7 +110,7 @@ class Lego(pykka.ThreadingActor):
         :return: None
         """
         metadata = Metadata(source=self, dest=message['metadata']['source']).__dict__
-        message = Message(text=text, metadata=metadata, should_log=message['should_log']).__dict__
+        message = Message(text=text, metadata=metadata).__dict__
         self.baseplate.tell(message)
 
     def get_name(self):
