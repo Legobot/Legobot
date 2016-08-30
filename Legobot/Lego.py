@@ -1,6 +1,6 @@
 import threading
 import pykka
-from Source.Message import *
+from Legobot.Message import *
 
 class Lego(pykka.ThreadingActor):
     class HandlerThread(threading.Thread):

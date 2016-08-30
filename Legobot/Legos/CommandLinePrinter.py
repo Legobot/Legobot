@@ -1,4 +1,4 @@
-from Source.Lego import Lego
+from Legobot import Lego
 
 
 class CommandLinePrinter(Lego):
