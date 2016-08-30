@@ -1,6 +1,6 @@
 import threading
 
-from Lego import Lego
+from Source.Lego import Lego
 
 from Legos.BingImageSearch import BingImageSearch
 from Legos.IRCConnector import IRCConnector

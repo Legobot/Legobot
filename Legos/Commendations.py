@@ -1,7 +1,7 @@
 import json
 
 from Source.Lego import Lego
-from Message import *
+from Source.Message import *
 import os
 
 class Commendations(Lego):
