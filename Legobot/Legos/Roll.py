@@ -1,5 +1,5 @@
 import random
-from Source.Lego import Lego
+from Legobot.Lego import Lego
 
 
 class Roll(Lego):

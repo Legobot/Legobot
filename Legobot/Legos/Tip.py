@@ -1,8 +1,8 @@
 import json
 import os
 
-from Source.Message import *
-from Source.Lego import Lego
+from Legobot.Message import *
+from Legobot.Lego import Lego
 
 
 class Tip(Lego):
