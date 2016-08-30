@@ -3,8 +3,8 @@ import re
 
 import requests
 
-from Source.Message import *
-from Source.Lego import Lego
+from Legobot.Message import *
+from Legobot.Lego import Lego
 
 
 class BingImageSearch(Lego):

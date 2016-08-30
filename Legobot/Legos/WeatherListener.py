@@ -1,4 +1,4 @@
-from Source.Lego import Lego
+from Legobot.Lego import Lego
 import configparser
 import requests
 import os

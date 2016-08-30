@@ -1,6 +1,6 @@
 import requests
 
-from Source.Lego import Lego
+from Legobot.Lego import Lego
 
 
 class WikipediaTopFinder(Lego):

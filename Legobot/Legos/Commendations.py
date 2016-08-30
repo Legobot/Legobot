@@ -1,7 +1,7 @@
 import json
 
-from Source.Lego import Lego
-from Source.Message import *
+from Legobot.Lego import Lego
+from Legobot.Message import *
 import os
 
 class Commendations(Lego):
