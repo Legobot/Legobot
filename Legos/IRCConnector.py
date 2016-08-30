@@ -5,7 +5,7 @@ import irc.bot
 import irc.client
 import irc.connection
 
-from Message import *
+from Source.Message import *
 from Source.Lego import Lego
 
 
