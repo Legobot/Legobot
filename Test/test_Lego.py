@@ -1,5 +1,4 @@
 import unittest
-<<<<<<< HEAD
 from Legobot.Lego import Lego
 import threading
 from Legobot.Message import *
@@ -7,28 +6,22 @@ import pykka
 import json
 import os
 import time
-=======
-from Source.Lego import Lego
+from Legobot.Lego import Lego
 import threading
-from Source.Message import *
+from Legobot.Message import *
 import pykka
->>>>>>> 8e61541... Adding unit tests for Lego and Message
 
 class TestLego(unittest.TestCase):
     def test_initialization(self):
         lock = threading.Lock()
         baseplate = Lego(None, lock)
-<<<<<<< HEAD
-        lego = Lego(baseplate, baseplate.lock, 'lego.log')
-=======
         lego = Lego(baseplate, baseplate.lock)
->>>>>>> 8e61541... Adding unit tests for Lego and Message
+        lego = Lego(baseplate, baseplate.lock, 'lego.log')
         assert(baseplate.lock == lock)
         assert(lego.lock == lock)
         assert(baseplate.baseplate is None)
         assert(lego.baseplate is baseplate)
         assert(lego.children == [])
-<<<<<<< HEAD
         assert(lego.log_file == 'lego.log')
 
     def test_default_init_values(self):
@@ -36,8 +29,6 @@ class TestLego(unittest.TestCase):
         baseplate = Lego(None, lock)
         lego = Lego(baseplate, baseplate.lock)
         assert lego.log_file is None
-=======
->>>>>>> 8e61541... Adding unit tests for Lego and Message
 
     def test_lock_required(self):
         with self.assertRaises(AssertionError):
@@ -75,7 +66,6 @@ class TestLego(unittest.TestCase):
         child.stop()
         baseplate.cleanup()
         assert(len(baseplate.children) == 0)
-<<<<<<< HEAD
 
     def test_get_name(self):
         lego = Lego(None, threading.Lock())
@@ -165,5 +155,3 @@ class TestHandlerThread(unittest.TestCase):
         thread = Lego.HandlerThread(lego.handle, message)
         assert thread.handler == lego.handle
         assert thread.message == message
-=======
->>>>>>> 8e61541... Adding unit tests for Lego and Message
