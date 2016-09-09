@@ -3,13 +3,13 @@ from setuptools import setup, find_packages
 setup(
     name='Legobot',
 
-    version='0.2.1',
+    version='1.0.0dev1',
 
     py_modules=['Legobot'],
 
-    description="A flexible platform for easily creating interactive IRC bots",
+    description="A framework for creating interactive chatbots on various protocols",
 
-    author="Kevin McCabe and Bren Briggs",
+    author="Kevin McCabe, Bren Briggs, and Drew Bronson",
 
     url="https://github.com/bbriggs/Legobot",
 
@@ -21,12 +21,10 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3'
     ],
 
     packages=find_packages(exclude=['contrib', 'docs']),
 
-    #install_requires=['socket','select','string','ssl','threading','Queue','datetime','time','random'],
+    install_requires=['pykka'],
 )
