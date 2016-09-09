@@ -7,3 +7,10 @@ Legobot.egg-info/
 dist/
 tips.json
 commendations.json
+testing_file.tmp
+Legobot/Legos/__pycache__/
+Legobot/__pycache__/
+Legos/
+Source/
+Test/.cache/
+__pycache__/
