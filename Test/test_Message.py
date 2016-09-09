@@ -1,6 +1,4 @@
 import unittest
-from Source.Message import *
-from Source.Lego import Lego
 from Legobot.Message import *
 from Legobot.Lego import Lego
 import threading
