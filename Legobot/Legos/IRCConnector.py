@@ -1,5 +1,6 @@
 import ssl
 import threading
+import logging
 
 import irc.bot
 import irc.client
@@ -8,9 +9,11 @@ import irc.connection
 from Legobot.Message import *
 from Legobot.Lego import Lego
 
+logger = logging.getLogger(__name__)
+
 
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
-    def __init__(self,  baseplate, channel, nickname, server, port=6667, use_ssl=False):
+    def __init__(self,  baseplate, channel, nickname, server, port=6667, use_ssl=False, password=None, username=None, ircname=None):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
         threading.Thread.__init__(self)
         self.channel = channel
@@ -19,6 +22,9 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.baseplate = baseplate
         self.port = port
         self.use_ssl = use_ssl
+        self.password = password
+        self.username = username
+        self.ircname = ircname
 
     def connect(self, *args, **kwargs):
         """
@@ -34,7 +40,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
             factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
         else:
             factory = irc.connection.Factory()
-        self.connection.connect(self.server, self.port, self.nickname, connect_factory=factory)
+        self.connection.connect(server=self.server, port=self.port, nickname=self.nickname, connect_factory=factory, password=self.password, username=self.username, ircname=self.ircname)
         self.connection.join(self.channel)
 
     def on_pubmsg(self, c, e):
@@ -60,15 +66,10 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
 
 
 class IRCConnector(Lego):
-    # def __init__(self, channel, nickname, server, port=6667, use_ssl=False, baseplate=None, lock=None):
-    #     super().__init__(baseplate=baseplate, lock=lock)
-    #     self.botThread = IRCBot(self.baseplate, channel, nickname, server, port, use_ssl)
-    #     self.channel = channel
-
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
         self.botThread = IRCBot(baseplate, *args, **kwargs)
-        self.channel = args[0]
+        self.channel = kwargs['channel']
 
     def on_start(self):
         self.botThread.start()
