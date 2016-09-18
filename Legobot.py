@@ -1,4 +1,5 @@
 import logging
+import threading
 from Legobot.Lego import Lego
 
 from Legobot.Legos.BingImageSearch import BingImageSearch
