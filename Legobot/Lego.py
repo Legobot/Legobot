@@ -1,7 +1,10 @@
 import threading
-import pykka
-from Legobot.Message import *
 import json
+import logging
+
+import pykka
+
+from Legobot.Message import *
 
 class Lego(pykka.ThreadingActor):
     class HandlerThread(threading.Thread):
@@ -44,7 +47,7 @@ class Lego(pykka.ThreadingActor):
             message_copy = Message(message['text'], Metadata(None).__dict__, message['should_log']).__dict__
             with open(self.log_file, mode='w') as f:
                 f.write(json.dumps(message_copy))
-            print(message['metadata']['source'])
+            logger.info(message['metadata']['source'])
         if self.listening_for(message):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
@@ -59,7 +62,7 @@ class Lego(pykka.ThreadingActor):
         :return: None
         """
         self.lock.acquire()
-        print('Acquired lock in cleanup for ' + str(self))
+        logger.debug('Acquired lock in cleanup for ' + str(self))
         self.children = [child for child in self.children if child.is_alive()]
         self.lock.release()
 
@@ -137,6 +140,6 @@ class Lego(pykka.ThreadingActor):
         return ''
 
     def on_failure(self, exception_type, exception_value, traceback):
-        print('Lego crashed: ' + str(self))
-        print(exception_type)
-        print(exception_value)
+        logger.exception('Lego crashed: ' + str(self))
+        logger.exception(exception_type)
+        logger.exception(exception_value)
