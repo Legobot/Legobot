@@ -6,6 +6,8 @@ import pykka
 
 from Legobot.Message import *
 
+logger = logging.getLogger(__name__)
+
 class Lego(pykka.ThreadingActor):
     class HandlerThread(threading.Thread):
         """
