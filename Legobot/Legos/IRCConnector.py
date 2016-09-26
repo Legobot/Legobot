@@ -11,7 +11,6 @@ from Legobot.Lego import Lego
 
 logger = logging.getLogger(__name__)
 
-
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
     def __init__(self,  baseplate, channel, nickname, server, port=6667, use_ssl=False, password=None, username=None, ircname=None):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
