@@ -1,3 +1,5 @@
+import logging
+import threading
 from Legobot.Lego import Lego
 
 from Legobot.Legos.BingImageSearch import BingImageSearch
@@ -22,7 +24,7 @@ baseplate_proxy.add_child(WeatherListener)
 baseplate_proxy.add_child(Tip)
 baseplate_proxy.add_child(PrintTips)
 baseplate_proxy.add_child(BingImageSearch)
-baseplate_proxy.add_child(IRCConnector, '#testing', 'TheOperative', 'irc.sithmail.com', 6697, True)
+baseplate_proxy.add_child(IRCConnector, channel='#general', nickname='chatbot', server='foo.slack.com', port=6697, use_ssl=True, username='chatbot', password='example.yourIRCgatewaypass')
 baseplate_proxy.add_child(WikipediaTopFinder)
 baseplate_proxy.add_child(Roll)
 baseplate_proxy.add_child(XKCD)
