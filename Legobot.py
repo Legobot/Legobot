@@ -26,4 +26,5 @@ baseplate_proxy = baseplate.proxy()
 
 # Add children
 baseplate_proxy.add_child(Audit)
+baseplate_proxy.add_child(Help)
 baseplate_proxy.add_child(IRCConnector, channel='#social', nickname='TheVoxFox', server='irc.sithmail.com', port=6697, use_ssl=True, username=None, password=None)
