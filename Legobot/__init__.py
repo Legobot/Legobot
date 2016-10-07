@@ -19,7 +19,7 @@ class timerFunc():
 
   def runIfNeeded(self):
     if (datetime.datetime.now() - self.lastRun).total_seconds() > self.interval and self.interval != -1:
-      #run
+      # Run
       self.func()
       self.lastRun = datetime.datetime.now()
 
@@ -48,7 +48,7 @@ class legoBot():
     self.defaultFunc = defaultFunc
     self.defaultFuncChar = defaultFuncChar
 
-    #add in default help function
+    # Add in default help function
     self.addFunc("!help", self.defaultHelp, "Function used to display help, this default help value can be overridden with a custom function")
 
   def defaultHelp(self, msgObj):
@@ -65,8 +65,8 @@ class legoBot():
     self.timerFuncList.append(legoCron.Event(function, min, hour, day, month, dow, sec))
 
   def addDefaultFunc(self, func, char):
-    #adds a func to run whenever trigger char is seen as the first character if we don't match any
-    #other function
+    # Adds a func to run whenever trigger char is seen as 
+    # the first character if we don't match any other function
     self.defaultFunc = func
     self.defaultFuncChar = char
 
@@ -74,7 +74,7 @@ class legoBot():
       self.throttle = val
 
   def addFunc(self, name, function, helpText = ""):
-    #name should be str, function should be a function object (as in a function without the parens)
+    # Name should be str, function should be a function object (as in a function without the parens)
     self.func[name] = function
     self.funcHelp[name] = helpText
 
@@ -82,7 +82,7 @@ class legoBot():
     self.randTimerFuncList.append(randTimerFunc(func, randMin, randMax))
 
   def batchAddFunc(self, d):
-    #merge a dictionary of functions into the existing function dictionary
+    # Merge a dictionary of functions into the existing function dictionary
     self.func.update(d)
 
   def connect(self, isSSL=False):
@@ -99,7 +99,7 @@ class legoBot():
     self.connection.sendall("NICK %s\r\n" % self.nick)
     print "sending: " + "NICK %s\r\n" % self.nick
 
-    #TO DO: add functionality to create separate nick, realname, etc
+    # TODO: add functionality to create separate nick, realname, etc
     self.connection.sendall("USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick))
     print "sending: " + "USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick)
 
@@ -117,20 +117,20 @@ class legoBot():
     self.__listen()
 
   def sendMsg(self, msgToSend):
-    #msgtoSend must be str
+    # msgtoSend must be str
     self.connection.sendall(msgToSend)
 
   def __listen(self):
-    #initiate queue to read off of
+    # Initiate queue to read off of
     self.threadQueue = Queue.Queue()
 
-    #spin up threads for timerFuncs
+    # Spin up threads for timerFuncs
     for timerFunc in self.timerFuncList:
       self.threadList.append(threading.Thread(target=timerDaemon, args=(timerFunc, self.threadQueue, self.chans)))
       self.threadList[-1].daemon = True
       self.threadList[-1].start()
 
-    #spin up threads for random timer funcs
+    # Spin up threads for random timer funcs
     for randTimerFunc in self.randTimerFuncList:
       self.threadList.append(threading.Thread(target=randTimerDaemon, args=(randTimerFunc.func, self.threadQueue, randTimerFunc.randMin, randTimerFunc.randMax, self.chans)))
       self.threadList[-1].daemon = True
@@ -139,10 +139,10 @@ class legoBot():
     while True:
       if select.select([self.connection],[],[],1.0)[0]:
         readbuffer = self.connection.recv(1024)
-        #split into lines
+        # Split into lines
         temp = string.split(readbuffer, "\n")
 
-        #iterate through any lines received
+        # Iterate through any lines received
         for line in temp:
           if len(line.strip(' \t\n\r')) == 0:
             continue
@@ -176,21 +176,21 @@ def timerDaemon(func, q, rooms):
     time.sleep(0.5)
 
 def randTimerDaemon(func, q, randMin, randMax, rooms):
-  #set random timer
+  # Set random timer
   lastRan = datetime.datetime.now()
   randTimer = random.randrange(randMin, randMax)
   while True:
-    #get diff in now and last ran, run if it's greater than randTimer
+    # Get diff in now and last ran, run if it's greater than randTimer
     if (datetime.datetime.now() - lastRan).total_seconds() > randTimer:
-      #run the function
+      # Run the function
       returnVal = func()
       for room in rooms:
         q.put("PRIVMSG %s :%s\r\n" % (room[0], returnVal))
 
-      #set lastRan
+      # Set lastRan
       lastRan = datetime.datetime.now()
 
-      #regenerate random timer
+      # Regenerate random timer
       randTimer = random.randrange(randMin, randMax)
 
 class Message():
@@ -220,13 +220,13 @@ class Message():
     else:
       try:
 
-        #check to see if this was a PM to us
+        # Check to see if this was a PM to us
         if "privmsg %s" % nick in self.fullMessage:
           self.isPM = True
         else:
           self.isPM = False
 
-        #load message lines into self vars
+        # Load message lines into self vars
         self.userInfo = self.splitMessage[0].lower()
         self.nick = self.userInfo.split("!")[0][1:]
         self.actualUserName = self.splitMessage[0][1:self.splitMessage[0].find("!")].lower()
@@ -239,12 +239,12 @@ class Message():
       except:
         if len(self.splitMessage) >= 4:
           if "!" in self.splitMessage[3]:
-            #raise
+            # Raise
             pass
         pass
 
       if logfunc:
-        #pass line to our logging function
+        # Pass line to our logging function
         logfunc(self)
 
       replyVal = self.reply(host, func, nick, defaultFunc, defaultFuncChar)
@@ -266,7 +266,7 @@ class Message():
 
       if len(self.cmd) >= 2:
         if self.cmd[1] == defaultFuncChar:
-          #hack to make this work
+          # Hack to make this work
           d = {self.cmd[1:]:defaultFunc}
 
           val = self.getReturnVal(d, nick)
@@ -277,12 +277,13 @@ class Message():
     if isinstance(tempVal, tuple):
       returnVal, returnRoom = tempVal
     else:
-      #we weren't passed a tuple back, assume the user only passed back something to the room which it was sent from
+      # We weren't passed a tuple back, assume the user only 
+      # passed back something to the room which it was sent from
       returnRoom = ""
       returnVal = tempVal
 
     if returnVal and returnRoom:
-      #respond to room/person that function told us to
+      # Respond to room/person that function told us to
       if isinstance(returnVal, list):
         returnList = []
         for itm in returnVal:
@@ -291,7 +292,7 @@ class Message():
       return "PRIVMSG %s :%s\r\n" % (returnRoom, returnVal)
 
     elif returnVal and self.target.lower() == nick.lower():
-      #if no room/person and it's a PM, reply to a PM with a PM
+      # If no room/person and it's a PM, reply to a PM with a PM
       if isinstance(returnVal, list):
         returnList = []
         for itm in returnVal:
@@ -300,7 +301,7 @@ class Message():
       return "PRIVMSG %s :%s\r\n" % (self.actualUserName, returnVal)
 
     elif returnVal and not returnRoom:
-      #if no room/person returned just respond back to same room
+      # If no room/person returned just respond back to same room
       if isinstance(returnVal, list):
         returnList = []
         for itm in returnVal:
