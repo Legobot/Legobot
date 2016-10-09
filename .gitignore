@@ -3,3 +3,4 @@ test.py
 .idea/
 Legobot/*.pyc
 Legobot.egg-info/
+build/lib/*
