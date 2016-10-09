@@ -63,7 +63,7 @@ Congratulations, you just wrote an IRC bot!
 
 #### Legobot.legobot()
 
-`Legobot.legobot(host,port,nick,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = "")`
+`Legobot.legobot(host,port,nick,chans, nickpass = "", logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = "")`
 
 *Parameters:*
 
@@ -74,6 +74,8 @@ Congratulations, you just wrote an IRC bot!
 **nick** _String._ Nickname you want your bot to use. Also sets realname value in IRC. 
 
 **chans** _List._ This is actually a list of tuples in the form of (channel,channel_password). Example: [('#admins','supersecretpassword'),('#social','')]
+
+**nickpass** _String._ Password you want your bot to use (optional).
 
 **logfunc** _Function.__ Function object (without parens). logfunc is called with a msg objet for every line read in from irc. Essentially allowing a bot to log all conversations in the room. Can be useful for lookback bots.
 
