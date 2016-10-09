@@ -1,5 +1,9 @@
 # Legobot
 
+## Note: Legobot is undergoing a complete refactor from the ground up over in the `develop` branch.
+
+PRs to `master` are welcome, but you are encouraged to focus your efforts there.
+
 #### Table of Contents
 
 1. [Usage](#usage)
