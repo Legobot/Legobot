@@ -28,8 +28,8 @@ import Legobot
 HOST = 'irc.freenode.com'
 PORT = 6667
 NICK = 'legobot'
-CHANS = [('#freenoode',''),('#bitcoin',''),('#legobot','')] #List of tuples. Format is (channel,password)
-myBot = Legobot.legoBot(host=HOST,port=PORT,nick=NICK,chans=CHANS)
+CHANS = [('#freenoode', ''), ('#bitcoin', ''), ('#legobot', '')] # List of tuples. Format is (channel, password)
+myBot = Legobot.legoBot(host=HOST, port=PORT, nick=NICK, nickpass="", chans=CHANS)
 ```
 
 #### Great, now what?
@@ -41,7 +41,7 @@ def helloWorld(msg):
     return "Hello, world!"
 
 myBot.addFunc("!helloworld", helloWorld, "Ask your bot to say hello. Usage: !helloworld")
-mybot.connect(isSSL=False)
+myBot.connect(isSSL=False)
 ```
 
 Then watch your creation come to life:
