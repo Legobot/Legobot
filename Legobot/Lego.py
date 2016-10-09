@@ -8,11 +8,13 @@ from Legobot.Message import *
 
 logger = logging.getLogger(__name__)
 
+
 class Lego(pykka.ThreadingActor):
     class HandlerThread(threading.Thread):
         """
-        This class provides a simple thread for running message handlers. It is used to ensure that message handlers
-        do not block other Legos from running by simply taking too long to execute.
+        This class provides a simple thread for running message handlers.
+        It is used to ensure that message handlers do not block other Legos
+        from running by simply taking too long to execute.
         """
         def __init__(self, handler, message):
             threading.Thread.__init__(self)
@@ -24,8 +26,10 @@ class Lego(pykka.ThreadingActor):
 
     def __init__(self, baseplate, lock: threading.Lock, log_file=None):
         """
-        :param baseplate: the baseplate Lego, which should be the same instance of Lego for all Legos
-        :param lock: a threading lock, which should be the same instance of threading.Lock for all Legos
+        :param baseplate: the baseplate Lego, which should be \
+                          the same instance of Lego for all Legos
+        :param lock: a threading lock, which should be the same \
+                     instance of threading.Lock for all Legos
         """
         super().__init__()
         assert(lock is not None)
@@ -38,7 +42,8 @@ class Lego(pykka.ThreadingActor):
         """
         Handle being informed of a message.
 
-        This function is called whenever a Lego receives a message, as specified in the pykka documentation.
+        This function is called whenever a Lego receives a message, as
+        specified in the pykka documentation.
 
         Legos should not override this function.
 
@@ -46,7 +51,9 @@ class Lego(pykka.ThreadingActor):
         :return:
         """
         if self.log_file is not None and message['should_log']:
-            message_copy = Message(message['text'], Metadata(None).__dict__, message['should_log']).__dict__
+            message_copy = Message(message['text'],
+                                   Metadata(None).__dict__,
+                                   message['should_log']).__dict__
             with open(self.log_file, mode='w') as f:
                 f.write(json.dumps(message_copy))
             logger.info(message['metadata']['source'])
@@ -94,7 +101,8 @@ class Lego(pykka.ThreadingActor):
         """
         Initialize and keep track of a child.
 
-        :param child_type: a class inheriting from Lego to initialize an instance of
+        :param child_type: a class inheriting from Lego to initialize \
+                           an instance of
         :param args: arguments for initializing the child
         :param kwargs: keyword arguments for initializing the child
         :return:
@@ -115,14 +123,17 @@ class Lego(pykka.ThreadingActor):
 
     def reply(self, message, text):
         """
-        Reply to the sender of the provided message with a message containing the provided text.
+        Reply to the sender of the provided message with a message \
+        containing the provided text.
 
         :param message: the message to reply to
         :param text: the text to reply with
         :return: None
         """
-        metadata = Metadata(source=self, dest=message['metadata']['source']).__dict__
-        message = Message(text=text, metadata=metadata, should_log=message['should_log']).__dict__
+        metadata = Metadata(source=self,
+                            dest=message['metadata']['source']).__dict__
+        message = Message(text=text, metadata=metadata,
+                          should_log=message['should_log']).__dict__
         self.baseplate.tell(message)
 
     def get_name(self):

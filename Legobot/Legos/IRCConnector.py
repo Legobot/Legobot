@@ -11,9 +11,15 @@ from Legobot.Lego import Lego
 
 logger = logging.getLogger(__name__)
 
+
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
-    def __init__(self,  baseplate, channel, nickname, server, port=6667, use_ssl=False, password=None, username=None, ircname=None):
-        irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
+    def __init__(self,  baseplate, channel, nickname, server,
+                 port=6667, use_ssl=False, password=None,
+                 username=None, ircname=None):
+        irc.bot.SingleServerIRCBot.__init__(self,
+                                            [(server, port)],
+                                            nickname,
+                                            nickname)
         threading.Thread.__init__(self)
         self.channel = channel
         self.nickname = nickname
@@ -29,7 +35,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         Connect to a server.
 
-        This overrides the function in SimpleIRCClient to provide SSL functionality.
+        This overrides the function in SimpleIRCClient
+        to provide SSL functionality.
 
         :param args:
         :param kwargs:
@@ -39,7 +46,13 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
             factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
         else:
             factory = irc.connection.Factory()
-        self.connection.connect(server=self.server, port=self.port, nickname=self.nickname, connect_factory=factory, password=self.password, username=self.username, ircname=self.ircname)
+        self.connection.connect(server=self.server,
+                                port=self.port,
+                                nickname=self.nickname,
+                                connect_factory=factory,
+                                password=self.password,
+                                username=self.username,
+                                ircname=self.ircname)
         self.connection.join(self.channel)
 
     def on_pubmsg(self, c, e):
@@ -55,7 +68,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         Run the bot in a thread.
 
-        Implementing the IRC listener as a thread allows it to listen without blocking IRCLego's ability to listen
+        Implementing the IRC listener as a thread allows it to
+        listen without blocking IRCLego's ability to listen
         as a pykka actor.
 
         :return: None
