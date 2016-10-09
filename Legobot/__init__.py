@@ -30,7 +30,7 @@ class randTimerFunc():
     self.randMax = randMax
 
 class legoBot():
-  def __init__(self,host,port,nick,nickpass,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = ""):
+  def __init__(self,host,port,nick,chans, nickpass = "", logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = ""):
     self.host = host
     self.hostpw = hostpw
     self.port = port
