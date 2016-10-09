@@ -15,22 +15,22 @@ class AllMatch(set):
 allMatch = AllMatch()
 
 def conv_to_set(obj, divisibleVal):  # Allow single integer to be provided
-  #obj should come in as a string
+  # Obj should come in as a string
   try:
     
     # * means match on everything ########################################
     if obj == "*":
       return allMatch
   
-    # just an int ########################################################
+    # Just an int ########################################################
     if fIsNum(obj):
       if int(obj) > divisibleVal -1:
         return False
       return list([int(obj)])
     
-    # slash option #######################################################
+    # Slash option #######################################################
     if "/" in obj:
-      #allow slash notation
+      # Allow slash notation
       divisor = obj[obj.find("/")+1:]
   
       if fIsNum(divisor):
@@ -39,11 +39,11 @@ def conv_to_set(obj, divisibleVal):  # Allow single integer to be provided
       else:
         return False
 
-    # already a set #####################################################
+    # Already a set #####################################################
     if isinstance(obj, set):
       return set(obj)
 
-    # iterate and change all ranges to a list eg: 1-3 becomes 1,2,3 #####
+    # Iterate and change all ranges to a list eg: 1-3 becomes 1,2,3 #####
     if obj.find(",") != -1 or obj.find("-") != -1:
       tempList = obj.split(",")
       finalList = []
@@ -59,7 +59,7 @@ def conv_to_set(obj, divisibleVal):  # Allow single integer to be provided
         else:
           return False
     
-      #check if values are too big/small
+      # Check if values are too big/small
       badList = [x for x in finalList if x > divisibleVal -1]
       if len(badList) != 0:
         return False
@@ -93,7 +93,7 @@ class Event(object):
   def __matchtime__(self, t):
     """Return True if this event should trigger at the specified datetime"""
     if not self.goodCron:
-      #never run if we don't have good cron variables
+      # Never run if we don't have good cron variables
       return False
     
     if not self.__runAlready__(t):
