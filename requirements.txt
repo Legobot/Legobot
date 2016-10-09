@@ -1,3 +1,4 @@
+requests
 pykka
 irc
 six==1.10.0
