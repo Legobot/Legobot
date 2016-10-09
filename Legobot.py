@@ -24,7 +24,14 @@ baseplate_proxy.add_child(WeatherListener)
 baseplate_proxy.add_child(Tip)
 baseplate_proxy.add_child(PrintTips)
 baseplate_proxy.add_child(BingImageSearch)
-baseplate_proxy.add_child(IRCConnector, channel='#general', nickname='chatbot', server='foo.slack.com', port=6697, use_ssl=True, username='chatbot', password='example.yourIRCgatewaypass')
+baseplate_proxy.add_child(IRCConnector,
+                          channel='#general',
+                          nickname='chatbot',
+                          server='foo.slack.com',
+                          port=6697,
+                          use_ssl=True,
+                          username='chatbot',
+                          password='example.yourIRCgatewaypass')
 baseplate_proxy.add_child(WikipediaTopFinder)
 baseplate_proxy.add_child(Roll)
 baseplate_proxy.add_child(XKCD)
