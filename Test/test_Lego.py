@@ -11,6 +11,7 @@ import threading
 from Legobot.Message import *
 import pykka
 
+
 class TestLego(unittest.TestCase):
     def test_initialization(self):
         lock = threading.Lock()
@@ -77,8 +78,10 @@ class TestLego(unittest.TestCase):
 
     def test_receive_logs(self):
         log_file_name = 'test_logging.log'
-        lego = Lego(None, threading.Lock(), log_file_name)
-        message = Message('Test Message 1', Metadata(None).__dict__, True).__dict__
+        lego = Lego(None, threading.Lock(),
+                    log_file_name)
+        message = Message('Test Message 1',
+                          Metadata(None).__dict__, True).__dict__
         lego.on_receive(message)
         with open(log_file_name, mode='r') as f:
             log = json.loads(f.read())
@@ -90,14 +93,14 @@ class TestLego(unittest.TestCase):
         baseplate = Lego(None, threading.Lock())
         child = Lego.start(baseplate, threading.Lock(), log_file_name)
         baseplate.children.append(child)
-        message = Message('Test Message 1', Metadata(None).__dict__, True).__dict__
+        message = Message('Test Message 1',
+                          Metadata(None).__dict__, True).__dict__
         baseplate.on_receive(message)
         child.stop()
         with open(log_file_name, mode='r') as f:
             log = json.loads(f.read())
         os.remove(log_file_name)
         assert log == message
-
 
     def test_reply(self):
         log_file_name = 'test_reply.log'
@@ -128,7 +131,8 @@ class ReplyTestingPingLego(Lego):
 
     def handle(self, message):
         if message['text'] == '0':
-            self.baseplate.tell(Message('1', Metadata(self).__dict__, True).__dict__)
+            self.baseplate.tell(Message('1',
+                                Metadata(self).__dict__, True).__dict__)
         elif message['text'] == '2':
             self.reply(message, '3')
         else:

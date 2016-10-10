@@ -11,10 +11,11 @@ class XKCD(Lego):
         webpage = requests.get('http://dynamic.xkcd.com/random/comic')
         webpage = webpage.text
         print(webpage)
-        comic = re.search(r'<div id="comic".*?\n?.*?(//im.+?)".+?\s?title="(.+?)"',webpage)
+        comic_regex = r'<div id="comic".*?\n?.*?(//im.+?)".+?\s?title="(.+?)"'
+        comic = re.search(comic_regex, webpage)
         if comic:
-            altText = comic.group(2).replace("&#39;","'")
-            return_val = "%s %s" %(altText,"http:" + comic.group(1))
+            altText = comic.group(2).replace("&#39;", "'")
+            return_val = "%s %s" % (altText, "http:" + comic.group(1))
         else:
             return_val = 'Error encountered.'
         self.reply(message, return_val)

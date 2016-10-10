@@ -3,6 +3,7 @@ from Legobot.Message import *
 from Legobot.Lego import Lego
 import threading
 
+
 class TestMetadata(unittest.TestCase):
     def test_default_init_values(self):
         source = Lego(None, threading.Lock())
@@ -15,6 +16,7 @@ class TestMetadata(unittest.TestCase):
         metadata = Metadata(source, dest)
         assert(metadata.source == source)
         assert(metadata.dest == dest)
+
 
 class TestMessage(unittest.TestCase):
     def test_initialization(self):
@@ -29,6 +31,6 @@ class TestMessage(unittest.TestCase):
         assert(message.should_log)
 
     def test_default_init_values(self):
-        source =Lego(None, threading.Lock())
+        source = Lego(None, threading.Lock())
         metadata = Metadata(source)
         message = Message('a message', metadata)
