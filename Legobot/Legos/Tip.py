@@ -27,20 +27,26 @@ class Tip(Lego):
             try:
                 tips = json.loads(json_str)
             except:
-                print('Failed to read tips in ' + str(self) + '; initializing empty tips file ' + str(self.tips_file))
+                err = "Failed to read tips in '%s'; " \
+                      "initializing empty file '%s'" % (str(self),
+                                                        str(self.tips_file))
+                print(err)
                 tips = {}
             try:
                 tips[user] += tip_amount
             except:
-                print('Could not find the user ' + str(user) + '; initializing their tips at zero')
+                err = "Could not find the user '%s'; " \
+                      "initializing their tips at zero" % str(user)
+                print(err)
                 tips[user] = tip_amount
             json_str = json.dumps(tips)
         if json_str is not None:
             with open(self.tips_file, 'w') as f:
                 f.write(json_str)
-            metadata = Metadata(source=self, dest=message['metadata']['source']).__dict__
-            message = Message(text=(str(user) + ' tipped ' + str(tip_amount) +
-                                    ' internet points, giving them a total of ' + str(tips[user])),
+            metadata = Metadata(source=self,
+                                dest=message['metadata']['source']).__dict__
+            txt = "%s tipped %d internet points, giving them a total of %d"
+            message = Message(text=(txt % (str(user), tip_amount, tips[user])),
                               metadata=metadata).__dict__
             self.baseplate.tell(message)
 

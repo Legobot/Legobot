@@ -9,10 +9,14 @@ class Roll(Lego):
     def handle(self, message):
         dice_string = message['text'].split()[1]
         results = dice.roll(dice_string)
-        self.reply(message, 'You Rolled: ' + ', '.join([str(result) for result in results]))
+        results_str = ', '.join([str(result) for result in results])
+        txt = "You Rolled: %s" % results_str
+        self.reply(message, txt)
 
     def get_name(self):
         return 'roll'
 
     def get_help(self):
-        return 'Roll some dice. Usage: !roll 2d6t, !roll 6d6^3, !roll d20'
+        help_text = "Roll some dice. Usage: " \
+                    "!roll 2d6t, !roll 6d6^3, !roll d20"
+        return help_text

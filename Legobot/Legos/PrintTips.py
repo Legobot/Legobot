@@ -22,12 +22,17 @@ class PrintTips(Lego):
                 print('Failed to read in tips')
                 tips = {}
             for tip in tips:
-                metadata = Metadata(source=self, dest=message['metadata']['source']).__dict__
-                message = Message(text=(str(tip) + ': ' + str(tips[tip])), metadata=metadata).__dict__
+                metadata = Metadata(source=self,
+                                    dest=message['metadata']['source']
+                                    ).__dict__
+                txt = "%s: %s" % (str(tip), str(tips[tip]))
+                message = Message(text=txt, metadata=metadata).__dict__
                 self.baseplate.tell(message)
 
     def get_name(self):
         return 'printtips'
 
     def get_help(self):
-        return 'Print the tips for all users in the tips file. Usage: !printtips'
+        help_text = "Print the tips for all users in the tips file. " \
+                    "Usage: !printtips"
+        return help_text

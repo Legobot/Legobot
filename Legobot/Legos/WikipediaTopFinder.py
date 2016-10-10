@@ -20,4 +20,6 @@ class WikipediaTopFinder(Lego):
         return 'wtf'
 
     def get_help(self):
-        return 'Wikipedia Top Finder. Search Wikipedia. Usage: !wtf <search string>'
+        help_text = "Wikipedia Top Finder. Search Wikipedia. " \
+                    "Usage: !wtf <search string>"
+        return help_text
