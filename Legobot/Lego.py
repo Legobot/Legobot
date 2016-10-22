@@ -16,6 +16,7 @@ class Lego(pykka.ThreadingActor):
         It is used to ensure that message handlers do not block other Legos
         from running by simply taking too long to execute.
         """
+        
         def __init__(self, handler, message):
             threading.Thread.__init__(self)
             self.handler = handler

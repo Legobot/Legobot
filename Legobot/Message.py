@@ -4,6 +4,7 @@ class Message():
     fields corresponding to the keys in that dictionary to facilitate the
     construction of such messages.
     """
+
     def __init__(self, text, metadata, should_log=False):
         self.text = text
         self.metadata = metadata
@@ -16,6 +17,7 @@ class Metadata():
     fields corresponding to the keys in that dictionary to facilitate
     the construction of such dictionaries.
     """
+
     def __init__(self, source, dest=None):
         self.source = source
         self.dest = dest

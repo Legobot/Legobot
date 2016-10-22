@@ -34,3 +34,4 @@ class TestMessage(unittest.TestCase):
         source = Lego(None, threading.Lock())
         metadata = Metadata(source)
         message = Message('a message', metadata)
+        assert(not message.should_log)
