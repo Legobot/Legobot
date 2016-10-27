@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
-    def __init__(self, baseplate, channel, nickname, server,
+    def __init__(self, baseplate, channels, nickname, server,
                  port=6667, use_ssl=False, password=None,
                  username=None, ircname=None):
         irc.bot.SingleServerIRCBot.__init__(self,
@@ -21,7 +21,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
                                             nickname,
                                             nickname)
         threading.Thread.__init__(self)
-        self.channel = channel
+        # the obvious self.channels is already used by irc.bot
+        self.my_channels = channels
         self.nickname = nickname
         self.server = server
         self.baseplate = baseplate
@@ -53,7 +54,6 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
                                 password=self.password,
                                 username=self.username,
                                 ircname=self.ircname)
-        self.connection.join(self.channel)
 
     def on_pubmsg(self, c, e):
         """
@@ -63,6 +63,14 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         metadata = Metadata(source=self).__dict__
         message = Message(text=text, metadata=metadata).__dict__
         self.baseplate.tell(message)
+
+    def on_welcome(self, c, e):
+        """
+        This function runs when the bot successfully connects to the IRC server
+        """
+        for channel in self.my_channels:
+            logger.debug('Attempting to join %s' % channel)
+            c.join(channel)
 
     def run(self):
         """
@@ -82,7 +90,7 @@ class IRCConnector(Lego):
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
         self.botThread = IRCBot(baseplate, *args, **kwargs)
-        self.channel = kwargs['channel']
+        self.channel = kwargs['channels']
 
     def on_start(self):
         self.botThread.start()
