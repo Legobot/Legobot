@@ -26,5 +26,5 @@ setup(
 
     packages=find_packages(exclude=['contrib', 'docs']),
 
-    install_requires=['pykka'],
+    install_requires=['pykka','irc'],
 )
