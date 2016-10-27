@@ -22,7 +22,7 @@ Legobot is not:
 * an IRC bot (it's bigger than all of us, Jim)
 * an Apple product
 * a Microsoft product
-* made of Legos (yet...)
+* made of LEGOS (yet...)
 
 Currently, Legobot is "batteries included" when being used as an IRC bot; Legobot comes with connectors (Legos) and functions that make development for IRC simple. More protocols are on the roadmap for future builds, and would be quick and simple to develop. 
 
