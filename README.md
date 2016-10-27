@@ -12,17 +12,17 @@
 
 Legobot is a platform that aims to make interactive multi-protocol bots less of a chore and more of a simple pleasure. 
 Legobot itself is: 
-..* a skeleton framework to be built upon 
-..* a multi-protocol API for bots (soon to include XMPP, Slack, Hipchat, etc.)
-..* a basic set of functions for managing connections and message objects
-..* extensible (easily)
+* a skeleton framework to be built upon 
+* a multi-protocol API for bots (soon to include XMPP, Slack, Hipchat, etc.)
+* a basic set of functions for managing connections and message objects
+* extensible (easily)
 
 Legobot is not:
-..* complete
-..* an IRC bot (it's bigger than all of us, Jim)
-..* an Apple product
-..* a Microsoft product
-..* made of Legos (yet...)
+* complete
+* an IRC bot (it's bigger than all of us, Jim)
+* an Apple product
+* a Microsoft product
+* made of Legos (yet...)
 
 Currently, Legobot is "batteries included" when being used as an IRC bot; Legobot comes with connectors (Legos) and functions that make development for IRC simple. More protocols are on the roadmap for future builds, and would be quick and simple to develop. 
 
