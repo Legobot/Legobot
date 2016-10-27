@@ -1,5 +1,0 @@
-requests
-pykka
-irc
-six==1.10.0
-dice==1.1.0
