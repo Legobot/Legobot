@@ -37,19 +37,45 @@ Installation is quite simple. Just run `pip install Legobot`. You can also easil
 
 Legobot is intended to be simple, flexible, and painless; thereby allowing the user to control all functionality. Consequently, Legobot doesn't really *do* much on its own, other than monitor messages and manage connections. All triggers, responses, and functions are yours to create: this could range from an automated function to report Nginx monitoring info at a set interval, to a function for checking the weather, to a function that simply states "Hello, World!". The possibilities are endless, only bound by your imagination (and will to create). 
 
-To connect the bot to IRC, we must create the config file. To add a server here is an example using freenode:
+An example of a basic bot that is functional (connects to server, etc.) might look like this:
 
 ```python
-	channel='#freenode',
-	nickname='legobot',
-	server='irc.freenode.net',
-	port=6697,
-	use_ssl=True,
-	username='legobot',
-	password=
+import logging
+import threading
+from Legobot.Lego import Lego
+
+from Legobot.Legos.Help import Help
+from Legobot.Legos.Roll import Roll
+
+# Initialize lock and baseplate
+lock = threading.Lock()
+baseplate = :Lego.start(None, lock)
+baseplate_proxy = baseplate.proxy()
+
+# Add children
+baseplate_proxy.add_child(IRCConnector,
+                          channel='#freenode',
+                          nickname='legobot',
+                          server='irc.freenode.net',
+                          port=6697,
+                          use_ssl=True,
+                          username=None,
+                          password=None)
+baseplate_proxy.add_child(Roll)
+baseplate_proxy.add_child(Help)
+```
+For the above example, we implemented the !roll Lego.. Now, to see this in action!
 
 ```
-
+<parsec> !help
+<legobot> Available functions: roll
+<parsec> !help roll
+<legobot> Roll some dice. Usage: !roll 2d6t, !roll 6d6^3, !roll d20
+<parsec> !roll 2d10
+<legobot> You Rolled: 7, 3
+<parsec> !roll d20
+<legobot> You Rolled: 2
+```
 [![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/l/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/status/Django.svg?maxAge=2592000)]()
 
 #### Build Status
