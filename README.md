@@ -46,6 +46,7 @@ from Legobot.Lego import Lego
 
 from Legobot.Legos.Help import Help
 from Legobot.Legos.Roll import Roll
+form Legobot.Legos.IRCConnector import IRCConnector
 
 # Initialize lock and baseplate
 lock = threading.Lock()
