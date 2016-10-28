@@ -49,7 +49,7 @@ from Legobot.Legos.Roll import Roll
 
 # Initialize lock and baseplate
 lock = threading.Lock()
-baseplate = :Lego.start(None, lock)
+baseplate = Lego.start(None, lock)
 baseplate_proxy = baseplate.proxy()
 
 # Add children
