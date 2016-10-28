@@ -43,6 +43,7 @@ An example of a basic bot that is functional (connects to server, etc.) might lo
 import logging
 import threading
 from Legobot.Lego import Lego
+from Legobot.Connectors import *
 
 from Legobot.Legos.Help import Help
 from Legobot.Legos.Roll import Roll
