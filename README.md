@@ -43,9 +43,11 @@ An example of a basic bot that is functional (connects to server, etc.) might lo
 import logging
 import threading
 from Legobot.Lego import Lego
+from Legobot.Connectors import *
 
 from Legobot.Legos.Help import Help
 from Legobot.Legos.Roll import Roll
+from Legobot.Connectors.IRC import IRC
 
 # Initialize lock and baseplate
 lock = threading.Lock()
@@ -53,7 +55,7 @@ baseplate = Lego.start(None, lock)
 baseplate_proxy = baseplate.proxy()
 
 # Add children
-baseplate_proxy.add_child(IRCConnector,
+baseplate_proxy.add_child(IRC,
                           channel='#freenode',
                           nickname='legobot',
                           server='irc.freenode.net',
@@ -76,6 +78,30 @@ For the above example, we implemented the !roll Lego.. Now, to see this in actio
 <parsec> !roll d20
 <legobot> You Rolled: 2
 ```
+
+## Development
+
+**Information will be added as becomes relevant**
+
+When developing and running the development server or installing locally, you must install the requirment. To run the development server, just use vagrant! First, make sure you are in the Legobot directory. Then:
+
+```
+sudo $YourDistroPackageManager $install vagrant
+```
+
+Then, you just run: 
+
+```
+vagrant up
+```
+And finally, to access the VM via SSH, you just do:
+
+```
+vagrant ssh
+```
+
+And now, you have access to the development server! `cd` into `/legobot` for a folder that syncs with your Legobot folder on your base machine. Now you have access to the code you've changed/added/created! To get Legobot ready to run, do `sudo pip3 install -r requirements.txt`, let pip3 do it's thing, then run `python3 Legobot.py` and viola! You now have a working dev server at localhost (127.0.0.1), where the bot should be in `#social`!
+
 [![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/l/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/status/Django.svg?maxAge=2592000)]()
 
 #### Build Status
