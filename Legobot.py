@@ -2,7 +2,7 @@ import logging
 import threading
 from Legobot.Lego import Lego
 
-from Legobot.Connectors.IRC import IRC 
+from Legobot.Connectors.IRC import IRC
 from Legobot.Legos.Help import Help
 
 # Initialize lock and master lego
@@ -15,9 +15,9 @@ master_proxy = master.proxy()
 
 # Add children
 master_proxy.add_child(IRC,
-                          channel='#freenode',
+                          channel='#social',
                           nickname='legobot',
-                          server='irc.freenode.net',
+                          server='irc.sithmail.com',
                           port=6697,
                           use_ssl=True,
                           username=None,
