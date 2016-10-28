@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='Legobot',
 
-    version='1.0.0dev1',
+    version='1.0.0dev3',
 
     py_modules=['Legobot'],
 
@@ -26,5 +26,5 @@ setup(
 
     packages=find_packages(exclude=['contrib', 'docs']),
 
-    install_requires=['pykka'],
+    install_requires=['pykka','irc'],
 )
