@@ -11,6 +11,7 @@
 ## Introduction
 
 Legobot is a platform that aims to make interactive multi-protocol bots less of a chore and more of a simple pleasure. 
+
 Legobot itself is: 
 * a skeleton framework to be built upon 
 * a multi-protocol API for bots (soon to include XMPP, Slack, Hipchat, etc.)
@@ -34,7 +35,7 @@ Installation is quite simple. Just run `pip install Legobot`. You can also easil
 
 ## Connecting to IRC
 
-Legobot is intended to be simple, flexible, and painless; thereby allowing the user to control all functionality. Consequently, Legobot doesn't really *do* much on its own, other than monitor IRC messages and manage connections. All triggers, responses, and functions are yours to create: this could range from an automated function to report Nginx monitoring info at a set interval, to a function for checking the weather, to a function that simply states "Hello, World!". The possibilities are endless, only bound by your imagination (and will to create). 
+Legobot is intended to be simple, flexible, and painless; thereby allowing the user to control all functionality. Consequently, Legobot doesn't really *do* much on its own, other than monitor messages and manage connections. All triggers, responses, and functions are yours to create: this could range from an automated function to report Nginx monitoring info at a set interval, to a function for checking the weather, to a function that simply states "Hello, World!". The possibilities are endless, only bound by your imagination (and will to create). 
 
 To connect the bot to IRC, we must create the config file. To add a server here is an example using freenode:
 
