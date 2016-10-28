@@ -86,7 +86,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         super(irc.bot.SingleServerIRCBot, self).start()
 
 
-class IRCConnector(Lego):
+class IRC(Lego):
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
         self.botThread = IRCBot(baseplate, *args, **kwargs)

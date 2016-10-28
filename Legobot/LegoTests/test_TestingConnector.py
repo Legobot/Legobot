@@ -1,5 +1,5 @@
 import unittest
-from Legobot.Legos.TestingConnector import TestingConnector
+from Legobot.Connectors.TestingConnector import TestingConnector
 from Legobot.Lego import Lego
 import threading
 from Legobot.Message import *
