@@ -6,10 +6,6 @@ import pykka
 import json
 import os
 import time
-from Legobot.Lego import Lego
-import threading
-from Legobot.Message import *
-import pykka
 
 
 class TestLego(unittest.TestCase):
