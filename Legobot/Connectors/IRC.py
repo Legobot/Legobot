@@ -61,6 +61,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         text = e.arguments[0]
         metadata = Metadata(source=self).__dict__
+        metadata['source_channel'] = e.target
         message = Message(text=text, metadata=metadata).__dict__
         self.baseplate.tell(message)
 
@@ -90,7 +91,6 @@ class IRC(Lego):
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
         self.botThread = IRCBot(baseplate, *args, **kwargs)
-        self.channel = kwargs['channels']
 
     def on_start(self):
         self.botThread.start()
@@ -99,7 +99,8 @@ class IRC(Lego):
         return str(self.botThread) != str(message['metadata']['source'])
 
     def handle(self, message):
-        self.botThread.connection.privmsg(self.channel, message['text'])
+        logger.info(message)
+        self.botThread.connection.privmsg(message['metadata']['opts']['target'], message['text'])
 
     def get_name(self):
         return None

@@ -1,11 +1,19 @@
+import logging
 from Legobot.Lego import Lego
 
+logger = logging.getLogger(__name__)
 
 class Help(Lego):
     def listening_for(self, message):
         return message['text'].split()[0] == '!help'
+        logger.info(message)
 
     def handle(self, message):
+        logger.info(message)
+        try:
+            target = message['metadata']['source_channel']
+        except IndexError:
+            logger.error('Could not identify message source in message: %s' % str(message))
         try:
             function = message['text'].split()[1]
         except IndexError:
@@ -30,7 +38,9 @@ class Help(Lego):
                 if lego_proxy.get_name().get() == function:
                     help_str = lego_proxy.get_help().get()
 
-        self.reply(message, help_str)
+        opts = {'target':target}
+
+        self.reply(message, help_str, opts=opts)
 
     def get_name(self):
         return None
