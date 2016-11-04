@@ -16,7 +16,7 @@ class Lego(pykka.ThreadingActor):
         It is used to ensure that message handlers do not block other Legos
         from running by simply taking too long to execute.
         """
-        
+
         def __init__(self, handler, message):
             threading.Thread.__init__(self)
             self.handler = handler
@@ -122,17 +122,19 @@ class Lego(pykka.ThreadingActor):
         child = child_type.start(baseplate, lock, *args, **kwargs)
         self.children.append(child)
 
-    def reply(self, message, text):
+    def reply(self, message, text, opts=None):
         """
         Reply to the sender of the provided message with a message \
         containing the provided text.
 
         :param message: the message to reply to
         :param text: the text to reply with
+        :param opts: A dictionary of additional values to add to metadata
         :return: None
         """
         metadata = Metadata(source=self,
                             dest=message['metadata']['source']).__dict__
+        metadata['opts'] = opts
         message = Message(text=text, metadata=metadata,
                           should_log=message['should_log']).__dict__
         self.baseplate.tell(message)
