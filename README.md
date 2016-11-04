@@ -1,207 +1,112 @@
 # Legobot
+## Legobot is an ongoing project; currently, refactoring is taking place. If you wish to contribute, please do so in `develop`.
 
-## Note: Legobot is undergoing a complete refactor from the ground up over in the `develop` branch.
+### Table of Contents
 
-PRs to `master` are welcome, but you are encouraged to focus your efforts there.
+1. Installation
+2. Connecting to IRC
 
-#### Table of Contents
-
-1. [Usage](#usage)
-2. [Installation](#installation)
-3. [API Details](#api-details)
-    * [Legobot](#legobot-class)
-    * [The Message Object](#message)
-4. [How to contribute](#how-to-contribute)
-5. [Copyright](#copyright)
+***
 
 ## Introduction
-Legobot is a platform which makes interactive IRC bots easy to build. The bot provides connectivity and the ability to listen and respond to users. The bot provides user functions a usable "message" object when needed, eliminating the need to parse raw IRC strings.
+
+Legobot is a platform that aims to make interactive multi-protocol bots less of a chore and more of a simple pleasure. 
+
+Legobot itself is: 
+* a skeleton framework to be built upon 
+* a multi-protocol API for bots (soon to include XMPP, Slack, Hipchat, etc.)
+* a basic set of functions for managing connections and message objects
+* extensible (easily)
+
+Legobot is not:
+* complete
+* an IRC bot (it's bigger than all of us, Jim)
+* an Apple product
+* a Microsoft product
+* made of LEGOS (yet...)
+
+Currently, Legobot is "batteries included" when being used as an IRC bot; Legobot comes with connectors (Legos) and functions that make development for IRC simple. More protocols are on the roadmap for future builds, and would be quick and simple to develop. 
+
+***
 
 ## Installation
-Just run `pip install Legobot`. You can also install and run this as a non-privileged user by using `pip install --user Legobot` instead (recommended).
 
-## Usage
-Legobot is intended to be simple in usage, flexible, and allow the user to drive all functionality. Therefore it is a given that it doesn't do much on its own outside of managing the IRC connection and watching conversations. Any triggers and responses are yours to build. 
+Installation is quite simple. Just run `pip install Legobot`. You can also easily install this as a non-privileged user by running `pip install --user Legobot` instead (this is recommended).
 
-Legobot's primary functionality centers around a few methods:
+## Connecting to IRC
 
-First, let's initialize our bot:
+Legobot is intended to be simple, flexible, and painless; thereby allowing the user to control all functionality. Consequently, Legobot doesn't really *do* much on its own, other than monitor messages and manage connections. All triggers, responses, and functions are yours to create: this could range from an automated function to report Nginx monitoring info at a set interval, to a function for checking the weather, to a function that simply states "Hello, World!". The possibilities are endless, only bound by your imagination (and will to create). 
 
-```python
-import Legobot
-HOST = 'irc.freenode.com'
-PORT = 6667
-NICK = 'legobot'
-CHANS = [('#freenoode', ''), ('#bitcoin', ''), ('#legobot', '')] # List of tuples. Format is (channel, password)
-myBot = Legobot.legoBot(host=HOST, port=PORT, nick=NICK, nickpass="", chans=CHANS)
-```
-
-#### Great, now what?
-
-Write a function, add it to Legobot, then connect!
+An example of a basic bot that is functional (connects to server, etc.) might look like this:
 
 ```python
-def helloWorld(msg):
-    return "Hello, world!"
+import logging
+import threading
+from Legobot.Lego import Lego
+from Legobot.Connectors import *
 
-myBot.addFunc("!helloworld", helloWorld, "Ask your bot to say hello. Usage: !helloworld")
-myBot.connect(isSSL=False)
+from Legobot.Legos.Help import Help
+from Legobot.Legos.Roll import Roll
+from Legobot.Connectors.IRC import IRC
+
+# Initialize lock and baseplate
+lock = threading.Lock()
+baseplate = Lego.start(None, lock)
+baseplate_proxy = baseplate.proxy()
+
+# Add children
+baseplate_proxy.add_child(IRC,
+                          channel='#freenode',
+                          nickname='legobot',
+                          server='irc.freenode.net',
+                          port=6697,
+                          use_ssl=True,
+                          username=None,
+                          password=None)
+baseplate_proxy.add_child(Roll)
+baseplate_proxy.add_child(Help)
+```
+For the above example, we implemented the !roll Lego.. Now, to see this in action!
+
+```
+<parsec> !help
+<legobot> Available functions: roll
+<parsec> !help roll
+<legobot> Roll some dice. Usage: !roll 2d6t, !roll 6d6^3, !roll d20
+<parsec> !roll 2d10
+<legobot> You Rolled: 7, 3
+<parsec> !roll d20
+<legobot> You Rolled: 2
 ```
 
-Then watch your creation come to life:
+## Development
+
+**Information will be added as becomes relevant**
+
+When developing and running the development server or installing locally, you must install the requirment. To run the development server, just use vagrant! First, make sure you are in the Legobot directory. Then:
 
 ```
-<bbriggs> !helloworld
-<legobot> Hello, world!
-<bbriggs> !help
-<legobot> Available functions: !helloworld, !help
-<bbriggs> !help !helloworld
-<legobot> Ask your bot to say hello. Usage: !helloworld
+sudo $YourDistroPackageManager $install vagrant
 ```
 
-Congratulations, you just wrote an IRC bot!
+Then, you just run: 
 
-## API details
+```
+vagrant up
+```
+And finally, to access the VM via SSH, you just do:
 
-### Legobot class
-
-#### Legobot.legobot()
-
-`Legobot.legobot(host,port,nick,chans, logfunc = "", hostpw = "", defaultFunc = None, defaultFuncChar = "")`
-
-*Parameters:*
-
-**host** _String._ IRC host to connect to.
-
-**port** _Int._ IRCd port to connect to (port IRC server is listening on).
-
-**nick** _String._ Nickname you want your bot to use. Also sets realname value in IRC. 
-
-**chans** _List._ This is actually a list of tuples in the form of (channel,channel_password). Example: [('#admins','supersecretpassword'),('#social','')]
-
-**logfunc** _Function.__ Function object (without parens). logfunc is called with a msg objet for every line read in from irc. Essentially allowing a bot to log all conversations in the room. Can be useful for lookback bots.
-
-**hostpw** _String._ Password for the IRCd, if necessary.
-
-**defaultFunc** _Function.__ Function object (without parens). Supply a fallback function to trigger if your users ask for a function that doesn't exist. 
-
-**defaultFuncChar** _String._ Predicating character for which to call your default func.  Typically bots are written to respond to a special character, eg: exclamation point. The bot would be expected to respond to things like !help, !tip, etc. defaultFunc and defaultFuncChar allow us to respond to unknown calls, eg !blah would then run the default function if there was not a function specifically written for !blah.
-
-#### Legobot.addFunc()
-
-`addFunc(self, name, function, helpText = "")`
-
-*Parameters:*
-
-**name** _String._ The word you want to trigger the function. Legobot only considers the first word in a message for this. Example: if name="!helloworld" and you say "!helloworld" in IRC, that will trigger the function. However, "will !helloworld work?" will not trigger the function.
-
-**function** _Function._ Function object (without parens). It's usually helpful to name the function the same as the trigger. This is the function that gets called when the trigger word in the `name` parameter is seen.
-
-**helpText** _String._ Describe in a few words what this function does. Gets displayed when user requests `!help !yourfunction` in IRC. 
-
-#### `addDefaultFunc(self, func, char)`
-
-*Parameters:*
-
-**func** _Function._ Function object (without parens). Set the default, fallback function to trigger when users spam nonsense that starts with your trigger character. ie, `!xyzzy` could trigger `!help`. If you're not in the mood to be helpful, why not insult your users for being silly?
-
-**char** _String._ Single character to serve as a trigger to let Legobot know we're talking to it. Example: setting `char` to `'!'` and just saying `!` in chat would trigger the default function. 
-
-#### `connect(self, isSSL=False)`
-
-*Parameters*
-
-**isSSL** _Boolean._ Use SSL when connecting to the IRCd host
-
-#### `sendMsg(self, msgToSend)`
-
-*Parameters:*
-
-**msgToSend** _String._ Line to send to IRC channel. 
-
-### Message 
-
-*Parameters:*
-
-None.
-
-Every line that comes in from the IRC connection generates a `Message` object in Legobot which is then parsed by the bot. Messages where the `Message.cmd` property (discussed below) matches a trigger will run the corresponding function. Legobot then passes the message object to the newly triggered function as a parameter. Example:
-
-```python
-def cointoss(msg):
-    """
-    Inputs:
-      takes msg object
-
-    Outputs:
-      returns string to echo back to user in IRC
-
-    Purpose:
-      flip an imaginary coin or roll an imaginary N-sided die
-      Usage:
-      !roll [# of sides]
-    """
-
-    if not msg.arg1:
-        toss = random.randint(0,1)
-        if toss == 0:
-            returnVal = "Heads"
-        else:
-            returnVal = "Tails"
-    else:
-        if not is_num(msg.arg1):
-            returnVal = "Incorrect syntax. You must use a (sane) number"
-        elif is_num(msg.arg1) and not int(msg.arg1) >= 2:
-            returnVal = "Use at least two sides, weirdo."
-        elif is_num(msg.arg1) and int(msg.arg1) == 2:
-            toss = random.randint(1,2)
-            if toss == 1:
-                returnVal = "Heads"
-            else:
-                returnVal = "Tails"
-        else:
-            toss = random.randint(1,int(msg.arg1))
-            returnVal = str(toss)
-    return returnVal
+```
+vagrant ssh
 ```
 
-Note: If you want your function to reply back to the channel or user the bot receieved from, return a just a string. To respond or forward to a specific channel, return a tuple of two strings in the form (message,channel_or_user)
+And now, you have access to the development server! `cd` into `/legobot` for a folder that syncs with your Legobot folder on your base machine. Now you have access to the code you've changed/added/created! To get Legobot ready to run, do `sudo pip3 install -r requirements.txt`, let pip3 do it's thing, then run `python3 Legobot.py` and viola! You now have a working dev server at localhost (127.0.0.1), where the bot should be in `#social`!
 
-**Properties:**
+[![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/l/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/status/Django.svg?maxAge=2592000)]()
 
-`Message.fullMessage`, _String._ full, raw IRC line. 
+#### Build Status
 
-`Message.splitMessage`, _String._ IRC line split on whitespaces, truncated to 7 items. The 7th item is all remaining text, if it exists.
-
-`Message.length`, _String._ The value of `len(self.splitMessage)`
-
-`Message.userInfo`, _String._ The nick, realname, and host (or hostmask) of the IRC user who sent the message.
-
-`Message.actualUserName`, _String._ Realname of IRC the user who sent the message. 
-
-`Message.target`, _String._ where the message was addressed. ie, channel or individual user. Used to detect if message sent was a private message. 
-
-`Message.cmd`, _String._ First word in user's actual message. In 'Hello world!', Message.cmd is 'Hello'
-
-`Message.arg1`, `arg2`, and `arg3`, _String._ Additional positional arguments to evaluate when parsing a triggered command. May or may not be present depending on the length of the input line. 
-
-`Message.isPM`, _Boolean._ False if message was sent to whole #channel, True if sent to just the bot.  
-
-## How to contribute
-
-Issues and pull requests welcome. Please send PRs to the development branch. 
-
-## Copyright
-
-Legobot
-Copyright (c) 2016 Bren Briggs and Kevin McCabe
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+| Master | Develop | 
+|--------|---------|
+| [![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=master)](https://travis-ci.org/bbriggs/Legobot) | [![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=develop)](https://travis-ci.org/bbriggs/Legobot)
+>>>>>>> develop
