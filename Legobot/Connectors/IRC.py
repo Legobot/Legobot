@@ -104,11 +104,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
 
 class IRC(Lego):
     def __init__(self, baseplate, lock, *args, **kwargs):
-        try:
-            assert isinstance(baseplate, ActorRef)
-        except:
-            logger.critical("baseplate isn't of type lego, type: %s, str: %s" % (str(type(baseplate)), str(baseplate)))
-            raise
+        assert isinstance(baseplate, ActorRef)
         assert isinstance(lock, LockType)
         
         super().__init__(baseplate, lock)

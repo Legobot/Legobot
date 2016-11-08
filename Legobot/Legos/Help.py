@@ -7,10 +7,9 @@ class Help(Lego):
     def listening_for(self, message):
         self.listen_string = '!help'
         return message['text'].split()[0] == self.listen_string
-        logger.info(message)
 
     def handle(self, message):
-        logger.info(message)
+        logger.debug("help called with message: {}".format(message))
         try:
             target = message['metadata']['source_channel']
         except IndexError:

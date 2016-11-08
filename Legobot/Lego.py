@@ -1,6 +1,7 @@
 import threading
 import json
 import logging
+from abc import abstractmethod
 
 import pykka
 
@@ -75,7 +76,8 @@ class Lego(pykka.ThreadingActor):
         logger.debug('Acquired lock in cleanup for ' + str(self))
         self.children = [child for child in self.children if child.is_alive()]
         self.lock.release()
-
+    
+    @abstractmethod
     def listening_for(self, message):
         """
         Return whether this Lego is listening for the provided Message.
@@ -86,7 +88,8 @@ class Lego(pykka.ThreadingActor):
         :return: a boolean
         """
         return False
-
+    
+    @abstractmethod
     def handle(self, message):
         """
         Handle the provided Message.
@@ -140,7 +143,8 @@ class Lego(pykka.ThreadingActor):
         message = Message(text=text, metadata=metadata,
                           should_log=message['should_log']).__dict__
         self.baseplate.tell(message)
-
+    
+    @abstractmethod
     def get_name(self):
         """
         Return the name the Lego recognizes from the help function.
@@ -148,7 +152,8 @@ class Lego(pykka.ThreadingActor):
         :return: a string
         """
         return '?'
-
+    
+    @abstractmethod
     def get_help(self):
         """
         Return a helpstring for the function.
