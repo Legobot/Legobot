@@ -31,6 +31,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.password = password
         self.username = username
         self.ircname = ircname
+        logger.info("ircbot init done")
 
     def connect(self, *args, **kwargs):
         """
