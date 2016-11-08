@@ -108,6 +108,8 @@ class Lego(pykka.ThreadingActor):
         :param kwargs: keyword arguments for initializing the child
         :return:
         """
+        assert issubclass(child_type, Lego)
+            
         try:
             baseplate = kwargs['baseplate']
         except:

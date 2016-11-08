@@ -5,7 +5,8 @@ logger = logging.getLogger(__name__)
 
 class Help(Lego):
     def listening_for(self, message):
-        return message['text'].split()[0] == '!help'
+        self.listen_string = '!help'
+        return message['text'].split()[0] == self.listen_string
         logger.info(message)
 
     def handle(self, message):
@@ -30,7 +31,7 @@ class Help(Lego):
                 lego_proxy = lego.proxy()
                 if lego_proxy.get_name().get() is not None:
                     lego_names.append(lego_proxy.get_name().get())
-            help_str = 'Available functions: ' + ', '.join(lego_names)
+            help_str = 'Available functions: {functions}'.format(functions = ', '.join(sorted(lego_names)))
 
         if function:
             for lego in legos:
@@ -43,4 +44,7 @@ class Help(Lego):
         self.reply(message, help_str, opts=opts)
 
     def get_name(self):
-        return None
+        return "help"
+    
+    def get_help(self):
+        return "Usage: !help to list all functions or !help [function] to list detailed help for that function"
