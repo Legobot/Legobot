@@ -4,12 +4,8 @@ from Legobot.Lego import Lego
 logger = logging.getLogger(__name__)
 
 class Help(Lego):
-    def listening_for(self, message):
-        self.listen_string = '!help'
-        return message['text'].split()[0] == self.listen_string
-
     def handle(self, message):
-        logger.debug("help called with message: {}".format(message))
+        logger.critical("help called with message: {}".format(message))
         try:
             target = message['metadata']['source_channel']
         except IndexError:
@@ -41,9 +37,3 @@ class Help(Lego):
         opts = {'target':target}
 
         self.reply(message, help_str, opts=opts)
-
-    def get_name(self):
-        return "help"
-    
-    def get_help(self):
-        return "Usage: !help to list all functions or !help [function] to list detailed help for that function"
