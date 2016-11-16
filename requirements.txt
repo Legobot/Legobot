@@ -1,2 +1,5 @@
 pykka
 irc
+requests
+bottle
+dateutil
