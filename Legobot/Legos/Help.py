@@ -14,26 +14,26 @@ class Help(Lego):
             function = message['text'].split()[1]
         except IndexError:
             function = None
-
+        
         baseplate_proxy = self.baseplate.proxy()
         legos = baseplate_proxy.children.get()
 
         help_str = 'No help is available. Sorry.'
-
+        
         if not function:
             lego_names = []
             for lego in legos:
                 lego_proxy = lego.proxy()
                 if lego_proxy.get_name().get() is not None:
-                    lego_names.append(lego_proxy.get_name().get())
+                    name = lego_proxy.get_name().get()
+                    if name: lego_names.append(name)
+                    
             help_str = 'Available functions: {functions}'.format(functions = ', '.join(sorted(lego_names)))
-
         if function:
             for lego in legos:
                 lego_proxy = lego.proxy()
                 if lego_proxy.get_name().get() == function:
                     help_str = lego_proxy.get_help().get()
-
+        
         opts = {'target':target}
-
         self.reply(message, help_str, opts=opts)

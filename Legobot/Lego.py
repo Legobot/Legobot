@@ -90,7 +90,7 @@ class Lego(pykka.ThreadingActor):
         :param message: a Message object
         :return: a boolean
         """
-        logger.critical("hit listening for, our listen string is: %s" % str(self._listen_string))
+        logger.debug("hit listening for, our listen string is: %s" % str(self._listen_string))
         if not self._listen_string:
             return False
         
@@ -124,13 +124,12 @@ class Lego(pykka.ThreadingActor):
         :return:
         """
         assert issubclass(child_type, Lego)
-            
         baseplate = kwargs.get('baseplate', self.baseplate or self.actor_ref)
         lock = kwargs.get('lock', self.lock)
         
         child = child_type.start(baseplate, lock, *args, **kwargs)
         self.children.append(child)
-
+    
     def reply(self, message, text, opts=None):
         """
         Reply to the sender of the provided message with a message \
@@ -195,3 +194,5 @@ class Lego(pykka.ThreadingActor):
         logger.exception('Lego crashed: ' + str(self))
         logger.exception(exception_type)
         logger.exception(exception_value)
+
+
