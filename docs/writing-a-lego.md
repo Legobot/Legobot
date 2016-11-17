@@ -41,6 +41,7 @@ def handle(self, message):
 ```
 
 This setup allows us a few advantages: 
+
 1. Many instances of the same lego can run in parallel
 1. A lego can send multiple responses using self.reply()
 1. A lego can set any arbitrary metadata and send it back. For instance, messages received in one channel can be responded to on another or control messages can be sent between Legos to communite things that may not need to be said in the chat channels.
