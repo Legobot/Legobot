@@ -18,15 +18,15 @@ from Legobot.Legos.Help import Help
 # Create the "parent" lego that owns all the plugins
 # This will get boiled down into a one-liner soon
 lock = threading.Lock()
-master_lego = Lego.start(None, lock)
-master_lego_= baseplate.proxy()
+master = Lego.start(None, lock)
+master_proxy = master.proxy()
 
 # Add some functionality
-baseplate_proxy.add_child(IRC,
+master_proxy.add_child(IRC,
                           channels=['#social'],
                           nickname='mybot',
                           server='chat.freenode.net',
-baseplate_proxy.add_child(Help)
+master_proxy.add_child(Help)
 ```
 
 This one doesn't do much. It just connects to IRC and, should you ask, will tell you about other Legos that are plugged in (if there are any). In this case, since there aren't, it will just sit there. Doing nothing. Beacuse you gave it nothing to do. You monster.
