@@ -54,7 +54,7 @@ from Legobot.Connectors import *
 from Legobot.Legos.Help import Help
 from Legobot.Connectors.IRC import IRC
 
-# This is a local, user-develop lego
+# This is a local, user-developed lego
 from Local import Roll
 
 # Initialize lock and baseplate
@@ -70,7 +70,7 @@ master_proxy.add_child(IRC,
 baseplate_proxy.add_child(Roll)
 baseplate_proxy.add_child(Help)
 ```
-For the above example, we implemented the !roll Lego.. Now, to see this in action!
+For the above example, we implemented the !roll Lego. Now, to see this in action!
 
 ```
 <parsec> !help
