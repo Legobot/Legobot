@@ -92,4 +92,4 @@ For the above example, we implemented the !roll Lego. Now, to see this in action
 <legobot> You Rolled: 2
 ```
 
-For a deeper dive into how Legobot works, see our [documentation](docs/into.md)
+For a deeper dive into how Legobot works, see our [documentation](docs/intro.md)
