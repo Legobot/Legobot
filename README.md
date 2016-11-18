@@ -1,10 +1,16 @@
 # Legobot
-## Legobot is an ongoing project; currently, refactoring is taking place. If you wish to contribute, please do so in `develop`.
+
+[![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/l/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/status/Django.svg?maxAge=2592000)]()
+
+#### Build Status
+
+| Master | Develop | 
+|--------|---------|
+| [![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=master)](https://travis-ci.org/bbriggs/Legobot) | [![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=develop)](https://travis-ci.org/bbriggs/Legobot)
 
 ### Table of Contents
 
 1. Installation
-2. Connecting to IRC
 
 ***
 
@@ -31,7 +37,7 @@ Currently, Legobot is "batteries included" when being used as an IRC bot; Legobo
 
 ## Installation
 
-Installation is quite simple. Just run `pip install Legobot`. You can also easily install this as a non-privileged user by running `pip install --user Legobot` instead (this is recommended).
+Installation is quite simple. Since we are on python3, just run `pip3 install Legobot`. You can also easily install this as a non-privileged user by running `pip3 install --user Legobot` instead (this is recommended).
 
 ## Connecting to IRC
 
@@ -46,27 +52,25 @@ from Legobot.Lego import Lego
 from Legobot.Connectors import *
 
 from Legobot.Legos.Help import Help
-from Legobot.Legos.Roll import Roll
 from Legobot.Connectors.IRC import IRC
+
+# This is a local, user-developed lego
+from Local import Roll
 
 # Initialize lock and baseplate
 lock = threading.Lock()
-baseplate = Lego.start(None, lock)
-baseplate_proxy = baseplate.proxy()
+master = Lego.start(None, lock)
+master_proxy = master.proxy()
 
 # Add children
-baseplate_proxy.add_child(IRC,
+master_proxy.add_child(IRC,
                           channel='#freenode',
                           nickname='legobot',
-                          server='irc.freenode.net',
-                          port=6697,
-                          use_ssl=True,
-                          username=None,
-                          password=None)
+                          server='chat.freenode.net',
 baseplate_proxy.add_child(Roll)
 baseplate_proxy.add_child(Help)
 ```
-For the above example, we implemented the !roll Lego.. Now, to see this in action!
+For the above example, we implemented the !roll Lego. Now, to see this in action!
 
 ```
 <parsec> !help
@@ -79,33 +83,4 @@ For the above example, we implemented the !roll Lego.. Now, to see this in actio
 <legobot> You Rolled: 2
 ```
 
-## Development
-
-**Information will be added as becomes relevant**
-
-When developing and running the development server or installing locally, you must install the requirment. To run the development server, just use vagrant! First, make sure you are in the Legobot directory. Then:
-
-```
-sudo $YourDistroPackageManager $install vagrant
-```
-
-Then, you just run: 
-
-```
-vagrant up
-```
-And finally, to access the VM via SSH, you just do:
-
-```
-vagrant ssh
-```
-
-And now, you have access to the development server! `cd` into `/legobot` for a folder that syncs with your Legobot folder on your base machine. Now you have access to the code you've changed/added/created! To get Legobot ready to run, do `sudo pip3 install -r requirements.txt`, let pip3 do it's thing, then run `python3 Legobot.py` and viola! You now have a working dev server at localhost (127.0.0.1), where the bot should be in `#social`!
-
-[![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/l/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/status/Django.svg?maxAge=2592000)]()
-
-#### Build Status
-
-| Master | Develop | 
-|--------|---------|
-| [![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=master)](https://travis-ci.org/bbriggs/Legobot) | [![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=develop)](https://travis-ci.org/bbriggs/Legobot)
+For a deeper dive into how Legobot works, see our [documentation](docs/into.md)
