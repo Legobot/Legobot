@@ -44,9 +44,14 @@ Installation is quite simple. Since we are on python3, just run `pip3 install Le
 
 For things like Legobot, Docker might just be the greatest thing since sliced bread. If you want to run Legobot without installing the library on your host, you can always use a Virtualenv (gross) or use docker (fun!)
 
-Here is the docker run command I've been using lately for my own instances: `docker run -d -it --name Legobot -v "$PWD":/usr/src/legobot -w /usr/src/legobot python:3 sh -c 'pip install -r requirements.txt && python chatbot.py'`
+Here is the docker run command I've been using lately for my own instances: `docker run -d -it --name Legobot -v "$PWD":/usr/src/legobot -w /usr/src/legobot python:3 sh -c 'pip install -r requirements.txt && python chatbot.py'`.
 
-This of course assumes that you called your script "chatbot" and that you want to name the container 'Legobot', but I think you get the picture. It's easy to run in a Docker container and you can run multiple instances with possible conflicting libraries without having to set up a virtual env or pollute your host machine. 
+This of course assumes a couple things:
+ - You called your script "chatbot"
+ - You want to name the container "Legobot"
+ - You are in the Legobot same directory as your chatbot script when running the command
+ 
+But I think you get the picture. It's easy to run in a Docker container and you can run multiple instances with possible conflicting libraries without having to set up a virtual env or pollute your host machine. 
 
 ### Connecting to IRC
 
