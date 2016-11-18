@@ -11,6 +11,7 @@
 ### Table of Contents
 
 1. Installation
+2. Alternative (easier) install and run method
 
 ***
 
@@ -35,11 +36,19 @@ Currently, Legobot is "batteries included" when being used as an IRC bot; Legobo
 
 ***
 
-## Installation
+### Installation
 
-Installation is quite simple. Since we are on python3, just run `pip3 install Legobot`. You can also easily install this as a non-privileged user by running `pip3 install --user Legobot` instead (this is recommended).
+Installation is quite simple. Since we are on python3, just run `pip3 install Legobot`. You can also easily install this as a non-privileged user by running `pip3 install --user Legobot` instead.
 
-## Connecting to IRC
+### Alternative installation
+
+For things like Legobot, Docker might just be the greatest thing since sliced bread. If you want to run Legobot without installing the library on your host, you can always use a Virtualenv (gross) or use docker (fun!)
+
+Here is the docker run command I've been using lately for my own instances: `docker run -d -it --name Legobot -v "$PWD":/usr/src/legobot -w /usr/src/legobot python:3 sh -c 'pip install -r requirements.txt && python chatbot.py'`
+
+This of course assumes that you called your script "chatbot" and that you want to name the container 'Legobot', but I think you get the picture. It's easy to run in a Docker container and you can run multiple instances with possible conflicting libraries without having to set up a virtual env or pollute your host machine. 
+
+### Connecting to IRC
 
 Legobot is intended to be simple, flexible, and painless; thereby allowing the user to control all functionality. Consequently, Legobot doesn't really *do* much on its own, other than monitor messages and manage connections. All triggers, responses, and functions are yours to create: this could range from an automated function to report Nginx monitoring info at a set interval, to a function for checking the weather, to a function that simply states "Hello, World!". The possibilities are endless, only bound by your imagination (and will to create). 
 
