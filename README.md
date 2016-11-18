@@ -82,3 +82,5 @@ For the above example, we implemented the !roll Lego. Now, to see this in action
 <parsec> !roll d20
 <legobot> You Rolled: 2
 ```
+
+For a deeper dive into how Legobot works, see our [documentation](docs/into.md)
