@@ -8,11 +8,23 @@ import irc.connection
 
 from Legobot.Message import *
 from Legobot.Lego import Lego
+from jaraco.stream import buffer
 
 logger = logging.getLogger(__name__)
 
 
+class IgnoreErrorsBuffer(buffer.DecodingLineBuffer):
+    """  Handle char decode errors better
+    """
+    def handle_exception(self):
+        pass
+irc.client.ServerConnection.buffer_class = IgnoreErrorsBuffer
+irc.client.SimpleIRCClient.buffer_class = IgnoreErrorsBuffer
+
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
+    """
+    Create bot instance
+    """
     def __init__(self, baseplate, channels, nickname, server,
                  port=6667, use_ssl=False, password=None,
                  username=None, ircname=None):
@@ -21,6 +33,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
                                             nickname,
                                             nickname)
         threading.Thread.__init__(self)
+
         # the obvious self.channels is already used by irc.bot
         self.my_channels = channels
         self.nickname = nickname
@@ -88,6 +101,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
 
 
 class IRC(Lego):
+
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
         self.botThread = IRCBot(baseplate, *args, **kwargs)
@@ -100,7 +114,8 @@ class IRC(Lego):
 
     def handle(self, message):
         logger.info(message)
-        self.botThread.connection.privmsg(message['metadata']['opts']['target'], message['text'])
+        self.botThread.connection.privmsg(message['metadata']['opts'][
+            'target'], message['text'])
 
     def get_name(self):
         return None
