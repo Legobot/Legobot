@@ -79,6 +79,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         metadata = Metadata(source=self).__dict__
         metadata['source_channel'] = e.target
         metadata['source_user'] = e.source
+        metadata['source_username'] = e.source.split('!')[0]
         metadata['is_private_message'] = False
         message = Message(text=text, metadata=metadata).__dict__
         self.baseplate.tell(message)
