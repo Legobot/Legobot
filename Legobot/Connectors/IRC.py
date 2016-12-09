@@ -78,8 +78,26 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         text = e.arguments[0]
         metadata = Metadata(source=self).__dict__
         metadata['source_channel'] = e.target
+        metadata['source_user'] = e.source
+        metadata['source_username'] = e.source.split('!')[0]
+        metadata['is_private_message'] = False
         message = Message(text=text, metadata=metadata).__dict__
         self.baseplate.tell(message)
+
+    def on_privmsg(self, c, e):
+        """
+        This function runs when the bot receives a private message (query).
+        """
+        text = e.arguments[0]
+        metadata = Metadata(source=self).__dict__
+        logger.debug('\n\n\n%s\n\n\n' % e.source)
+        metadata['source_channel'] = e.source.split('!')[0]
+        metadata['source_username'] = e.source.split('!')[0]
+        metadata['source_user'] = e.source
+        metadata['is_private_message'] = True
+        message = Message(text=text, metadata=metadata).__dict__
+        self.baseplate.tell(message)
+
 
     def on_welcome(self, c, e):
         """
