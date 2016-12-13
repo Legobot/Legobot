@@ -8,7 +8,7 @@ from Legobot.Legos.Help import Help
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+ch.setLevel(logging.WARN)
 # create formatter and add it to the handlers
 formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -26,11 +26,13 @@ master_proxy = master.proxy()
 
 # Add children
 master_proxy.add_child(IRC,
-                          channels=['#social'],
+                          channels=['#foo','#bar'],
                           nickname='legobot',
-                          server='irc.sithmail.com',
+                          server='chat.freenode.net',
                           port=6697,
                           use_ssl=True,
                           username=None,
-                          password=None)
+                          password=None,
+                          nickserv=True,
+                          nickserv_pass='correcthorsebatterystaple')
 master_proxy.add_child(Help)
