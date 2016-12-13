@@ -3,7 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [unreleased]
+## [1.0.2] 2016-12-12
+
+### Added
+
+- Allow IRC connector to authenticate to Freenode-style nickserv
 
 ## [1.0.1] 2016-12-08
 
