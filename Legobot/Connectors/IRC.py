@@ -110,19 +110,18 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
             logger.debug('Attempting to join %s' % channel)
             c.join(channel)
 
-        if nickserv == True and nickserv_pass != None:
-            self.identify(self.nickserv_pass)
+        if self.nickserv == True and self.nickserv_pass != None:
+            self.identify(c,e,self.nickserv_pass)
         else:
             logger.error('If nickserv is enabled, you must supply a password')
 
-        if nickserv == False and nickserv_pass != None:
-            logger.warn('It appears you provided a nickserv password but\
-                    did not enable nickserv authentication')
+        if self.nickserv == False and self.nickserv_pass != None:
+            logger.warn('It appears you provided a nickserv password but '\
+                    'did not enable nickserv authentication')
 
     def identify(self,c,e,password):
-        c.privmsg('NickServ','IDENTIFY %s %s' % (self.nick,password))
+        c.privmsg('NickServ','IDENTIFY %s %s' % (self.nickname,password))
         return
-
 
     def run(self):
         """
