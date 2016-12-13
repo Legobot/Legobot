@@ -30,7 +30,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
     """
     def __init__(self, baseplate, channels, nickname, server,
                  port=6667, use_ssl=False, password=None,
-                 username=None, ircname=None):
+                 username=None, ircname=None, nickserv=False,
+                 nickserv_pass=None):
         irc.bot.SingleServerIRCBot.__init__(self,
                                             [(server, port)],
                                             nickname,
@@ -47,6 +48,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.password = password
         self.username = username
         self.ircname = ircname
+        self.nickserv = nickserv
+        self.nickserv_pass = nickserv_pass
 
     def connect(self, *args, **kwargs):
         """
@@ -106,6 +109,19 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         for channel in self.my_channels:
             logger.debug('Attempting to join %s' % channel)
             c.join(channel)
+
+        if self.nickserv == True and self.nickserv_pass != None:
+            self.identify(c,e,self.nickserv_pass)
+        else:
+            logger.error('If nickserv is enabled, you must supply a password')
+
+        if self.nickserv == False and self.nickserv_pass != None:
+            logger.warn('It appears you provided a nickserv password but '\
+                    'did not enable nickserv authentication')
+
+    def identify(self,c,e,password):
+        c.privmsg('NickServ','IDENTIFY %s %s' % (self.nickname,password))
+        return
 
     def run(self):
         """
