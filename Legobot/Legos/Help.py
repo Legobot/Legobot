@@ -16,7 +16,7 @@ class Help(Lego):
         try:
             target = message['metadata']['source_channel']
         except IndexError:
-            logger.error('Could not identify message source in message: %s' % str(message))
+            logger.error('Could not identify message source in message: {0!s}'.format(str(message)))
         try:
             function = message['text'].split()[1]
         except IndexError:
