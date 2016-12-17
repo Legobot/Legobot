@@ -93,7 +93,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         text = e.arguments[0]
         metadata = Metadata(source=self).__dict__
-        logger.debug('\n\n\n%s\n\n\n' % e.source)
+        logger.debug('\n\n\n{0!s}\n\n\n'.format(e.source))
         metadata['source_channel'] = e.source.split('!')[0]
         metadata['source_username'] = e.source.split('!')[0]
         metadata['source_user'] = e.source
@@ -107,7 +107,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         This function runs when the bot successfully connects to the IRC server
         """
         for channel in self.my_channels:
-            logger.debug('Attempting to join %s' % channel)
+            logger.debug('Attempting to join {0!s}'.format(channel))
             c.join(channel)
 
         if self.nickserv == True and self.nickserv_pass != None:
@@ -120,7 +120,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
                     'did not enable nickserv authentication')
 
     def identify(self,c,e,password):
-        c.privmsg('NickServ','IDENTIFY %s %s' % (self.nickname,password))
+        c.privmsg('NickServ','IDENTIFY {0!s} {1!s}'.format(self.nickname, password))
         return
 
     def run(self):
