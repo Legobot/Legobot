@@ -36,7 +36,8 @@ class Lego(pykka.ThreadingActor):
                      instance of threading.Lock for all Legos
         """
         super().__init__()
-        assert(lock is not None)
+        if not lock:
+            raise 
         self.baseplate = baseplate
         self.children = []
         self.lock = lock
