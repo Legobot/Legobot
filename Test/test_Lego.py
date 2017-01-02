@@ -1,16 +1,12 @@
 import unittest
-from Legobot.Lego import Lego
 import threading
-from Legobot.Message import *
 import pykka
 import json
 import os
 import time
-from Legobot.Lego import Lego
-import threading
-from Legobot.Message import *
 from Legobot.LegoError import LegoError
-import pykka
+from Legobot.Message import Message, Metadata
+from Legobot.Lego import Lego
 
 
 class TestLego(unittest.TestCase):
@@ -19,31 +15,31 @@ class TestLego(unittest.TestCase):
         baseplate = Lego(None, lock)
         lego = Lego(baseplate, baseplate.lock)
         lego = Lego(baseplate, baseplate.lock, 'lego.log')
-        assert(baseplate.lock == lock) # nosec
-        assert(lego.lock == lock) # nosec
-        assert(baseplate.baseplate is None) # nosec
-        assert(lego.baseplate is baseplate) # nosec
-        assert(lego.children == []) # nosec
-        assert(lego.log_file == 'lego.log') # nosec
+        assert(baseplate.lock == lock)  # nosec
+        assert(lego.lock == lock)  # nosec
+        assert(baseplate.baseplate is None)  # nosec
+        assert(lego.baseplate is baseplate)  # nosec
+        assert(lego.children == [])  # nosec
+        assert(lego.log_file == 'lego.log')  # nosec
 
     def test_default_init_values(self):
         lock = threading.Lock()
         baseplate = Lego(None, lock)
         lego = Lego(baseplate, baseplate.lock)
-        assert lego.log_file is None # nosec
+        assert lego.log_file is None  # nosec
 
     def test_lock_required(self):
         with self.assertRaises(LegoError):
-            lego = Lego(None, None)
+            lego = Lego(None, None)  # noqa: F841
 
     def test_listening_for(self):
         lego = Lego(None, threading.Lock())
         message = self.make_message()
-        assert not lego.listening_for(message) # nosec
+        assert not lego.listening_for(message)  # nosec
 
     def test_handle(self):
         lego = Lego(None, threading.Lock())
-        assert(lego.handle(self.make_message()) is None) # nosec
+        assert(lego.handle(self.make_message()) is None)  # nosec
 
     def make_message(self):
         metadata = Metadata(self, None)
@@ -53,11 +49,11 @@ class TestLego(unittest.TestCase):
         baseplate = Lego(None, threading.Lock())
         baseplate.add_child(Lego)
         child = baseplate.children[0]
-        assert(isinstance(child, pykka.ActorRef)) # nosec
+        assert(isinstance(child, pykka.ActorRef))  # nosec
         child_proxy = child.proxy()
         child_proxy.add_child(Lego)
         child_children = child_proxy.children.get()
-        assert(isinstance(child_children[0], pykka.ActorRef)) # nosec
+        assert(isinstance(child_children[0], pykka.ActorRef))  # nosec
         child_children[0].stop()
         child.stop()
 
@@ -67,15 +63,15 @@ class TestLego(unittest.TestCase):
         child = baseplate.children[0]
         child.stop()
         baseplate.cleanup()
-        assert(len(baseplate.children) == 0) # nosec
+        assert(len(baseplate.children) == 0)  # nosec
 
     def test_get_name(self):
         lego = Lego(None, threading.Lock())
-        assert lego.get_name() == '?' # nosec
+        assert lego.get_name() == '?'  # nosec
 
     def test_get_help(self):
         lego = Lego(None, threading.Lock())
-        assert lego.get_help() == '' # nosec
+        assert lego.get_help() == ''  # nosec
 
     def test_receive_logs(self):
         log_file_name = 'test_logging.log'
@@ -86,7 +82,7 @@ class TestLego(unittest.TestCase):
         lego.on_receive(message)
         with open(log_file_name, mode='r') as f:
             log = json.loads(f.read())
-        assert log == message # nosec
+        assert log == message  # nosec
         os.remove(log_file_name)
 
     def test_on_receive_informs_children(self):
@@ -101,7 +97,7 @@ class TestLego(unittest.TestCase):
         with open(log_file_name, mode='r') as f:
             log = json.loads(f.read())
         os.remove(log_file_name)
-        assert log == message # nosec
+        assert log == message  # nosec
 
     def test_reply(self):
         log_file_name = 'test_reply.log'
@@ -118,12 +114,12 @@ class TestLego(unittest.TestCase):
         with open(log_file_name, mode='r') as f:
             log = json.loads(f.read())
         os.remove(log_file_name)
-        assert log['text'] == '4' # nosec
+        assert log['text'] == '4'  # nosec
 
     def test_on_failure(self):
         lego = Lego(None, threading.Lock())
         lego.on_failure("Exception Type", "Exception Value", "Traceback")
-        assert True # nosec
+        assert True  # nosec
 
 
 class ReplyTestingPingLego(Lego):
@@ -138,7 +134,6 @@ class ReplyTestingPingLego(Lego):
             self.reply(message, '3')
         else:
             print(message['text'])
-            # self.stop()
 
 
 class ReplyTestingPongLego(Lego):
@@ -158,5 +153,5 @@ class TestHandlerThread(unittest.TestCase):
         lego = Lego(None, threading.Lock())
         message = Message('Test Message', Metadata(lego))
         thread = Lego.HandlerThread(lego.handle, message)
-        assert thread.handler == lego.handle # nosec
-        assert thread.message == message # nosec
+        assert thread.handler == lego.handle  # nosec
+        assert thread.message == message  # nosec
