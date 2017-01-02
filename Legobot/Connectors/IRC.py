@@ -9,7 +9,7 @@ import irc.bot
 import irc.client
 import irc.connection
 
-from Legobot.Message import *
+from Legobot.Message import Message, Metadata
 from Legobot.Lego import Lego
 from jaraco.stream import buffer
 
@@ -21,8 +21,11 @@ class IgnoreErrorsBuffer(buffer.DecodingLineBuffer):
     """
     def handle_exception(self):
         pass
+
+
 irc.client.ServerConnection.buffer_class = IgnoreErrorsBuffer
 irc.client.SimpleIRCClient.buffer_class = IgnoreErrorsBuffer
+
 
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
     """
@@ -93,14 +96,13 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         text = e.arguments[0]
         metadata = Metadata(source=self).__dict__
-        logger.debug('\n\n\n{0!s}\n\n\n'.format(e.source))
+        logger.debug('{0!s}'.format(e.source))
         metadata['source_channel'] = e.source.split('!')[0]
         metadata['source_username'] = e.source.split('!')[0]
         metadata['source_user'] = e.source
         metadata['is_private_message'] = True
         message = Message(text=text, metadata=metadata).__dict__
         self.baseplate.tell(message)
-
 
     def on_welcome(self, c, e):
         """
@@ -110,17 +112,18 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
             logger.debug('Attempting to join {0!s}'.format(channel))
             c.join(channel)
 
-        if self.nickserv == True and self.nickserv_pass != None:
-            self.identify(c,e,self.nickserv_pass)
+        if self.nickserv is True and self.nickserv_pass is not None:
+            self.identify(c, e, self.nickserv_pass)
         else:
             logger.error('If nickserv is enabled, you must supply a password')
 
-        if self.nickserv == False and self.nickserv_pass != None:
-            logger.warn('It appears you provided a nickserv password but '\
-                    'did not enable nickserv authentication')
+        if self.nickserv is False and self.nickserv_pass is not None:
+            logger.warn('It appears you provided a nickserv password but '
+                        'did not enable nickserv authentication')
 
-    def identify(self,c,e,password):
-        c.privmsg('NickServ','IDENTIFY {0!s} {1!s}'.format(self.nickname, password))
+    def identify(self, c, e, password):
+        c.privmsg('NickServ',
+                  'IDENTIFY {0!s} {1!s}'.format(self.nickname, password))
         return
 
     def run(self):

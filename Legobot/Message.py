@@ -1,6 +1,7 @@
 # Legobot
 # Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
 
+
 class Message():
     """
     Messages in pykka must be passed as dictionaries. This class provides
