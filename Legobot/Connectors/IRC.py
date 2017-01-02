@@ -15,15 +15,15 @@ from jaraco.stream import buffer
 
 logger = logging.getLogger(__name__)
 
-irc.client.ServerConnection.buffer_class = buffer.IgnoreErrorsBuffer
-irc.client.SimpleIRCClient.buffer_class = buffer.IgnoreErrorsBuffer
-
 
 class IgnoreErrorsBuffer(buffer.DecodingLineBuffer):
     """  Handle char decode errors better
     """
     def handle_exception(self):
         pass
+
+irc.client.ServerConnection.buffer_class = IgnoreErrorsBuffer
+irc.client.SimpleIRCClient.buffer_class = IgnoreErrorsBuffer
 
 
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):

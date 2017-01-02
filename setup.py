@@ -9,7 +9,8 @@ setup(
 
     py_modules=['Legobot'],
 
-    description="A framework for creating interactive chatbots on various protocols",
+    description="A framework for creating interactive chatbots on various"
+    "protocols",
 
     author="Kevin McCabe, Bren Briggs, and Drew Bronson",
 
@@ -28,5 +29,5 @@ setup(
 
     packages=find_packages(exclude=['contrib', 'docs']),
 
-    install_requires=['pykka','irc'],
+    install_requires=['pykka', 'irc'],
 )
