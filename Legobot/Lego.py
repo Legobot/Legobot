@@ -7,7 +7,9 @@ import logging
 
 import pykka
 
+from Legobot.LegoError import LegoError
 from Legobot.Message import *
+
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +39,7 @@ class Lego(pykka.ThreadingActor):
         """
         super().__init__()
         if not lock:
-            raise 
+            raise LegoError("Lock expected but not provided!")
         self.baseplate = baseplate
         self.children = []
         self.lock = lock
