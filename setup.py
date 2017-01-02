@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='Legobot',
 
-    version='1.0.2',
+    version='1.0.3dev1',
 
     license='GPLv2',
 
