@@ -1,2 +1,3 @@
 pykka
 irc
+bandit==1.3.0
