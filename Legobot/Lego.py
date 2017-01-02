@@ -8,7 +8,7 @@ import logging
 import pykka
 
 from Legobot.LegoError import LegoError
-from Legobot.Message import *
+from Legobot.Message import Message, Metadata
 
 
 logger = logging.getLogger(__name__)
