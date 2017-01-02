@@ -22,6 +22,7 @@ class IgnoreErrorsBuffer(buffer.DecodingLineBuffer):
     def handle_exception(self):
         pass
 
+
 irc.client.ServerConnection.buffer_class = IgnoreErrorsBuffer
 irc.client.SimpleIRCClient.buffer_class = IgnoreErrorsBuffer
 
