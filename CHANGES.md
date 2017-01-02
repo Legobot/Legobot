@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Fixed
+
+- Apply pep8 style fixes
+- Apply minor security fixes
+
 ## [1.0.2] 2016-12-12
 
 ### Added
