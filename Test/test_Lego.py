@@ -9,6 +9,7 @@ import time
 from Legobot.Lego import Lego
 import threading
 from Legobot.Message import *
+from Legobot.LegoError import LegoError
 import pykka
 
 
@@ -32,7 +33,7 @@ class TestLego(unittest.TestCase):
         assert lego.log_file is None # nosec
 
     def test_lock_required(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(LegoError):
             lego = Lego(None, None)
 
     def test_listening_for(self):
