@@ -17,6 +17,7 @@ class RtmBot(threading.Thread, object):
     '''
     '''
     def __init__(self, baseplate, token):
+        self.baseplate = baseplate
         self.token = token
         self.last_ping = 0
         self.slack_client = SlackClient(self.token)
@@ -28,13 +29,34 @@ class RtmBot(threading.Thread, object):
     def run(self):
         self.connect()
         while True:
-            for reply in self.slack_client.rtm_read():
-                logger.debug(reply)
-            self.autoping()
+            for event in self.slack_client.rtm_read():
+                logger.debug(event)
+                if event['type'] == 'message':
+                    metadata = self._parse_metadata(event)
+                    message = Message(text=event['text'],
+                                      metadata=metadata).__dict__
+                    self.baseplate.tell(message)
+            self.keepalive()
             time.sleep(0.1)
         return
 
-    def autoping(self):
+    def _parse_metadata(self, message):
+        metadata = Metadata(source=self).__dict__
+        if 'text' in metadata:
+            metadata['text'] = message['text']
+        if 'user' in message:
+            metadata['source_user'] = message['user']
+        elif 'bot_id' in message:
+            metadata['source_user'] = message['bot_id']
+        metadata['source_channel'] = message['channel']
+        # Slack starts DM channel IDs with "D"
+        if message['channel'].startswith('D'):
+            metadata['is_private_message'] = True
+        else:
+            metadata['is_private_message'] = False
+        return metadata
+
+    def keepalive(self):
         # hardcode the interval to 3 seconds
         now = int(time.time())
         if now > self.last_ping + 3:
@@ -58,6 +80,11 @@ class Slack(Lego):
 
     def handle(self, message):
         logger.info(message)
+        self.botThread.slack_client.api_call(
+            "chat.postMessage",
+            channel=message['metadata']['opts']['target'],
+            text=message['text']
+        )
 
     def get_name(self):
         return None
