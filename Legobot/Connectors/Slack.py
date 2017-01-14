@@ -1,3 +1,11 @@
+'''
+.. module:: Legobot.Connectors.Slack
+  :synopsis: A backend for connecting Legobot to Slack
+
+.. moduleauthor:: Bren Briggs
+
+Module lovingly built with inspiration from slackhq's RtmBot
+'''
 import sys
 import os
 import time
@@ -15,8 +23,19 @@ sys.dont_write_bytecode = True
 
 class RtmBot(threading.Thread, object):
     '''
+    Create slack bot instance using SlackClient
     '''
-    def __init__(self, baseplate, token):
+    def __init__(self, baseplate, token, *args, **kwargs):
+        '''
+        Initialize the bot.
+
+        :param baseplate: The baseplate/parent lego. Typically passed in from 
+        Legobot.Connectors.Slack.Slack
+
+        :param token: The Slack API token you generated
+        :param args: Reserved for future use
+        :param kwargs: Reserved for future use
+        '''
         self.baseplate = baseplate
         self.token = token
         self.last_ping = 0
@@ -24,9 +43,20 @@ class RtmBot(threading.Thread, object):
         threading.Thread.__init__(self)
 
     def connect(self):
+        '''
+        Initialize connection to slack.
+        :returns: None
+        '''
+
         self.slack_client.rtm_connect()
 
     def run(self):
+        '''
+        Extends the run() method of threading.Thread
+
+        :returns: None
+        '''
+
         self.connect()
         while True:
             for event in self.slack_client.rtm_read():
@@ -41,6 +71,14 @@ class RtmBot(threading.Thread, object):
         return
 
     def _parse_metadata(self, message):
+        '''
+        Parse incoming messages to build metadata dict
+
+        :param message: Message dict sent from Slack
+
+        :returns: dict
+        '''
+
         metadata = Metadata(source=self).__dict__
         if 'text' in metadata:
             metadata['text'] = message['text']
@@ -57,6 +95,9 @@ class RtmBot(threading.Thread, object):
         return metadata
 
     def keepalive(self):
+        '''
+        Sends a keepalive to Slack
+        '''
         # hardcode the interval to 3 seconds
         now = int(time.time())
         if now > self.last_ping + 3:
@@ -65,6 +106,17 @@ class RtmBot(threading.Thread, object):
 
 class Slack(Lego):
     '''
+    Lego that builds and connects Legobot.Connectors.Slack.RtmBot
+
+    :param baseplate: baseplate/parent lego. Typically created in your bot 
+    script
+
+    :param lock: thread lock created in your bot script. All legos should
+    share the same lock
+
+    :param args: args to pass into RtmBot (like token)
+
+    :param kwargs: keyword args to pass to RtmBot
     '''
 
 
@@ -73,12 +125,26 @@ class Slack(Lego):
         self.botThread = RtmBot(baseplate, *args, **kwargs)
 
     def on_start(self):
+        '''
+        Extends pykka's on_start method to launch this as an actor
+        '''
+
         self.botThread.start()
 
     def listening_for(self, message):
+        '''
+        Describe what this should listen for (hint: everything)
+        Extends Legobot.Lego.listening_for()
+        '''
+
         return str(self.botThread) != str(message['metadata']['source'])
 
     def handle(self, message):
+        '''
+        Describe how this lego should handle messages.
+        Extends Legobot.Lego.handle()
+        '''
+
         logger.info(message)
         self.botThread.slack_client.api_call(
             "chat.postMessage",
@@ -87,4 +153,13 @@ class Slack(Lego):
         )
 
     def get_name(self):
+        '''
+        Called by built-in !help lego
+
+        Returns name of Lego. Returns none because this is 
+        a non-interactive Lego
+
+        :returns: None
+        '''
+
         return None
