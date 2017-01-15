@@ -39,32 +39,45 @@ class RtmBot(threading.Thread, object):
         self.baseplate = baseplate
         self.token = token
         self.last_ping = 0
+        # 'event':'method'
+        self.supported_events = {'message':self.on_message}
         self.slack_client = SlackClient(self.token)
         threading.Thread.__init__(self)
 
     def connect(self):
         '''
         Initialize connection to slack.
-        :returns: None
+        :return: None
         '''
 
         self.slack_client.rtm_connect()
+        
+    def on_message(self,event):
+        '''
+        Runs when a message event is received
+        :return: Legobot.Message
+        '''
+        metadata = self._parse_metadata(event)
+        message = Message(text=event['text'],
+                          metadata=metadata).__dict__
+        return message
 
     def run(self):
         '''
         Extends the run() method of threading.Thread
 
-        :returns: None
+        :return: None
         '''
 
         self.connect()
         while True:
             for event in self.slack_client.rtm_read():
                 logger.debug(event)
-                if event['type'] == 'message':
-                    metadata = self._parse_metadata(event)
-                    message = Message(text=event['text'],
-                                      metadata=metadata).__dict__
+                if event['type'] in self.supported_events:
+                    event_type = event['type']
+                    dispatcher = self.supported_events[event_type]
+                    message = dispatcher(event)
+                    logger.debug(message)
                     self.baseplate.tell(message)
             self.keepalive()
             time.sleep(0.1)
@@ -74,24 +87,33 @@ class RtmBot(threading.Thread, object):
         '''
         Parse incoming messages to build metadata dict
 
+        Lots of 'if' statements. It sucks, I know.
+
         :param message: Message dict sent from Slack
 
-        :returns: dict
+        :return: dict
         '''
 
+        # Try to handle all the fields of events we care about.
         metadata = Metadata(source=self).__dict__
+        if 'presence' in metadata:
+            metadata['presence'] = message['presence']
         if 'text' in metadata:
             metadata['text'] = message['text']
+
         if 'user' in message:
             metadata['source_user'] = message['user']
         elif 'bot_id' in message:
             metadata['source_user'] = message['bot_id']
-        metadata['source_channel'] = message['channel']
-        # Slack starts DM channel IDs with "D"
-        if message['channel'].startswith('D'):
-            metadata['is_private_message'] = True
-        else:
-            metadata['is_private_message'] = False
+
+        if 'channel' in message:
+            metadata['source_channel'] = message['channel']
+            # Slack starts DM channel IDs with "D"
+            if message['channel'].startswith('D'):
+                metadata['is_private_message'] = True
+            else:
+                metadata['is_private_message'] = False
+
         return metadata
 
     def keepalive(self):
@@ -159,7 +181,7 @@ class Slack(Lego):
         Returns name of Lego. Returns none because this is 
         a non-interactive Lego
 
-        :returns: None
+        :return: None
         '''
 
         return None
