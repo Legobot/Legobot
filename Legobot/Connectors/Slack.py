@@ -7,7 +7,6 @@
 Module lovingly built with inspiration from slackhq's RtmBot
 '''
 import sys
-import os
 import time
 import logging
 import threading
@@ -21,15 +20,17 @@ logger = logging.getLogger(__name__)
 
 sys.dont_write_bytecode = True
 
+
 class RtmBot(threading.Thread, object):
     '''
     Create slack bot instance using SlackClient
     '''
+
     def __init__(self, baseplate, token, *args, **kwargs):
         '''
         Initialize the bot.
 
-        :param baseplate: The baseplate/parent lego. Typically passed in from 
+        :param baseplate: The baseplate/parent lego. Typically passed in from
         Legobot.Connectors.Slack.Slack
 
         :param token: The Slack API token you generated
@@ -40,7 +41,7 @@ class RtmBot(threading.Thread, object):
         self.token = token
         self.last_ping = 0
         # 'event':'method'
-        self.supported_events = {'message':self.on_message}
+        self.supported_events = {'message': self.on_message}
         self.slack_client = SlackClient(self.token)
         threading.Thread.__init__(self)
 
@@ -51,8 +52,8 @@ class RtmBot(threading.Thread, object):
         '''
 
         self.slack_client.rtm_connect()
-        
-    def on_message(self,event):
+
+    def on_message(self, event):
         '''
         Runs when a message event is received
         :return: Legobot.Message
@@ -126,11 +127,12 @@ class RtmBot(threading.Thread, object):
             self.slack_client.server.ping()
             self.last_ping = now
 
+
 class Slack(Lego):
     '''
     Lego that builds and connects Legobot.Connectors.Slack.RtmBot
 
-    :param baseplate: baseplate/parent lego. Typically created in your bot 
+    :param baseplate: baseplate/parent lego. Typically created in your bot
     script
 
     :param lock: thread lock created in your bot script. All legos should
@@ -140,7 +142,6 @@ class Slack(Lego):
 
     :param kwargs: keyword args to pass to RtmBot
     '''
-
 
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
@@ -178,7 +179,7 @@ class Slack(Lego):
         '''
         Called by built-in !help lego
 
-        Returns name of Lego. Returns none because this is 
+        Returns name of Lego. Returns none because this is
         a non-interactive Lego
 
         :return: None
