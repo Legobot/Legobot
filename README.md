@@ -1,6 +1,10 @@
 # Legobot
 
-[![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/l/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/status/Django.svg?maxAge=2592000)]()
+[![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/l/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/v/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/status/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
 
 #### Build Status
 
