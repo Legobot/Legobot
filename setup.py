@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='Legobot',
 
-    version='1.0.3dev1',
+    version='1.1.0',
 
     license='GPLv2',
 
@@ -17,7 +17,7 @@ setup(
     url="https://github.com/bbriggs/Legobot",
 
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
 
         # Pick your license as you wish (should match "license" above)
          'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
