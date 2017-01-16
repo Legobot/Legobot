@@ -1,19 +1,18 @@
 # Legobot
 
-[![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/l/Legobot.svg?maxAge=2592000)]() [![PyPI](https://img.shields.io/pypi/status/Django.svg?maxAge=2592000)]()
-
-#### Build Status
-
-| Master | Develop | 
-|--------|---------|
-| [![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=master)](https://travis-ci.org/bbriggs/Legobot) | [![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=develop)](https://travis-ci.org/bbriggs/Legobot)
+[![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=master)](https://travis-ci.org/bbriggs/Legobot)
+[![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/l/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/v/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/status/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
 
 ### Table of Contents
 
-1. Installation
-2. Alternative (easier) install and run method
-
-***
+1. [Introduction](#introduction)
+1. [Supported Backends](#supported-backends)
+1. [Installation](#installation)
+1. [Alternative (easier) install and run method](#alternative-installation)
 
 ## Introduction
 
@@ -33,7 +32,7 @@ Legobot is not:
 * made of LEGOS (yet...)
 
 
-### Supported (and planned) backends
+### Supported backends
 - [x] IRC
 - [x] Slack
 - [ ] XMPP
