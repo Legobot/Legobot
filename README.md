@@ -1,11 +1,11 @@
 # Legobot
 
 [![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=master)](https://travis-ci.org/bbriggs/Legobot)
-[![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
-[![PyPI](https://img.shields.io/pypi/l/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/l/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/v/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
-[![PyPI](https://img.shields.io/pypi/status/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
-[![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg?maxAge=2592000)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/status/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
+[![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 
 ### Table of Contents
 
