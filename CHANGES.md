@@ -3,12 +3,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [1.1.0] 2017-01-16
+### Added
+- New Slack connector/backend
+- Use bandit and quantified code test for known bugs
 
 ### Fixed
-
-- Apply pep8 style fixes
-- Apply minor security fixes
+- Style and security fixes recommended by bandit, QuantifiedCode,
+and flake8
 
 ## [1.0.2] 2016-12-12
 
