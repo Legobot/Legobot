@@ -3,12 +3,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.1] 2017-01-17
+### Fixed
+
+- Missing package dep `slackclient` added
+
 ## [1.1.0] 2017-01-16
 ### Added
+
 - New Slack connector/backend
 - Use bandit and quantified code test for known bugs
 
 ### Fixed
+
 - Style and security fixes recommended by bandit, QuantifiedCode,
 and flake8
 
