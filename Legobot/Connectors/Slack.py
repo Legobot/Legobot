@@ -169,10 +169,9 @@ class Slack(Lego):
         '''
 
         logger.info(message)
-        self.botThread.slack_client.api_call(
-            "chat.postMessage",
+        self.botThread.slack_client.rtm_send_message(
             channel=message['metadata']['opts']['target'],
-            text=message['text']
+            message=message['text']
         )
 
     def get_name(self):
