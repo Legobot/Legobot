@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.2] 2017-02-08
+### Fixed
+
+- Legobot will now respond with its actual name instead of `bot` in Slack
+
 ## [1.1.1] 2017-01-17
 ### Fixed
 
