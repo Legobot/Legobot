@@ -9,8 +9,12 @@ logger = logging.getLogger(__name__)
 
 class Help(Lego):
     def listening_for(self, message):
-        return message['text'].split()[0] == '!help'
-        logger.info(message)
+        if message['text'] is not None:
+            try:
+                return message['text'].split()[0] == '!help'
+            except Exception as e:
+                logger.error('Help lego failed to check message text: %s' % e)
+                return False
 
     def handle(self, message):
         logger.info(message)
