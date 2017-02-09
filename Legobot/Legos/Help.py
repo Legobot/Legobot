@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 class Help(Lego):
     def listening_for(self, message):
-        return message['text'].split()[0] == '!help'
         logger.info(message)
+        return message['text'].split()[0] == '!help'
 
     def handle(self, message):
         logger.info(message)
