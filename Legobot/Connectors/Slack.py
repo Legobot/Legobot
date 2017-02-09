@@ -112,7 +112,6 @@ class RtmBot(threading.Thread, object):
         else:
             metadata['text'] = None
 
-
         if 'user' in message:
             metadata['source_user'] = message['user']
         elif 'bot_id' in message:
