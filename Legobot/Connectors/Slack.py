@@ -59,7 +59,7 @@ class RtmBot(threading.Thread, object):
         :return: Legobot.Message
         '''
         metadata = self._parse_metadata(event)
-        message = Message(text=event['text'],
+        message = Message(text=metadata['text'],
                           metadata=metadata).__dict__
         return message
 
@@ -98,10 +98,19 @@ class RtmBot(threading.Thread, object):
 
         # Try to handle all the fields of events we care about.
         metadata = Metadata(source=self).__dict__
-        if 'presence' in metadata:
+        if 'presence' in message:
             metadata['presence'] = message['presence']
-        if 'text' in metadata:
+
+        if 'text' in message:
             metadata['text'] = message['text']
+        elif 'previous_message' in message:
+            # Try to handle slack links
+            if 'text' in message['previous_message']:
+                metadata['text'] = message['previous_message']['text']
+            else:
+                metadata['text'] = None
+        else:
+            metadata['text'] = None
 
         if 'user' in message:
             metadata['source_user'] = message['user']
@@ -115,6 +124,8 @@ class RtmBot(threading.Thread, object):
                 metadata['is_private_message'] = True
             else:
                 metadata['is_private_message'] = False
+
+        logger.debug('Metadata:\n\n%s' % metadata)
 
         return metadata
 
