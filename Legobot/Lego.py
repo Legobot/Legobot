@@ -1,10 +1,15 @@
+# Legobot
+# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
+
 import threading
 import json
 import logging
 import pykka
 import six
 
-from Legobot.Message import *
+from Legobot.LegoError import LegoError
+from Legobot.Message import Message, Metadata
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +38,8 @@ class Lego(pykka.ThreadingActor):
                      instance of threading.Lock for all Legos
         """
         super().__init__()
-        assert(lock is not None)
+        if not lock:
+            raise LegoError("Lock expected but not provided!")
         self.baseplate = baseplate
         self.children = []
         self.lock = lock

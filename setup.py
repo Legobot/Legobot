@@ -3,18 +3,21 @@ from setuptools import setup, find_packages
 setup(
     name='Legobot',
 
-    version='1.0.0dev5',
+    version='1.1.2',
+
+    license='GPLv2',
 
     py_modules=['Legobot'],
 
-    description="A framework for creating interactive chatbots on various protocols",
+    description="A framework for creating interactive chatbots on various"
+    "protocols",
 
     author="Kevin McCabe, Bren Briggs, and Drew Bronson",
 
     url="https://github.com/bbriggs/Legobot",
 
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
 
         # Pick your license as you wish (should match "license" above)
          'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
@@ -26,5 +29,5 @@ setup(
 
     packages=find_packages(exclude=['contrib', 'docs']),
 
-    install_requires=['pykka','irc'],
+    install_requires=['pykka', 'irc', 'slackclient'],
 )

@@ -1,22 +1,25 @@
+# Legobot
+# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
+
 import unittest
 from Legobot.Legos.TestingConnector import TestingConnector
 from Legobot.Lego import Lego
 import threading
-from Legobot.Message import *
+from Legobot.Message import Message, Metadata
 
 
 class TestTestingConnector(unittest.TestCase):
     def test_init(self):
         testing_connector = self._make_testing_connector('blah.tmp')
-        assert testing_connector.temp_file == 'blah.tmp'
+        assert testing_connector.temp_file == 'blah.tmp'  # nosec
 
     def test_default_parameters(self):
         testing_connector = self._make_testing_connector()
-        assert testing_connector.temp_file == 'testing_file.tmp'
+        assert testing_connector.temp_file == 'testing_file.tmp'  # nosec
 
     def test_listening_for(self):
         testing_connector = self._make_testing_connector()
-        assert testing_connector.listening_for(self._make_message())
+        assert testing_connector.listening_for(self._make_message())  # nosec
 
     def test_handle(self):
         testing_connector = self._make_testing_connector()
@@ -24,7 +27,7 @@ class TestTestingConnector(unittest.TestCase):
         testing_connector.handle(message)
         with open(testing_connector.temp_file, mode='r') as f:
             text = f.read()
-        assert text == str(message)
+        assert text == str(message)  # nosec
 
     @staticmethod
     def _make_testing_connector(temp_file=None):
@@ -34,7 +37,7 @@ class TestTestingConnector(unittest.TestCase):
             testing_connector = TestingConnector(baseplate, lock)
         else:
             testing_connector = TestingConnector(baseplate, lock, temp_file)
-        return testing_connector
+        return testing_connector  # nosec
 
     @staticmethod
     def _make_message():
