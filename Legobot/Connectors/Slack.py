@@ -74,13 +74,12 @@ class RtmBot(threading.Thread, object):
         while True:
             for event in self.slack_client.rtm_read():
                 logger.debug(event)
-                if 'type' in event:
-                    if event['type'] in self.supported_events:
-                        event_type = event['type']
-                        dispatcher = self.supported_events[event_type]
-                        message = dispatcher(event)
-                        logger.debug(message)
-                        self.baseplate.tell(message)
+                if 'type' in event and event['type'] in self.supported_events:
+                    event_type = event['type']
+                    dispatcher = self.supported_events[event_type]
+                    message = dispatcher(event)
+                    logger.debug(message)
+                    self.baseplate.tell(message)
             self.keepalive()
             time.sleep(0.1)
         return
@@ -186,7 +185,8 @@ class Slack(Lego):
             message=message['text']
         )
 
-    def get_name(self):
+    @staticmethod
+    def get_name():
         '''
         Called by built-in !help lego
 

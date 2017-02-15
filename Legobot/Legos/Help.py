@@ -8,7 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 class Help(Lego):
-    def listening_for(self, message):
+    @staticmethod
+    def listening_for(message):
         if message['text'] is not None:
             try:
                 return message['text'].split()[0] == '!help'
@@ -52,5 +53,6 @@ class Help(Lego):
 
         self.reply(message, help_str, opts=opts)
 
-    def get_name(self):
+    @staticmethod
+    def get_name():
         return None

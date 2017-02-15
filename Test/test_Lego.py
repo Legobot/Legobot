@@ -10,7 +10,8 @@ from Legobot.Lego import Lego
 
 
 class TestLego(unittest.TestCase):
-    def test_initialization(self):
+    @staticmethod
+    def test_initialization():
         lock = threading.Lock()
         baseplate = Lego(None, lock)
         lego = Lego(baseplate, baseplate.lock)
@@ -22,7 +23,8 @@ class TestLego(unittest.TestCase):
         assert(lego.children == [])  # nosec
         assert(lego.log_file == 'lego.log')  # nosec
 
-    def test_default_init_values(self):
+    @staticmethod
+    def test_default_init_values():
         lock = threading.Lock()
         baseplate = Lego(None, lock)
         lego = Lego(baseplate, baseplate.lock)
@@ -45,7 +47,8 @@ class TestLego(unittest.TestCase):
         metadata = Metadata(self, None)
         return Message('a message', metadata)
 
-    def test_add_child(self):
+    @staticmethod
+    def test_add_child():
         baseplate = Lego(None, threading.Lock())
         baseplate.add_child(Lego)
         child = baseplate.children[0]
@@ -57,7 +60,8 @@ class TestLego(unittest.TestCase):
         child_children[0].stop()
         child.stop()
 
-    def test_cleanup(self):
+    @staticmethod
+    def test_cleanup():
         baseplate = Lego(None, threading.Lock())
         baseplate.add_child(Lego)
         child = baseplate.children[0]
@@ -65,15 +69,18 @@ class TestLego(unittest.TestCase):
         baseplate.cleanup()
         assert(len(baseplate.children) == 0)  # nosec
 
-    def test_get_name(self):
+    @staticmethod
+    def test_get_name():
         lego = Lego(None, threading.Lock())
         assert lego.get_name() == '?'  # nosec
 
-    def test_get_help(self):
+    @staticmethod
+    def test_get_help():
         lego = Lego(None, threading.Lock())
         assert lego.get_help() == ''  # nosec
 
-    def test_receive_logs(self):
+    @staticmethod
+    def test_receive_logs():
         log_file_name = 'test_logging.log'
         lego = Lego(None, threading.Lock(),
                     log_file_name)
@@ -85,7 +92,8 @@ class TestLego(unittest.TestCase):
         assert log == message  # nosec
         os.remove(log_file_name)
 
-    def test_on_receive_informs_children(self):
+    @staticmethod
+    def test_on_receive_informs_children():
         log_file_name = 'test_child_informed.log'
         baseplate = Lego(None, threading.Lock())
         child = Lego.start(baseplate, threading.Lock(), log_file_name)
@@ -99,7 +107,8 @@ class TestLego(unittest.TestCase):
         os.remove(log_file_name)
         assert log == message  # nosec
 
-    def test_reply(self):
+    @staticmethod
+    def test_reply():
         log_file_name = 'test_reply.log'
         baseplate = Lego.start(None, threading.Lock())
         baseplate_proxy = baseplate.proxy()
@@ -116,7 +125,8 @@ class TestLego(unittest.TestCase):
         os.remove(log_file_name)
         assert log['text'] == '4'  # nosec
 
-    def test_on_failure(self):
+    @staticmethod
+    def test_on_failure():
         lego = Lego(None, threading.Lock())
         lego.on_failure("Exception Type", "Exception Value", "Traceback")
         assert True  # nosec
@@ -149,7 +159,8 @@ class ReplyTestingPongLego(Lego):
 
 
 class TestHandlerThread(unittest.TestCase):
-    def test_initialization(self):
+    @staticmethod
+    def test_initialization():
         lego = Lego(None, threading.Lock())
         message = Message('Test Message', Metadata(lego))
         thread = Lego.HandlerThread(lego.handle, message)
