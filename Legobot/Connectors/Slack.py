@@ -186,7 +186,8 @@ class Slack(Lego):
             message=message['text']
         )
 
-    def get_name(self):
+    @staticmethod
+    def get_name():
         '''
         Called by built-in !help lego
 

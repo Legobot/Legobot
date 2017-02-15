@@ -157,5 +157,6 @@ class IRC(Lego):
         self.botThread.connection.privmsg(message['metadata']['opts'][
             'target'], message['text'])
 
-    def get_name(self):
+    @staticmethod
+    def get_name():
         return None
