@@ -13,7 +13,7 @@ class Help(Lego):
             try:
                 return message['text'].split()[0] == '!help'
             except Exception as e:
-                logger.error('Help lego failed to check message text: %s' % e)
+                logger.error('Help lego failed to check message text: {0!s}'.format(e))
                 return False
 
     def handle(self, message):
