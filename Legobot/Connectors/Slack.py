@@ -125,7 +125,7 @@ class RtmBot(threading.Thread, object):
             else:
                 metadata['is_private_message'] = False
 
-        logger.debug('Metadata:\n\n%s' % metadata)
+        logger.debug('Metadata:\n\n{0!s}'.format(metadata))
 
         return metadata
 
