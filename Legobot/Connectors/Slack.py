@@ -241,7 +241,6 @@ class Slack(Lego):
     @staticmethod
     def get_name():
         '''Called by built-in !help lego
-
         Returns name of Lego. Returns none because this is
         a non-interactive Lego
         '''
