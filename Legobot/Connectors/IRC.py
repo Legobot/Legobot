@@ -83,6 +83,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         text = e.arguments[0]
         metadata = Metadata(source=self).__dict__
+        metadata['source_connector'] = 'irc'
         metadata['source_channel'] = e.target
         metadata['source_user'] = e.source
         metadata['source_username'] = e.source.split('!')[0]
@@ -97,6 +98,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         text = e.arguments[0]
         metadata = Metadata(source=self).__dict__
         logger.debug('{0!s}'.format(e.source))
+        metadata['source_connector'] = 'irc'
         metadata['source_channel'] = e.source.split('!')[0]
         metadata['source_username'] = e.source.split('!')[0]
         metadata['source_user'] = e.source
