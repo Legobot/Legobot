@@ -1,3 +1,7 @@
+# Legobot
+# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
+
+
 class Message():
     """
     Messages in pykka must be passed as dictionaries. This class provides
@@ -18,6 +22,7 @@ class Metadata():
     the construction of such dictionaries.
     """
 
-    def __init__(self, source, dest=None):
+    def __init__(self, source, dest=None, opts=None):
         self.source = source
         self.dest = dest
+        self.opts = opts

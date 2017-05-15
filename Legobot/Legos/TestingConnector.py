@@ -1,3 +1,6 @@
+# Legobot
+# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
+
 from Legobot.Lego import Lego
 
 
@@ -6,7 +9,8 @@ class TestingConnector(Lego):
         super().__init__(baseplate, lock)
         self.temp_file = temp_file
 
-    def listening_for(self, message):
+    @staticmethod
+    def listening_for(message):
         return True
 
     def handle(self, message):
