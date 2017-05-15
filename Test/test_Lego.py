@@ -9,7 +9,6 @@ from Legobot.Message import Message, Metadata
 from Legobot.Lego import Lego
 
 
-
 class TestLego(unittest.TestCase):
     @staticmethod
     def test_initialization():
