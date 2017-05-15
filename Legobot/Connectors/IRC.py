@@ -4,6 +4,7 @@
 import ssl
 import threading
 import logging
+import six
 
 import irc.bot
 import irc.client
@@ -11,6 +12,8 @@ import irc.connection
 
 from Legobot.Message import Message, Metadata
 from Legobot.Lego import Lego
+from _thread import LockType
+from pykka.actor import ActorRef
 from jaraco.stream import buffer
 
 logger = logging.getLogger(__name__)
@@ -32,13 +35,24 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
     Create bot instance
     """
     def __init__(self, baseplate, channels, nickname, server,
-                 port=6667, use_ssl=False, password=None,
                  username=None, ircname=None, nickserv=False,
                  nickserv_pass=None):
+        
+        assert isinstance(baseplate, ActorRef)
+        assert isinstance(channels, list)
+        assert isinstance(nickname, six.string_types)
+        assert isinstance(server, six.string_types)
+        assert isinstance(port, six.integer_types)
+        assert isinstance(use_ssl, bool)
+        assert password is None or isinstance(password, six.string_types)
+        assert username is None or isinstance(username, six.string_types)
+        assert ircname is None or isinstance(ircname, six.string_types)
+        
         irc.bot.SingleServerIRCBot.__init__(self,
                                             [(server, port)],
                                             nickname,
                                             nickname)
+        
         threading.Thread.__init__(self)
 
         # the obvious self.channels is already used by irc.bot
@@ -145,6 +159,9 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
 class IRC(Lego):
 
     def __init__(self, baseplate, lock, *args, **kwargs):
+        assert isinstance(baseplate, ActorRef)
+        assert isinstance(lock, LockType)
+        
         super().__init__(baseplate, lock)
         self.botThread = IRCBot(baseplate, *args, **kwargs)
 

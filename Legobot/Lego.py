@@ -4,8 +4,8 @@
 import threading
 import json
 import logging
-
 import pykka
+import six
 
 from Legobot.LegoError import LegoError
 from Legobot.Message import Message, Metadata
@@ -30,7 +30,7 @@ class Lego(pykka.ThreadingActor):
         def run(self):
             self.handler(self.message)
 
-    def __init__(self, baseplate, lock: threading.Lock, log_file=None):
+    def __init__(self, baseplate, lock: threading.Lock, listening_for_string = None, help_msg = "", name = "", log_file=None, handler_function = None):
         """
         :param baseplate: the baseplate Lego, which should be \
                           the same instance of Lego for all Legos
@@ -44,6 +44,11 @@ class Lego(pykka.ThreadingActor):
         self.children = []
         self.lock = lock
         self.log_file = log_file
+        self._master = None
+        self._listen_string = listening_for_string
+        self._name = name
+        self._help_msg = help_msg
+        self._handler_function = handler_function
 
     def on_receive(self, message):
         """
@@ -81,28 +86,38 @@ class Lego(pykka.ThreadingActor):
         logger.debug('Acquired lock in cleanup for ' + str(self))
         self.children = [child for child in self.children if child.is_alive()]
         self.lock.release()
-
+    
     def listening_for(self, message):
         """
         Return whether this Lego is listening for the provided Message.
 
-        All Legos should override this function.
+        All Legos should override this function. if they don't define a _listen_string
 
         :param message: a Message object
         :return: a boolean
         """
-        return False
-
+        logger.debug("hit listening for, our listen string is: %s" % str(self._listen_string))
+        if not self._listen_string:
+            return False
+        
+        return message['text'].split()[0] == self._listen_string
+    
     def handle(self, message):
         """
         Handle the provided Message.
 
-        All Legos should override this function.
+        All Legos should override this function. This is where we do our work.
 
         :param message: a Message object
         :return: None
         """
-        return
+        if not self._handler_function:
+            return
+        
+        reply_message = self._handler_function(message)
+        target = message['metadata']['source_channel']
+        
+        self.reply(message, reply_message, opts={"target":target})
 
     def add_child(self, child_type, *args, **kwargs):
         """
@@ -114,20 +129,13 @@ class Lego(pykka.ThreadingActor):
         :param kwargs: keyword arguments for initializing the child
         :return:
         """
-        try:
-            baseplate = kwargs['baseplate']
-        except:
-            if self.baseplate is None:
-                baseplate = self.actor_ref
-            else:
-                baseplate = self.baseplate
-        try:
-            lock = kwargs['lock']
-        except:
-            lock = self.lock
+        assert issubclass(child_type, Lego)
+        baseplate = kwargs.get('baseplate', self.baseplate or self.actor_ref)
+        lock = kwargs.get('lock', self.lock)
+        
         child = child_type.start(baseplate, lock, *args, **kwargs)
         self.children.append(child)
-
+    
     def reply(self, message, text, opts=None):
         """
         Reply to the sender of the provided message with a message \
@@ -144,24 +152,53 @@ class Lego(pykka.ThreadingActor):
         message = Message(text=text, metadata=metadata,
                           should_log=message['should_log']).__dict__
         self.baseplate.tell(message)
-
+    
     def get_name(self):
         """
         Return the name the Lego recognizes from the help function.
 
         :return: a string
         """
-        return '?'
+        return self._name
+    
+    @property
+    def name(self):
+        """
+        Return the name the Lego recognizes from the help function.
 
+        :return: a string
+        """
+        return self._name
+    
+    @property
+    def help(self):
+        """
+        Return a helpstring for the function.
+
+        :return: a string
+        """
+        return self._help_msg
+    
     def get_help(self):
         """
         Return a helpstring for the function.
 
         :return: a string
         """
-        return ''
-
+        return self._help_msg
+        
+    @classmethod
+    def ez_start(cls):
+        lock = threading.Lock()
+        master = Lego.start(None, lock)
+        prx = master.proxy()
+        
+        prx._master = master
+        return prx
+    
     def on_failure(self, exception_type, exception_value, traceback):
         logger.exception('Lego crashed: ' + str(self))
         logger.exception(exception_type)
         logger.exception(exception_value)
+
+
