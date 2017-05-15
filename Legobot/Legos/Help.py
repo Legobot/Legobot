@@ -1,11 +1,30 @@
+# Legobot
+# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
+
+import logging
 from Legobot.Lego import Lego
+
+logger = logging.getLogger(__name__)
 
 
 class Help(Lego):
-    def listening_for(self, message):
-        return message['text'].split()[0] == '!help'
+    @staticmethod
+    def listening_for(message):
+        if message['text'] is not None:
+            try:
+                return message['text'].split()[0] == '!help'
+            except Exception as e:
+                logger.error(
+                    'Help lego failed to check message text: {0!s}'.format(e))
+                return False
 
     def handle(self, message):
+        logger.info(message)
+        try:
+            target = message['metadata']['source_channel']
+        except IndexError:
+            logger.error('Could not identify message source in message: {0!s}'
+                         .format(str(message)))
         try:
             function = message['text'].split()[1]
         except IndexError:
@@ -30,7 +49,10 @@ class Help(Lego):
                 if lego_proxy.get_name().get() == function:
                     help_str = lego_proxy.get_help().get()
 
-        self.reply(message, help_str)
+        opts = {'target': target}
 
-    def get_name(self):
+        self.reply(message, help_str, opts=opts)
+
+    @staticmethod
+    def get_name():
         return None

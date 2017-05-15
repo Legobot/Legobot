@@ -1,0 +1,7 @@
+[freenode]
+username=legobot-example
+password=
+host=irc.foo.bar
+port=6697
+ssl=True
+channel=#test

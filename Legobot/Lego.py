@@ -1,10 +1,15 @@
+# Legobot
+# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
+
 import threading
 import json
 import logging
 
 import pykka
 
-from Legobot.Message import *
+from Legobot.LegoError import LegoError
+from Legobot.Message import Message, Metadata
+
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +21,7 @@ class Lego(pykka.ThreadingActor):
         It is used to ensure that message handlers do not block other Legos
         from running by simply taking too long to execute.
         """
-        
+
         def __init__(self, handler, message):
             threading.Thread.__init__(self)
             self.handler = handler
@@ -33,7 +38,8 @@ class Lego(pykka.ThreadingActor):
                      instance of threading.Lock for all Legos
         """
         super().__init__()
-        assert(lock is not None)
+        if not lock:
+            raise LegoError("Lock expected but not provided!")
         self.baseplate = baseplate
         self.children = []
         self.lock = lock
@@ -122,17 +128,19 @@ class Lego(pykka.ThreadingActor):
         child = child_type.start(baseplate, lock, *args, **kwargs)
         self.children.append(child)
 
-    def reply(self, message, text):
+    def reply(self, message, text, opts=None):
         """
         Reply to the sender of the provided message with a message \
         containing the provided text.
 
         :param message: the message to reply to
         :param text: the text to reply with
+        :param opts: A dictionary of additional values to add to metadata
         :return: None
         """
         metadata = Metadata(source=self,
                             dest=message['metadata']['source']).__dict__
+        metadata['opts'] = opts
         message = Message(text=text, metadata=metadata,
                           should_log=message['should_log']).__dict__
         self.baseplate.tell(message)

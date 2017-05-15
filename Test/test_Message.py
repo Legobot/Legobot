@@ -1,37 +1,41 @@
 import unittest
-from Legobot.Message import *
+from Legobot.Message import Message, Metadata
 from Legobot.Lego import Lego
 import threading
 
 
 class TestMetadata(unittest.TestCase):
-    def test_default_init_values(self):
+    @staticmethod
+    def test_default_init_values():
         source = Lego(None, threading.Lock())
         metadata = Metadata(source)
-        assert(metadata.dest is None)
+        assert(metadata.dest is None)  # nosec
 
-    def test_initialization(self):
+    @staticmethod
+    def test_initialization():
         source = Lego(None, threading.Lock())
         dest = Lego(None, threading.Lock())
         metadata = Metadata(source, dest)
-        assert(metadata.source == source)
-        assert(metadata.dest == dest)
+        assert(metadata.source == source)  # nosec
+        assert(metadata.dest == dest)  # nosec
 
 
 class TestMessage(unittest.TestCase):
-    def test_initialization(self):
+    @staticmethod
+    def test_initialization():
         source = Lego(None, threading.Lock())
         metadata = Metadata(source)
         message = Message('a message', metadata)
-        assert(message.text == 'a message')
-        assert(message.metadata == metadata)
+        assert(message.text == 'a message')  # nosec
+        assert(message.metadata == metadata)  # nosec
         message = Message('a message', metadata, True)
-        assert(message.text == 'a message')
-        assert(message.metadata == metadata)
-        assert(message.should_log)
+        assert(message.text == 'a message')  # nosec
+        assert(message.metadata == metadata)  # nosec
+        assert(message.should_log)  # nosec
 
-    def test_default_init_values(self):
+    @staticmethod
+    def test_default_init_values():
         source = Lego(None, threading.Lock())
         metadata = Metadata(source)
         message = Message('a message', metadata)
-        assert(not message.should_log)
+        assert(not message.should_log)  # nosec
