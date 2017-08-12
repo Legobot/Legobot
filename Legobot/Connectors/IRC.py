@@ -4,6 +4,7 @@
 import ssl
 import threading
 import logging
+import time
 
 import irc.bot
 import irc.client
@@ -154,8 +155,17 @@ class IRC(Lego):
 
     def handle(self, message):
         logger.info(message)
-        self.botThread.connection.privmsg(message['metadata']['opts'][
-            'target'], message['text'])
+
+        lines = []
+        target = message['metadata']['opts']['target']
+        if '\n' in message['text']:
+            lines = message['text'].split('\n')
+        else:
+            lines.append(message['text'])
+        for line in lines:
+            self.botThread.connection.privmsg(target, line)
+            # Delay to prevent floods
+            time.sleep(0.25)
 
     @staticmethod
     def get_name():
