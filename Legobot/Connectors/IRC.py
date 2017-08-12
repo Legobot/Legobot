@@ -4,6 +4,7 @@
 import logging
 import ssl
 import threading
+import logging
 import time
 
 import irc.bot
