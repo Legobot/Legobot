@@ -26,7 +26,7 @@ class RtmBot(threading.Thread, object):
     Create slack bot instance using SlackClient
     '''
 
-    def __init__(self, baseplate, token, *args, **kwargs):
+    def __init__(self, baseplate, token, actor_urn, *args, **kwargs):
         '''
         Initialize the bot.
 
@@ -40,6 +40,7 @@ class RtmBot(threading.Thread, object):
         self.baseplate = baseplate
         self.token = token
         self.last_ping = 0
+        self.actor_urn = actor_urn
         # 'event':'method'
         self.supported_events = {'message': self.on_message}
         self.slack_client = SlackClient(self.token)
@@ -96,7 +97,7 @@ class RtmBot(threading.Thread, object):
         '''
 
         # Try to handle all the fields of events we care about.
-        metadata = Metadata(source=self).__dict__
+        metadata = Metadata(source=self.actor_urn).__dict__
         if 'presence' in message:
             metadata['presence'] = message['presence']
 
@@ -123,10 +124,6 @@ class RtmBot(threading.Thread, object):
                 metadata['is_private_message'] = True
             else:
                 metadata['is_private_message'] = False
-
-        logger.debug('Metadata:\n\n{0!s}'.format(metadata))
-
-        metadata['source_connector'] = 'slack'
 
         return metadata
 
@@ -158,7 +155,8 @@ class Slack(Lego):
 
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
-        self.botThread = RtmBot(baseplate, *args, **kwargs)
+        self.botThread = RtmBot(baseplate, actor_urn=self.actor_urn,
+                                *args, **kwargs)
 
     def on_start(self):
         '''
@@ -180,12 +178,13 @@ class Slack(Lego):
         Describe how this lego should handle messages.
         Extends Legobot.Lego.handle()
         '''
+        
+        if message['metadata']['opts'] is not None:
+            target = message['metadata']['opts']['target']
 
-        logger.info(message)
-        self.botThread.slack_client.rtm_send_message(
-            channel=message['metadata']['opts']['target'],
-            message=message['text']
-        )
+            self.botThread.slack_client.rtm_send_message(
+                channel=message['metadata']['opts']['target'],
+                message=message['text'])
 
     @staticmethod
     def get_name():
