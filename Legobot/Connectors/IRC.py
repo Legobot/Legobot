@@ -158,13 +158,8 @@ class IRC(Lego):
     def handle(self, message):
         logger.info(message)
 
-        lines = []
         target = message['metadata']['opts']['target']
-        if '\n' in message['text']:
-            lines = message['text'].split('\n')
-        else:
-            lines.append(message['text'])
-        for line in lines:
+        for line in message['text'].split('\n'):
             self.botThread.connection.privmsg(target, line)
             # Delay to prevent floods
             time.sleep(0.25)
