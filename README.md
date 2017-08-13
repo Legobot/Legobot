@@ -85,8 +85,8 @@ master_proxy.add_child(IRC,
                           channel='#freenode',
                           nickname='legobot',
                           server='chat.freenode.net',
-baseplate_proxy.add_child(Roll)
-baseplate_proxy.add_child(Help)
+master_proxy.add_child(Roll)
+master__proxy.add_child(Help)
 ```
 For the above example, we implemented the !roll Lego. Now, to see this in action!
 
