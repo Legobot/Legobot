@@ -173,7 +173,6 @@ class IRC(Lego):
                 self.botThread.connection.privmsg(target, truncated_line)
                 # Delay to prevent floods
                 time.sleep(0.25)
-
     @staticmethod
     def get_name():
         return None
