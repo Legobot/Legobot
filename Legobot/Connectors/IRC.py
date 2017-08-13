@@ -159,6 +159,7 @@ class IRC(Lego):
         logger.info(message)
 
         target = message['metadata']['opts']['target']
+
         for line in message['text'].split('\n'):
             self.botThread.connection.privmsg(target, line)
             # Delay to prevent floods
