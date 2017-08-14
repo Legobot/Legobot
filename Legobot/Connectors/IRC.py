@@ -32,7 +32,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
     """
     Create bot instance
     """
-    def __init__(self, baseplate, channels, nickname, server,
+    def __init__(self, baseplate, channels, nickname, server, actor_urn,
                  port=6667, use_ssl=False, password=None,
                  username=None, ircname=None, nickserv=False,
                  nickserv_pass=None):
@@ -54,6 +54,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.ircname = ircname
         self.nickserv = nickserv
         self.nickserv_pass = nickserv_pass
+        self.actor_urn = actor_urn
 
     def connect(self, *args, **kwargs):
         """
@@ -83,8 +84,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         This function runs when the bot receives a public message.
         """
         text = e.arguments[0]
-        metadata = Metadata(source=self).__dict__
-        metadata['source_connector'] = 'irc'
+        metadata = Metadata(source=self.actor_urn).__dict__
         metadata['source_channel'] = e.target
         metadata['source_user'] = e.source
         metadata['source_username'] = e.source.split('!')[0]
@@ -97,7 +97,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         This function runs when the bot receives a private message (query).
         """
         text = e.arguments[0]
-        metadata = Metadata(source=self).__dict__
+        metadata = Metadata(source=self.actor_urn).__dict__
         logger.debug('{0!s}'.format(e.source))
         metadata['source_connector'] = 'irc'
         metadata['source_channel'] = e.source.split('!')[0]
@@ -147,18 +147,20 @@ class IRC(Lego):
 
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
-        self.botThread = IRCBot(baseplate, *args, **kwargs)
+        self.botThread = IRCBot(baseplate=baseplate, actor_urn=self.actor_urn,
+                                *args, **kwargs)
 
     def on_start(self):
         self.botThread.start()
 
     def listening_for(self, message):
-        return str(self.botThread) != str(message['metadata']['source'])
+        return str(self.actor_urn) != str(message['metadata']['source'])
 
     def handle(self, message):
         logger.info(message)
 
         target = message['metadata']['opts']['target']
+
         for line in message['text'].split('\n'):
             self.botThread.connection.privmsg(target, line)
             # Delay to prevent floods
