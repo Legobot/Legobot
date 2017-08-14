@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased] 0000-00-00
+#### Fixed
+
+- IRC connector now handles newlines returned from Legos (#129, #140, #142) (@bbriggs)
+  - With improvements from @pry0cc
+
+- Fixed a nasty bug where a response directed at one user or channel would be sent to a channel or user of the same name on another connector. (#141, #143) (@bbriggs)
+
 ## [1.1.2] 2017-02-08
 ### Fixed
 
