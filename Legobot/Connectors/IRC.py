@@ -162,9 +162,16 @@ class IRC(Lego):
         target = message['metadata']['opts']['target']
 
         for line in message['text'].split('\n'):
-            self.botThread.connection.privmsg(target, line)
+            i = 0
+            while i < len(line) -1:
+                try:
+                    self.botThread.connection.privmsg(target, line[i:i+255])
+                    i += 255
+
+                except IndexError as e:
+                    self.botThread.connection.privmsg(target, line[i:])
+                time.sleep(0.25)
             # Delay to prevent floods
-            time.sleep(0.25)
 
     @staticmethod
     def get_name():
