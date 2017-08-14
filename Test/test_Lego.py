@@ -105,7 +105,7 @@ class TestLego(unittest.TestCase):
         with open(log_file_name, mode='r') as f:
             log = json.loads(f.read())
         os.remove(log_file_name)
-        assert log == message  # nosec 
+        assert log == message  # nosec
 
     @staticmethod
     def test_reply():
@@ -130,7 +130,7 @@ class TestLego(unittest.TestCase):
         for child in children:
             child.stop()
         baseplate.stop()
- 
+
         with open(log_file_name, mode='r') as f:
             log = json.loads(f.read())
         os.remove(log_file_name)

@@ -178,7 +178,7 @@ class Slack(Lego):
         Describe how this lego should handle messages.
         Extends Legobot.Lego.handle()
         '''
- 
+
         if message['metadata']['opts'] is not None:
             target = message['metadata']['opts']['target']
 
