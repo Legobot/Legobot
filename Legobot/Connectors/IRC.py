@@ -163,7 +163,7 @@ class IRC(Lego):
 
         for line in message['text'].split('\n'):
             i = 0
-            while i < len(line) -1:
+            while i < len(line) - 1:
                 try:
                     self.botThread.connection.privmsg(target, line[i:i+255])
                     i += 255
