@@ -105,9 +105,7 @@ class TestLego(unittest.TestCase):
         with open(log_file_name, mode='r') as f:
             log = json.loads(f.read())
         os.remove(log_file_name)
-        assert log == message  # nosec
-
-        
+        assert log == message  # nosec 
 
     @staticmethod
     def test_reply():
@@ -117,7 +115,7 @@ class TestLego(unittest.TestCase):
         urn = baseplate.actor_urn
         meta = Metadata(source=urn).__dict__
         message = Message(text='0', metadata=meta, should_log=True).__dict__
-        log_file_name= 'test_reply.log'
+        log_file_name = 'test_reply.log'
 
         children = baseplate_proxy.children.get()
         for child in children:
@@ -132,10 +130,10 @@ class TestLego(unittest.TestCase):
         for child in children:
             child.stop()
         baseplate.stop()
-        
+ 
         with open(log_file_name, mode='r') as f:
             log = json.loads(f.read())
-        #os.remove(log_file_name)
+        os.remove(log_file_name)
         assert log['text'] == '1'  # nosec
 
     @staticmethod
