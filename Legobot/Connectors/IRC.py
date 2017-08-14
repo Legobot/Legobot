@@ -88,7 +88,6 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         text = e.arguments[0]
         metadata = Metadata(source=self.actor_urn).__dict__
-        metadata = Metadata(source=self).__dict__
         metadata['source_connector'] = 'irc'
         metadata['source_channel'] = e.target
         metadata['source_user'] = e.source
