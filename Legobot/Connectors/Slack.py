@@ -16,6 +16,7 @@ from slackclient import SlackClient
 
 from Legobot.Lego import Lego
 from Legobot.Message import Message, Metadata
+from Legobot.Utilities import Utilities
 
 logger = logging.getLogger(__name__)
 
@@ -180,7 +181,7 @@ class Slack(Lego):
         Extends Legobot.Lego.handle()
         '''
 
-        if message['metadata']['opts'] is not None:
+        if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
 
             self.botThread.slack_client.rtm_send_message(

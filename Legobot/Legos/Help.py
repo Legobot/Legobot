@@ -4,6 +4,7 @@
 import logging
 
 from Legobot.Lego import Lego
+from Legobot.Utilities import Utilities
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Help(Lego):
     @staticmethod
     def listening_for(message):
-        if message['text'] is not None:
+        if Utilities.isNotEmpty(message['text']):
             try:
                 return message['text'].split()[0] == '!help'
             except Exception as e:
