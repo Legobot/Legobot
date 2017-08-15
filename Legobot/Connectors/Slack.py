@@ -1,3 +1,6 @@
+# Legobot
+# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
+
 '''
 .. module:: Legobot.Connectors.Slack
   :synopsis: A backend for connecting Legobot to Slack
