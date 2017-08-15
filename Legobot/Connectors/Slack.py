@@ -6,15 +6,16 @@
 
 Module lovingly built with inspiration from slackhq's RtmBot
 '''
-import sys
-import time
+
 import logging
+import sys
 import threading
+import time
 
 from slackclient import SlackClient
 
-from Legobot.Message import Message, Metadata
 from Legobot.Lego import Lego
+from Legobot.Message import Message, Metadata
 
 logger = logging.getLogger(__name__)
 

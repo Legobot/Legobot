@@ -1,12 +1,13 @@
-import unittest
-import threading
-import pykka
 import json
 import os
+import pykka
+import threading
 import time
+import unittest
+
+from Legobot.Lego import Lego
 from Legobot.LegoError import LegoError
 from Legobot.Message import Message, Metadata
-from Legobot.Lego import Lego
 
 
 class TestLego(unittest.TestCase):

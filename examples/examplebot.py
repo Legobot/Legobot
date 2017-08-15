@@ -1,12 +1,13 @@
+import configparser
 import logging
 import threading
-import configparser
-from Legobot.Lego import Lego
+
 from Legobot.Connectors.IRC import IRC
+from Legobot.Lego import Lego
 from Legobot.Legos.Help import Help
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('config.ini.example')
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()

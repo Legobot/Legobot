@@ -1,14 +1,14 @@
 # Legobot
 # Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
 
-import threading
 import json
 import logging
+import threading
 
 from pykka import ThreadingActor, ActorRegistry
+
 from Legobot.LegoError import LegoError
 from Legobot.Message import Message, Metadata
-
 
 logger = logging.getLogger(__name__)
 

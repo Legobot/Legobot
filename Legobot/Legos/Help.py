@@ -2,6 +2,7 @@
 # Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
 
 import logging
+
 from Legobot.Lego import Lego
 
 logger = logging.getLogger(__name__)
