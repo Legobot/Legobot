@@ -31,12 +31,11 @@ class Utilities():
 
         lines = []
         i = 0
-        while i < len(line) - 1:
+        while i < len(text) - 1:
             try:
-                lines.append(line[i:i+length])
+                texts.append(text[i:i+length])
                 i += length
 
             except IndexError as e:
-                lines.append(line[i:])
+                texts.append(text[i:])
         return lines
-
