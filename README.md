@@ -8,7 +8,8 @@
 
 ### Build status
 | Master | Develop |
-| [![Build Status](https://travis-ci.org/Legobot/Legobot.svg?branch=master)](https://travis-ci.org/Legobot/Legobot) | [![Build Status](https://travis-ci.org/Legobot/Legobot.svg?branch=develop)](https://travis-ci.org/Legobot/Legobot)
+|--------|---------|
+| [![Build Status](https://travis-ci.org/Legobot/Legobot.svg?branch=master)](https://travis-ci.org/Legobot/Legobot) | [![Build Status](https://travis-ci.org/Legobot/Legobot.svg?branch=develop)](https://travis-ci.org/Legobot/Legobot) | 
 
 
 ### Table of Contents
