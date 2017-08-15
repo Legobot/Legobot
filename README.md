@@ -1,11 +1,16 @@
 # Legobot
 
-[![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=master)](https://travis-ci.org/bbriggs/Legobot)
 [![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/l/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/v/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/status/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
+
+### Build status
+| Master | Develop |
+|--------|---------|
+| [![Build Status](https://travis-ci.org/Legobot/Legobot.svg?branch=master)](https://travis-ci.org/Legobot/Legobot) | [![Build Status](https://travis-ci.org/Legobot/Legobot.svg?branch=develop)](https://travis-ci.org/Legobot/Legobot) | 
+
 
 ### Table of Contents
 
