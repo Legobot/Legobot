@@ -53,4 +53,4 @@ class Utilities():
             bool: False if empty otherwise, True
         """
 
-        return True if  text else False
+        return True if text else False
