@@ -11,11 +11,10 @@ import irc.bot
 import irc.client
 import irc.connection
 
-from jaraco.stream import buffer
-
-from Legobot.Lego import Lego
 from Legobot.Message import Message, Metadata
+from Legobot.Lego import Lego
 from Legobot.Utilities import Utilities
+from jaraco.stream import buffer
 
 logger = logging.getLogger(__name__)
 
@@ -172,6 +171,7 @@ class IRC(Lego):
                 self.botThread.connection.privmsg(target, truncated_line)
                 # Delay to prevent floods
                 time.sleep(0.25)
+
     @staticmethod
     def get_name():
         return None
