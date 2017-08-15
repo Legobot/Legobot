@@ -118,7 +118,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
             c.join(channel)
 
         if self.nickserv:
-            if Utilities.isNotEmpy(self.nickserv_pass):
+            if Utilities.isNotEmpty(self.nickserv_pass):
                 self.identify(c, e, self.nickserv_pass)
             else:
                 logger.error('If nickserv is enabled, you must supply a password')
