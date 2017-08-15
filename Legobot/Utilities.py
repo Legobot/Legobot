@@ -1,3 +1,7 @@
+# Legobot
+# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
+
+
 class Utilities():
     """
     Miscellaneous utilities for Legobot services
