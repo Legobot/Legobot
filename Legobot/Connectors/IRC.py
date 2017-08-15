@@ -121,7 +121,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
             if Utilities.isNotEmpty(self.nickserv_pass):
                 self.identify(c, e, self.nickserv_pass)
             else:
-                logger.error('If nickserv is enabled, you must supply a password')
+                logger.error('If nickserv is enabled, you must supply'
+                             ' a password')
 
         if self.nickserv is False and self.nickserv_pass is not None:
             logger.warn('It appears you provided a nickserv password but '
