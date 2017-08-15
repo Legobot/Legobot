@@ -40,3 +40,17 @@ class Utilities():
             except IndexError as e:
                 lines.append(text[i:])
         return lines
+
+    @staticmethod
+    def isNotEmpty(text):
+        """
+        Check if the given text is empty.
+
+        Args:
+            text (str): The text to assess
+
+        Returns:
+            bool: False if empty otherwise, True
+        """
+
+        return True if  text else False
