@@ -23,7 +23,8 @@ class Utilities():
 
         Args:
             text (str): The text to be divided
-            length (int, optional): The length of the chunks of text. Defaults to 255.
+            length (int, optional): The length of the chunks of text. \
+                    Defaults to 255.
 
         Returns:
             list: Text divided into chunks of length `length`
@@ -33,9 +34,9 @@ class Utilities():
         i = 0
         while i < len(text) - 1:
             try:
-                texts.append(text[i:i+length])
+                lines.append(text[i:i+length])
                 i += length
 
             except IndexError as e:
-                texts.append(text[i:])
+                lines.append(text[i:])
         return lines
