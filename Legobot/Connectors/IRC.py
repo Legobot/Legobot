@@ -4,17 +4,17 @@
 import logging
 import ssl
 import threading
-import logging
 import time
 
 import irc.bot
 import irc.client
 import irc.connection
 
-from Legobot.Message import Message, Metadata
-from Legobot.Lego import Lego
-from Legobot.Utilities import Utilities
 from jaraco.stream import buffer
+
+from Legobot.Lego import Lego
+from Legobot.Message import Message, Metadata
+from Legobot.Utilities import Utilities
 
 logger = logging.getLogger(__name__)
 
