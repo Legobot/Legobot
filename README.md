@@ -72,8 +72,8 @@ from Legobot.Connectors import *
 from Legobot.Legos.Help import Help
 from Legobot.Connectors.IRC import IRC
 
-# This is a local, user-developed lego
-from Local import Roll
+# Another lego available on PyPi
+from legos.dice import Roll
 
 # Initialize lock and baseplate
 lock = threading.Lock()
@@ -82,7 +82,7 @@ master_proxy = master.proxy()
 
 # Add children
 master_proxy.add_child(IRC,
-                          channel='#freenode',
+                          channels=['#freenode'],
                           nickname='legobot',
                           server='chat.freenode.net',
 master_proxy.add_child(Roll)
