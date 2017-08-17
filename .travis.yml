@@ -26,6 +26,7 @@ deploy:
     repo: bbriggs/Legobot
     branch: master
 notifications:
-  slack:
-    rooms:
-      secure: lpdlVU9JxN84Q4rf8coOk8lLdiRksIGp04FiO8OZ0XjoxmrMIa5tGgTt9X30X93cHDmBIKotVncJUTJkBQX6Qxu5q9t/lEVD04L4sSM0wGlQ7SRzucWH2AVv20pCuW4cAu7gvft0eM7AQqlG6CQdD/hj22n8FnwLnF1SkroZUQLaeej2UyeWt96F4Vcrnq1+S5A4JfaYa9QCzTSQLMEh+ctf2vzNNMw/8tnm77SJOTKswFhj/frM4MQ305djLKU1Y+VEXhvYSQ/HJKsBiIjuEWc5TZ9tpLJE6ZUsbyiazAJ52QreHfkTjQgrBdFRG6lvx/NxTp/JdrJJXNsTaPGtxgZBn7PTrDSGDBl3LzfSy+b687oIPmtj05L2Rk5o18Zzt93DQWbhnszTUn++MtHu1jYV1t3eRJSbj8zSpoKZHo2u9jTCzqyrFJwckTB4SKkySGi9zD02DDPt9leWF9sQyF8t/uj5p/6msktrtXM8Afa1jOKETH5vap4qy7McsQkpdOMRo0fvTVobvMup5QIEqwlpdnyIw4+Q4ShEe4tVz2Ebk42iOgmcfPcFMRiyZz8ApT1WV7AgfwVNfSlAFagFPxPlp+pEP/baFFRhxNANhMesIO7xU355zQ3i3bT386//6CGJumpdsLEXpkUZsWk48MUG6BA9DGNO2B/utz8nGH0=
+  irc: "irc.0x00sec.org#legobot"
+  on_success: change
+  on_failure: always
+  use_notice: true
