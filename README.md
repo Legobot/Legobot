@@ -18,6 +18,7 @@
 1. [Supported Backends](#supported-backends)
 1. [Installation](#installation)
 1. [Alternative (easier) install and run method](#alternative-installation)
+1. [Contributing](#contributing)
 
 ## Introduction
 
@@ -107,3 +108,9 @@ For the above example, we implemented the !roll Lego. Now, to see this in action
 ```
 
 For a deeper dive into how Legobot works, see our [documentation](docs/intro.md)
+
+### Contributing
+
+We hang out and do our dev chat on the [0x00sec IRC](http://irc.0x00sec.org/) in `#legobot`. Drop by and say hey!
+
+TO DO: Expand contributing docs
