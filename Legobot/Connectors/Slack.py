@@ -28,8 +28,8 @@ sys.dont_write_bytecode = True
 
 
 class RtmBot(threading.Thread, object):
-     """Creates a Slack bot using the Slackclient RTM API
-
+    """
+    Creates a Slack bot using the Slackclient RTM API
 
     Attributes:
         baseplate: The parent pykka actor
@@ -39,12 +39,13 @@ class RtmBot(threading.Thread, object):
         supported_events: dict of Slack RTM API events we care about
         slack_client: initialized RTM client
     """
+
     def __init__(self, baseplate, token, actor_urn, *args, **kwargs):
         """Initializes RtmBot
 
         Args:
-            baseplate (Legobot.Lego): The parent Pykka actor. Typically passed in from
-                Legobot.Connectors.Slack.Slack
+            baseplate (Legobot.Lego): The parent Pykka actor.
+                Typically passed in fromLegobot.Connectors.Slack.Slack
             token (string): Slack API token
             actor_urn (string): URN of Pykka actor launching RtmBot
             *args: Variable length argument list.
@@ -96,6 +97,48 @@ class RtmBot(threading.Thread, object):
             self.keepalive()
             time.sleep(0.1)
         return
+
+    def get_users(self):
+        '''Grabs all users in the slack team
+
+        Returns:
+            dict: Dict of users in Slack team.
+                See also: https://api.slack.com/methods/users.list
+        '''
+        return self.slack_client.api_call('users.list')
+
+    def get_user_channels(self):
+        '''Grabs im.list structure for looking up DM channel ID of users
+        '''
+        return self.slack_client.api_call('im.list')
+
+    def get_dm_channel(self, userid):
+        '''Perform a lookup of users to resolve a userid to a DM channel
+
+        Args:
+            userid (string): Slack userid to lookup.
+
+        Returns:
+            string: DM channel ID of user
+        '''
+
+        for im in self.get_user_channels()['ims']:
+            if userid == im['user']:
+                return im['id']
+
+    def get_username(self, userid):
+        '''Perform a lookup of users to resolve a userid to a username
+
+        Args:
+            userid (string): Slack userid to lookup.
+
+        Returns:
+            string: Human-friendly name of the user
+        '''
+
+        for member in self.get_users()['members']:
+            if member['id'] == userid:
+                return member['name']
 
     def _parse_metadata(self, message):
         '''Parse incoming messages to build metadata dict
@@ -194,10 +237,10 @@ class Slack(Lego):
 
         if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
-
-            self.botThread.slack_client.rtm_send_message(
-                channel=target,
-                message=message['text'])
+            if target.startswith('U'):
+                target = self.botThread.get_dm_channel(target)
+            self.botThread.slack_client.rtm_send_message(target,
+                                                         message['text'])
 
     @staticmethod
     def get_name():
