@@ -23,25 +23,37 @@ from Legobot.Utilities import Utilities
 
 logger = logging.getLogger(__name__)
 
+# I forgot why this is here, but it's very necessary.
 sys.dont_write_bytecode = True
 
 
 class RtmBot(threading.Thread, object):
-    '''
-    Create slack bot instance using SlackClient
-    '''
+    """
+    Creates a Slack bot using the Slackclient RTM API
+
+    Attributes:
+        baseplate: The parent pykka actor
+        token: The Slack API token
+        last_ping: Timestamp of last keepalive ping
+        actor_urn: URN of the Pykka actor the RtmBot runs in
+        supported_events: dict of Slack RTM API events we care about
+        slack_client: initialized RTM client
+    """
 
     def __init__(self, baseplate, token, actor_urn, *args, **kwargs):
-        '''
-        Initialize the bot.
+        """Initializes RtmBot
 
-        :param baseplate: The baseplate/parent lego. Typically passed in from
-        Legobot.Connectors.Slack.Slack
+        Args:
+            baseplate (Legobot.Lego): The parent Pykka actor.
+                Typically passed in fromLegobot.Connectors.Slack.Slack
+            token (string): Slack API token
+            actor_urn (string): URN of Pykka actor launching RtmBot
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
 
-        :param token: The Slack API token you generated
-        :param args: Reserved for future use
-        :param kwargs: Reserved for future use
-        '''
+        Returns:
+            Returns an instance of RtmBot which connects to Slack.
+        """
         self.baseplate = baseplate
         self.token = token
         self.last_ping = 0
@@ -52,17 +64,16 @@ class RtmBot(threading.Thread, object):
         threading.Thread.__init__(self)
 
     def connect(self):
-        '''
-        Initialize connection to slack.
-        :return: None
-        '''
-
         self.slack_client.rtm_connect()
 
     def on_message(self, event):
-        '''
-        Runs when a message event is received
-        :return: Legobot.Message
+        '''Runs when a message event is received
+
+        Args:
+            event: RTM API event.
+
+        Returns:
+            Legobot.messge
         '''
         metadata = self._parse_metadata(event)
         message = Message(text=metadata['text'],
@@ -70,10 +81,7 @@ class RtmBot(threading.Thread, object):
         return message
 
     def run(self):
-        '''
-        Extends the run() method of threading.Thread
-
-        :return: None
+        '''Extends the run() method of threading.Thread
         '''
 
         self.connect()
@@ -90,15 +98,57 @@ class RtmBot(threading.Thread, object):
             time.sleep(0.1)
         return
 
-    def _parse_metadata(self, message):
-        '''
-        Parse incoming messages to build metadata dict
+    def get_users(self):
+        '''Grabs all users in the slack team
 
+        Returns:
+            dict: Dict of users in Slack team.
+                See also: https://api.slack.com/methods/users.list
+        '''
+        return self.slack_client.api_call('users.list')
+
+    def get_user_channels(self):
+        '''Grabs im.list structure for looking up DM channel ID of users
+        '''
+        return self.slack_client.api_call('im.list')
+
+    def get_dm_channel(self, userid):
+        '''Perform a lookup of users to resolve a userid to a DM channel
+
+        Args:
+            userid (string): Slack userid to lookup.
+
+        Returns:
+            string: DM channel ID of user
+        '''
+
+        for im in self.get_user_channels()['ims']:
+            if userid == im['user']:
+                return im['id']
+
+    def get_username(self, userid):
+        '''Perform a lookup of users to resolve a userid to a username
+
+        Args:
+            userid (string): Slack userid to lookup.
+
+        Returns:
+            string: Human-friendly name of the user
+        '''
+
+        for member in self.get_users()['members']:
+            if member['id'] == userid:
+                return member['name']
+
+    def _parse_metadata(self, message):
+        '''Parse incoming messages to build metadata dict
         Lots of 'if' statements. It sucks, I know.
 
-        :param message: Message dict sent from Slack
+        Args:
+            message (dict): JSON dump of message sent from Slack
 
-        :return: dict
+        Returns:
+            Legobot.Metadata
         '''
 
         # Try to handle all the fields of events we care about.
@@ -133,8 +183,7 @@ class RtmBot(threading.Thread, object):
         return metadata
 
     def keepalive(self):
-        '''
-        Sends a keepalive to Slack
+        '''Sends a keepalive to Slack
         '''
         # hardcode the interval to 3 seconds
         now = int(time.time())
@@ -144,18 +193,14 @@ class RtmBot(threading.Thread, object):
 
 
 class Slack(Lego):
-    '''
-    Lego that builds and connects Legobot.Connectors.Slack.RtmBot
+    '''Lego that builds and connects Legobot.Connectors.Slack.RtmBot
 
-    :param baseplate: baseplate/parent lego. Typically created in your bot
-    script
-
-    :param lock: thread lock created in your bot script. All legos should
-    share the same lock
-
-    :param args: args to pass into RtmBot (like token)
-
-    :param kwargs: keyword args to pass to RtmBot
+    Args:
+        baseplate (Legobot.Lego): baseplate/parent lego (Pykka Actor)
+        lock (threading.Lock: thread lock created in your bot script.
+            All legos should share the same lock.
+        *args: Variable length argument list.
+        **kwargs: Arbitrary keyword arguments.
     '''
 
     def __init__(self, baseplate, lock, *args, **kwargs):
@@ -164,42 +209,45 @@ class Slack(Lego):
                                 *args, **kwargs)
 
     def on_start(self):
-        '''
-        Extends pykka's on_start method to launch this as an actor
+        '''Extends pykka's on_start method to launch this as an actor
         '''
 
         self.botThread.start()
 
     def listening_for(self, message):
-        '''
-        Describe what this should listen for (hint: everything)
+        '''Describe what this should listen for (hint: everything)
         Extends Legobot.Lego.listening_for()
+
+        Args:
+            message (Legobot.Message): Message to handle
+
+        Returns:
+            bool: True if lego is interested in the message.
         '''
 
         return str(self.botThread) != str(message['metadata']['source'])
 
     def handle(self, message):
-        '''
-        Describe how this lego should handle messages.
+        '''Attempts to send a message to the specified destination in Slack.
         Extends Legobot.Lego.handle()
+
+        Args:
+            message (Legobot.Message): message w/ metadata to send.
         '''
 
         if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
-
-            self.botThread.slack_client.rtm_send_message(
-                channel=target,
-                message=message['text'])
+            if target.startswith('U'):
+                target = self.botThread.get_dm_channel(target)
+            self.botThread.slack_client.rtm_send_message(target,
+                                                         message['text'])
 
     @staticmethod
     def get_name():
-        '''
-        Called by built-in !help lego
+        '''Called by built-in !help lego
 
         Returns name of Lego. Returns none because this is
         a non-interactive Lego
-
-        :return: None
         '''
 
         return None
