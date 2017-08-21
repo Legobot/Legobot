@@ -3,13 +3,22 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] 0000-00-00
+## [UNRELEASED] 0000-00-00
+
+## [1.1.3] 2017-08-21
 #### Fixed
 
+- Fixed misleading error about NickServ when connecting to IRC
+- Limited IRC messages to 256 chars. Long messages will be split and sent in chunks.
 - IRC connector now handles newlines returned from Legos (#129, #140, #142) (@bbriggs)
   - With improvements from @pry0cc
-
 - Fixed a nasty bug where a response directed at one user or channel would be sent to a channel or user of the same name on another connector. (#141, #143) (@bbriggs)
+- Messages sent to a user-id in Slack now properly route to the DM channel (#163).
+
+### Added
+
+- New Utilities class to provide convenience methods for legos
+- Slack connector now has methods to resolve a user-id to a username and a user-id to a DM channel id
 
 ## [1.1.2] 2017-02-08
 ### Fixed

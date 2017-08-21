@@ -3,13 +3,13 @@ from setuptools import setup, find_packages
 setup(
     name='Legobot',
 
-    version='1.1.2',
+    version='1.1.3',
 
     license='GPLv2',
 
     py_modules=['Legobot'],
 
-    description="A framework for creating interactive chatbots on various"
+    description="A framework for creating interactive chatbots on various "
     "protocols",
 
     author="Kevin McCabe, Bren Briggs, and Drew Bronson",
