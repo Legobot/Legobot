@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [1.1.3] 2017-08-21
 #### Fixed
 
-- Fixed misleading error about NickServ when connecting to IRC
+- Fixed misleading error about NickServ when connecting to IRC (#154) (@Nitr4x)
 - Limited IRC messages to 256 chars. Long messages will be split and sent in chunks.
 - IRC connector now handles newlines returned from Legos (#129, #140, #142) (@bbriggs)
   - With improvements from @pry0cc
