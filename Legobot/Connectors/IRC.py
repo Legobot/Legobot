@@ -1,17 +1,20 @@
 # Legobot
 # Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
 
+import logging
 import ssl
 import threading
-import logging
+import time
 
 import irc.bot
 import irc.client
 import irc.connection
 
-from Legobot.Message import Message, Metadata
-from Legobot.Lego import Lego
 from jaraco.stream import buffer
+
+from Legobot.Lego import Lego
+from Legobot.Message import Message, Metadata
+from Legobot.Utilities import Utilities
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +34,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
     """
     Create bot instance
     """
-    def __init__(self, baseplate, channels, nickname, server,
+    def __init__(self, baseplate, channels, nickname, server, actor_urn,
                  port=6667, use_ssl=False, password=None,
                  username=None, ircname=None, nickserv=False,
                  nickserv_pass=None):
@@ -53,6 +56,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.ircname = ircname
         self.nickserv = nickserv
         self.nickserv_pass = nickserv_pass
+        self.actor_urn = actor_urn
 
     def connect(self, *args, **kwargs):
         """
@@ -82,7 +86,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         This function runs when the bot receives a public message.
         """
         text = e.arguments[0]
-        metadata = Metadata(source=self).__dict__
+        metadata = Metadata(source=self.actor_urn).__dict__
         metadata['source_channel'] = e.target
         metadata['source_user'] = e.source
         metadata['source_username'] = e.source.split('!')[0]
@@ -95,8 +99,9 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         This function runs when the bot receives a private message (query).
         """
         text = e.arguments[0]
-        metadata = Metadata(source=self).__dict__
+        metadata = Metadata(source=self.actor_urn).__dict__
         logger.debug('{0!s}'.format(e.source))
+        metadata['source_connector'] = 'irc'
         metadata['source_channel'] = e.source.split('!')[0]
         metadata['source_username'] = e.source.split('!')[0]
         metadata['source_user'] = e.source
@@ -112,10 +117,12 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
             logger.debug('Attempting to join {0!s}'.format(channel))
             c.join(channel)
 
-        if self.nickserv is True and self.nickserv_pass is not None:
-            self.identify(c, e, self.nickserv_pass)
-        else:
-            logger.error('If nickserv is enabled, you must supply a password')
+        if self.nickserv:
+            if Utilities.isNotEmpty(self.nickserv_pass):
+                self.identify(c, e, self.nickserv_pass)
+            else:
+                logger.error('If nickserv is enabled, you must supply'
+                             ' a password')
 
         if self.nickserv is False and self.nickserv_pass is not None:
             logger.warn('It appears you provided a nickserv password but '
@@ -144,18 +151,26 @@ class IRC(Lego):
 
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
-        self.botThread = IRCBot(baseplate, *args, **kwargs)
+        self.botThread = IRCBot(baseplate=baseplate, actor_urn=self.actor_urn,
+                                *args, **kwargs)
 
     def on_start(self):
         self.botThread.start()
 
     def listening_for(self, message):
-        return str(self.botThread) != str(message['metadata']['source'])
+        return str(self.actor_urn) != str(message['metadata']['source'])
 
     def handle(self, message):
         logger.info(message)
-        self.botThread.connection.privmsg(message['metadata']['opts'][
-            'target'], message['text'])
 
-    def get_name(self):
+        target = message['metadata']['opts']['target']
+
+        for split_line in Utilities.tokenize(message['text']):
+            for truncated_line in Utilities.truncate(split_line):
+                self.botThread.connection.privmsg(target, truncated_line)
+                # Delay to prevent floods
+                time.sleep(0.25)
+
+    @staticmethod
+    def get_name():
         return None

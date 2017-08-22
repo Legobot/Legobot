@@ -1,11 +1,16 @@
 # Legobot
 
-[![Build Status](https://travis-ci.org/bbriggs/Legobot.svg?branch=master)](https://travis-ci.org/bbriggs/Legobot)
 [![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/l/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/v/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/status/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
+
+### Build status
+| Master | Develop |
+|--------|---------|
+| [![Build Status](https://travis-ci.org/Legobot/Legobot.svg?branch=master)](https://travis-ci.org/Legobot/Legobot) | [![Build Status](https://travis-ci.org/Legobot/Legobot.svg?branch=develop)](https://travis-ci.org/Legobot/Legobot) | 
+
 
 ### Table of Contents
 
@@ -13,6 +18,7 @@
 1. [Supported Backends](#supported-backends)
 1. [Installation](#installation)
 1. [Alternative (easier) install and run method](#alternative-installation)
+1. [Contributing](#contributing)
 
 ## Introduction
 
@@ -72,8 +78,8 @@ from Legobot.Connectors import *
 from Legobot.Legos.Help import Help
 from Legobot.Connectors.IRC import IRC
 
-# This is a local, user-developed lego
-from Local import Roll
+# Another lego available on PyPi
+from legos.dice import Roll
 
 # Initialize lock and baseplate
 lock = threading.Lock()
@@ -82,11 +88,11 @@ master_proxy = master.proxy()
 
 # Add children
 master_proxy.add_child(IRC,
-                          channel='#freenode',
+                          channels=['#freenode'],
                           nickname='legobot',
                           server='chat.freenode.net',
-baseplate_proxy.add_child(Roll)
-baseplate_proxy.add_child(Help)
+master_proxy.add_child(Roll)
+master__proxy.add_child(Help)
 ```
 For the above example, we implemented the !roll Lego. Now, to see this in action!
 
@@ -102,3 +108,9 @@ For the above example, we implemented the !roll Lego. Now, to see this in action
 ```
 
 For a deeper dive into how Legobot works, see our [documentation](docs/intro.md)
+
+### Contributing
+
+We hang out and do our dev chat on the [0x00sec IRC](http://irc.0x00sec.org/) in `#legobot`. Drop by and say hey!
+
+TO DO: Expand contributing docs

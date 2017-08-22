@@ -2,15 +2,23 @@
 # Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
 
 import logging
+
 from Legobot.Lego import Lego
+from Legobot.Utilities import Utilities
 
 logger = logging.getLogger(__name__)
 
 
 class Help(Lego):
-    def listening_for(self, message):
-        return message['text'].split()[0] == '!help'
-        logger.info(message)
+    @staticmethod
+    def listening_for(message):
+        if Utilities.isNotEmpty(message['text']):
+            try:
+                return message['text'].split()[0] == '!help'
+            except Exception as e:
+                logger.error(
+                    'Help lego failed to check message text: {0!s}'.format(e))
+                return False
 
     def handle(self, message):
         logger.info(message)
@@ -47,5 +55,6 @@ class Help(Lego):
 
         self.reply(message, help_str, opts=opts)
 
-    def get_name(self):
+    @staticmethod
+    def get_name():
         return None

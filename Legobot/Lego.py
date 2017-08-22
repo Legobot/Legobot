@@ -1,20 +1,19 @@
 # Legobot
 # Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
 
-import threading
 import json
 import logging
+import threading
 
-import pykka
+from pykka import ThreadingActor, ActorRegistry
 
 from Legobot.LegoError import LegoError
 from Legobot.Message import Message, Metadata
 
-
 logger = logging.getLogger(__name__)
 
 
-class Lego(pykka.ThreadingActor):
+class Lego(ThreadingActor):
     class HandlerThread(threading.Thread):
         """
         This class provides a simple thread for running message handlers.
@@ -138,12 +137,16 @@ class Lego(pykka.ThreadingActor):
         :param opts: A dictionary of additional values to add to metadata
         :return: None
         """
-        metadata = Metadata(source=self,
+        metadata = Metadata(source=self.actor_urn,
                             dest=message['metadata']['source']).__dict__
         metadata['opts'] = opts
         message = Message(text=text, metadata=metadata,
                           should_log=message['should_log']).__dict__
-        self.baseplate.tell(message)
+        dest_actor = ActorRegistry.get_by_urn(message['metadata']['dest'])
+        if dest_actor is not None:
+            dest_actor.tell(message)
+        else:
+            raise("Tried to send message to nonexistent actor")
 
     def get_name(self):
         """
@@ -162,6 +165,7 @@ class Lego(pykka.ThreadingActor):
         return ''
 
     def on_failure(self, exception_type, exception_value, traceback):
-        logger.exception('Lego crashed: ' + str(self))
+        ref = ActorRegistry.get_by_urn(self.actor_urn)
+        logger.exception('Lego crashed: ' + str(ref))
         logger.exception(exception_type)
         logger.exception(exception_value)
