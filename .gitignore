@@ -1,6 +1,8 @@
-test.py
+venv/*
+testbot.py
 *.pyc
 .idea/
+local/*
 Legobot/*.pyc
 Legobot.egg-info/
 .vagrant/

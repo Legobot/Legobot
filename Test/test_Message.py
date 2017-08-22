@@ -1,16 +1,19 @@
 import unittest
-from Legobot.Message import Message, Metadata
-from Legobot.Lego import Lego
 import threading
+
+from Legobot.Lego import Lego
+from Legobot.Message import Message, Metadata
 
 
 class TestMetadata(unittest.TestCase):
-    def test_default_init_values(self):
+    @staticmethod
+    def test_default_init_values():
         source = Lego(None, threading.Lock())
         metadata = Metadata(source)
         assert(metadata.dest is None)  # nosec
 
-    def test_initialization(self):
+    @staticmethod
+    def test_initialization():
         source = Lego(None, threading.Lock())
         dest = Lego(None, threading.Lock())
         metadata = Metadata(source, dest)
@@ -19,7 +22,8 @@ class TestMetadata(unittest.TestCase):
 
 
 class TestMessage(unittest.TestCase):
-    def test_initialization(self):
+    @staticmethod
+    def test_initialization():
         source = Lego(None, threading.Lock())
         metadata = Metadata(source)
         message = Message('a message', metadata)
@@ -30,7 +34,8 @@ class TestMessage(unittest.TestCase):
         assert(message.metadata == metadata)  # nosec
         assert(message.should_log)  # nosec
 
-    def test_default_init_values(self):
+    @staticmethod
+    def test_default_init_values():
         source = Lego(None, threading.Lock())
         metadata = Metadata(source)
         message = Message('a message', metadata)

@@ -1,4 +1,4 @@
-# LegoError.py
+# Legobot
 # Copyright (C) 2017 Brenton Briggs, Kevin McCabe, and Drew Bronson
 
 
