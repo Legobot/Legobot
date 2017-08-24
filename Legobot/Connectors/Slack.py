@@ -107,11 +107,6 @@ class RtmBot(threading.Thread, object):
         '''
         return self.slack_client.api_call('users.list')
 
-    def get_user_channels(self):
-        '''Grabs im.list structure for looking up DM channel ID of users
-        '''
-        return self.slack_client.api_call('im.list')
-
     def get_dm_channel(self, userid):
         '''Perform a lookup of users to resolve a userid to a DM channel
 
@@ -122,9 +117,8 @@ class RtmBot(threading.Thread, object):
             string: DM channel ID of user
         '''
 
-        for im in self.get_user_channels()['ims']:
-            if userid == im['user']:
-                return im['id']
+        dm_open = self.slack_client.api_call('im.open',user=userid)
+        return dm_open['channel']['id']
 
     def get_username(self, userid):
         '''Perform a lookup of users to resolve a userid to a username
