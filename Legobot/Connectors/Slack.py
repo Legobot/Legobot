@@ -117,7 +117,7 @@ class RtmBot(threading.Thread, object):
             string: DM channel ID of user
         '''
 
-        dm_open = self.slack_client.api_call('im.open',user=userid)
+        dm_open = self.slack_client.api_call('im.open', user=userid)
         return dm_open['channel']['id']
 
     def get_username(self, userid):
