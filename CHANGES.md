@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [UNRELEASED] 0000-00-00
 
+
+## [1.1.4] 2017-08-25
+#### Fixed
+- Fixed Slack connector DMs. Slack api im.list didn't list all users. Switched to im.open. (#159)
+
 ## [1.1.3] 2017-08-21
 #### Fixed
 
