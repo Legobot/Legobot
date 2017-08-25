@@ -30,17 +30,10 @@ Legobot itself is:
 * a basic set of functions for managing connections and message objects
 * extensible (easily)
 
-Legobot is not:
-* complete
-* an IRC bot (it's bigger than all of us, Jim)
-* an Apple product
-* a Microsoft product
-* made of LEGOS (yet...)
-
-
-### Supported backends
+### Supported backends (in planned order for support)
 - [x] IRC
 - [x] Slack
+- [ ] Discord
 - [ ] XMPP
 - [ ] Telegram
 - [ ] FB Messenger
