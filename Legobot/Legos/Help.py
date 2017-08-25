@@ -49,7 +49,13 @@ class Help(Lego):
             for lego in legos:
                 lego_proxy = lego.proxy()
                 if lego_proxy.get_name().get() == function:
-                    help_str = lego_proxy.get_help().get()
+                    help_obj = lego_proxy.get_help().get()
+                    if isinstance(help_obj, tuple):
+                        if help_obj[1] == 'dm':
+                            target = message['metadata']['source_user']
+                        help_str = help_obj[0]
+                    else:
+                        help_str = help_obj
 
         opts = {'target': target}
 
