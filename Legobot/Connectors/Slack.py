@@ -120,6 +120,7 @@ class RtmBot(threading.Thread, object):
         dm_open = self.slack_client.api_call('im.open', user=userid)
         return dm_open['channel']['id']
 
+
     def get_username(self, userid):
         '''Perform a lookup of users to resolve a userid to a username
 
