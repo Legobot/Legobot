@@ -89,6 +89,24 @@ class DiscoBot(threading.Thread):
         self.last_hearbeat = datetime.datetime.now()
         return
 
-if __name__ == "__main__":
-    bot = DiscoBot()
-    bot.run()
+class Discord(Lego):
+
+    def __init__(self, baseplate, lock, *args, **kwargs):
+        super().__init__(baseplate, lock)
+        self.botThread = DiscoBot(*args, **kwargs)
+
+    def on_start(self):
+        self.botThread.start()
+
+    def listening_for(self, message):
+        return str(self.actor_urn) != str(message['metadata']['source'])
+
+    def handle(self, message):
+        logger.info(message)
+        target = message['metadata']['opts']['target']
+
+        self.botThread.send_message(message['text'])
+
+    @staticmethod
+    def get_name():
+        return None
