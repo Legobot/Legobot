@@ -8,6 +8,7 @@ import time
 
 from Legobot.Lego import Lego
 from Legobot.Message import Message, Metadata
+from Legobot.Utilities import Utilities
 
 __author__ = "Bren Briggs (fraq)"
 __copyright__ = "Copyright 2017, Legobot"
@@ -300,9 +301,10 @@ class Discord(Lego):
             message (Legobot.Message): message w/ metadata to send.
         '''
 
-        logger.info(message)
-        target = message['metadata']['opts']['target']
-        self.botThread.create_message(target, message['text'])
+        logger.debug(message)
+        if Utilities.isNotEmpty(message['metadata']['opts']):
+            target = message['metadata']['opts']['target']
+            self.botThread.create_message(target, message['text'])
 
     @staticmethod
     def get_name():

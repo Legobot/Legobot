@@ -229,6 +229,7 @@ class Slack(Lego):
             message (Legobot.Message): message w/ metadata to send.
         '''
 
+        logger.debug(message)
         if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
             if target.startswith('U'):
