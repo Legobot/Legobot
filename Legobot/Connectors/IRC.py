@@ -162,11 +162,11 @@ class IRC(Lego):
 
     def handle(self, message):
         '''
-        Attempts to send a message to the specified destination in Discord
+        Attempts to send a message to the specified destination in IRC
         Extends Legobot.Lego.handle()
 
         Args:
-            message (Legobot.Message): message w/ metadat to send.
+            message (Legobot.Message): message w/ metadata to send.
         '''
 
         logger.debug(message)
