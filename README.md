@@ -33,7 +33,7 @@ Legobot itself is:
 ### Supported backends (in planned order for support)
 - [x] IRC
 - [x] Slack
-- [ ] Discord
+- [x] Discord (beta)
 - [ ] XMPP
 - [ ] Telegram
 - [ ] FB Messenger
