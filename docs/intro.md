@@ -25,7 +25,7 @@ master_proxy = master.proxy()
 master_proxy.add_child(IRC,
                           channels=['#social'],
                           nickname='mybot',
-                          server='chat.freenode.net',
+                          server='chat.freenode.net')
 master_proxy.add_child(Help)
 ```
 
