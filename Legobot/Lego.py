@@ -61,14 +61,14 @@ class Lego(ThreadingActor):
         self.cleanup()
         self.tell_children(message)
 
-	def log_message(self, message):
+    def log_message(self, message):
         """
         Log a message if a log file exists and the message should be logged.
 
         :param message:
         :return:
         """
-		if self.log_file is not None and message['should_log']:
+        if self.log_file is not None and message['should_log']:
             message_copy = Message(message['text'],
                                    Metadata(None).__dict__,
                                    message['should_log']).__dict__
@@ -76,14 +76,14 @@ class Lego(ThreadingActor):
                 f.write(json.dumps(message_copy))
             logger.info(message['metadata']['source'])
 
-	def handle_message(self, message):
+    def handle_message(self, message):
         """
         Create and start a handler thread if the Lego is listening for this message.
 
         :param message:
         :return:
         """
-		if self.listening_for(message):
+        if self.listening_for(message):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
 
@@ -98,14 +98,14 @@ class Lego(ThreadingActor):
         self.children = [child for child in self.children if child.is_alive()]
         self.lock.release()
 
-	def tell_children(self, message):
+    def tell_children(self, message):
         """
         Tell all of the Lego's children about the message.
 
         :param message:
         :return:
         """
-		for child in self.children:
+        for child in self.children:
             child.tell(message)
 
     def listening_for(self, message):
