@@ -78,7 +78,8 @@ class Lego(ThreadingActor):
 
     def handle_message(self, message):
         """
-        Create and start a handler thread if the Lego is listening for this message.
+        Create and start a handler thread if the Lego is
+        listening for this message.
 
         :param message:
         :return:
