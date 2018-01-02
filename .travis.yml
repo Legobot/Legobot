@@ -11,7 +11,6 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - python -m pytest Test
   - bandit -r .
   - flake8 .
 deploy:
