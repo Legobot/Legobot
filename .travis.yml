@@ -13,8 +13,6 @@ install:
 script:
   - python -m pytest Test
   - python -m pytest Legobot/LegoTests
-  - bandit -r .
-  - flake8 .
 deploy:
   provider: pypi
   user: briggsb
