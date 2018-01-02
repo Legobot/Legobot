@@ -229,6 +229,7 @@ class Slack(Lego):
             message (Legobot.Message): message w/ metadata to send.
         '''
 
+        logger.debug(message)
         if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
             if target.startswith('U'):
@@ -239,7 +240,6 @@ class Slack(Lego):
     @staticmethod
     def get_name():
         '''Called by built-in !help lego
-
         Returns name of Lego. Returns none because this is
         a non-interactive Lego
         '''

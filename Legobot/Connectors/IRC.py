@@ -87,6 +87,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         text = e.arguments[0]
         metadata = Metadata(source=self.actor_urn).__dict__
+        metadata['source_connector'] = 'irc'
         metadata['source_channel'] = e.target
         metadata['source_user'] = e.source
         metadata['source_username'] = e.source.split('!')[0]
@@ -161,15 +162,23 @@ class IRC(Lego):
         return str(self.actor_urn) != str(message['metadata']['source'])
 
     def handle(self, message):
-        logger.info(message)
+        '''
+        Attempts to send a message to the specified destination in IRC
+        Extends Legobot.Lego.handle()
 
-        target = message['metadata']['opts']['target']
+        Args:
+            message (Legobot.Message): message w/ metadata to send.
+        '''
 
-        for split_line in Utilities.tokenize(message['text']):
-            for truncated_line in Utilities.truncate(split_line):
-                self.botThread.connection.privmsg(target, truncated_line)
-                # Delay to prevent floods
-                time.sleep(0.25)
+        logger.debug(message)
+        if Utilities.isNotEmpty(message['metadata']['opts']):
+            target = message['metadata']['opts']['target']
+
+            for split_line in Utilities.tokenize(message['text']):
+                for truncated_line in Utilities.truncate(split_line):
+                    self.botThread.connection.privmsg(target, truncated_line)
+                    # Delay to prevent floods
+                    time.sleep(0.25)
 
     @staticmethod
     def get_name():

@@ -33,7 +33,7 @@ Legobot itself is:
 ### Supported backends (in planned order for support)
 - [x] IRC
 - [x] Slack
-- [ ] Discord
+- [x] Discord (beta)
 - [ ] XMPP
 - [ ] Telegram
 - [ ] FB Messenger
@@ -83,9 +83,9 @@ master_proxy = master.proxy()
 master_proxy.add_child(IRC,
                           channels=['#freenode'],
                           nickname='legobot',
-                          server='chat.freenode.net',
+                          server='chat.freenode.net')
 master_proxy.add_child(Roll)
-master__proxy.add_child(Help)
+master_proxy.add_child(Help)
 ```
 For the above example, we implemented the !roll Lego. Now, to see this in action!
 

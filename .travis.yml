@@ -11,8 +11,6 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - python -m pytest Test
-  - python -m pytest Legobot/LegoTests
   - bandit -r .
   - flake8 .
 deploy:
@@ -25,8 +23,3 @@ deploy:
     distributions: sdist bdist_wheel
     repo: Legobot/Legobot
     branch: master
-notifications:
-  irc: "irc.0x00sec.org#legobot"
-  on_success: change
-  on_failure: always
-  use_notice: true
