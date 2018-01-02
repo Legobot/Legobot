@@ -9,6 +9,7 @@ from Legobot.Lego import Lego
 from Legobot.LegoError import LegoError
 from Legobot.Message import Message, Metadata
 
+
 class TestLego(unittest.TestCase):
     @staticmethod
     def test_initialization():
