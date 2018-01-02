@@ -11,7 +11,10 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - exit 0
+  - python -m pytest Test
+  - python -m pytest Legobot/LegoTests
+  - bandit -r .
+  - flake8 .
 deploy:
   provider: pypi
   user: briggsb
