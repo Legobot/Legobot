@@ -1,16 +1,10 @@
 # Legobot
-
+[![Travis CI](https://travis-ci.org/Legobot/Legobot.svg?branch=master)](https://travis-ci.org/Legobot/Legobot)
 [![PyPI](https://img.shields.io/pypi/pyversions/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/l/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/v/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/status/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
 [![PyPI](https://img.shields.io/pypi/wheel/Legobot.svg)](https://pypi.python.org/pypi/Legobot/)
-
-### Build status
-| Master | Develop |
-|--------|---------|
-| [![Build Status](https://travis-ci.org/Legobot/Legobot.svg?branch=master)](https://travis-ci.org/Legobot/Legobot) | [![Build Status](https://travis-ci.org/Legobot/Legobot.svg?branch=develop)](https://travis-ci.org/Legobot/Legobot) | 
-
 
 ### Table of Contents
 
@@ -30,7 +24,8 @@ Legobot itself is:
 * a basic set of functions for managing connections and message objects
 * extensible (easily)
 
-### Supported backends (in planned order for support)
+### Supported backends 
+_in planned order for support_
 - [x] IRC
 - [x] Slack
 - [x] Discord (beta)
