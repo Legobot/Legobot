@@ -19,6 +19,9 @@ ch.setFormatter(formatter)
 # add the handlers to the logger
 logger.addHandler(ch)
 
+# Optional. Log to file in addtion to console
+# logging.basicConfig(filename='legobot.log')
+
 # Initialize lock and baseplate
 lock = threading.Lock()
 baseplate = Lego.start(None, lock)
