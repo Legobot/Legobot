@@ -94,7 +94,6 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         metadata['display_name'] = metadata['source_username']
         return metadata
 
-
     def on_pubmsg(self, c, e):
         """
         This function runs when the bot receives a public message.
