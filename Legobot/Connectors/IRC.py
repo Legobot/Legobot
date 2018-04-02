@@ -81,16 +81,25 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
                                 username=self.username,
                                 ircname=self.ircname)
 
-    def on_pubmsg(self, c, e):
+    def set_metadata(self, e):
         """
-        This function runs when the bot receives a public message.
+        This function sets the metadata that is common between pub and priv
         """
-        text = e.arguments[0]
         metadata = Metadata(source=self.actor_urn).__dict__
         metadata['source_connector'] = 'irc'
         metadata['source_channel'] = e.target
         metadata['source_user'] = e.source
         metadata['source_username'] = e.source.split('!')[0]
+        metadata['user_id'] = metadata['source_user']
+        metadata['display_name'] = metadata['source_username']
+        return metadata
+
+    def on_pubmsg(self, c, e):
+        """
+        This function runs when the bot receives a public message.
+        """
+        text = e.arguments[0]
+        metadata = self.set_metadata(e)
         metadata['is_private_message'] = False
         message = Message(text=text, metadata=metadata).__dict__
         self.baseplate.tell(message)
@@ -100,12 +109,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         This function runs when the bot receives a private message (query).
         """
         text = e.arguments[0]
-        metadata = Metadata(source=self.actor_urn).__dict__
         logger.debug('{0!s}'.format(e.source))
-        metadata['source_connector'] = 'irc'
-        metadata['source_channel'] = e.source.split('!')[0]
-        metadata['source_username'] = e.source.split('!')[0]
-        metadata['source_user'] = e.source
+        metadata = self.set_metadata(e)
         metadata['is_private_message'] = True
         message = Message(text=text, metadata=metadata).__dict__
         self.baseplate.tell(message)

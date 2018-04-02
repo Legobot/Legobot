@@ -211,6 +211,8 @@ class DiscoBot(threading.Thread, object):
             metadata['source_channel'] = message['d']['channel_id']
         else:
             metadata['source_channel'] = None
+        metadata['user_id'] = metadata['source_user']
+        metadata['display_name'] = metadata['source_user']
         return metadata
 
     @staticmethod
