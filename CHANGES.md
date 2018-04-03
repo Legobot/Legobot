@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.1] 2018-04-03
+
+#### Fixed
+- Resolved issue where Legobot could not join registered channels at start time
+
+#### Added
+- Added `metadata['user_id']` and `metadata['display_name']` to each connector to handle protocols where user IDs and display names differ (talking about you, Slack and Discord!)
+
 ## [1.2.0] 2018-01-02
 
 Happy New Year, Legobot users!
