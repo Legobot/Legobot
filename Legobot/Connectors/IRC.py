@@ -123,6 +123,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         if self.nickserv:
             if Utilities.isNotEmpty(self.nickserv_pass):
                 self.identify(c, e, self.nickserv_pass)
+                time.sleep(3)  # Make sure Nickserv really sees us
             else:
                 logger.error('If nickserv is enabled, you must supply'
                              ' a password')
