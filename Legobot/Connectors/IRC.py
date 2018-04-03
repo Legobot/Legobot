@@ -119,13 +119,11 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         This function runs when the bot successfully connects to the IRC server
         """
-        for channel in self.my_channels:
-            logger.debug('Attempting to join {0!s}'.format(channel))
-            c.join(channel)
 
         if self.nickserv:
             if Utilities.isNotEmpty(self.nickserv_pass):
                 self.identify(c, e, self.nickserv_pass)
+                time.sleep(3)  # Make sure Nickserv really sees us
             else:
                 logger.error('If nickserv is enabled, you must supply'
                              ' a password')
@@ -133,6 +131,10 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         if self.nickserv is False and self.nickserv_pass is not None:
             logger.warn('It appears you provided a nickserv password but '
                         'did not enable nickserv authentication')
+
+        for channel in self.my_channels:
+            logger.debug('Attempting to join {0!s}'.format(channel))
+            c.join(channel)
 
     def identify(self, c, e, password):
         c.privmsg('NickServ',
