@@ -48,6 +48,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
                  nickserv=False,
                  nickserv_pass=None,
                  rejoin_on_kick=True):
+                 auto_reconnect=True):
         irc.bot.SingleServerIRCBot.__init__(self,
                                             [(server, port)],
                                             nickname,
@@ -68,6 +69,9 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.nickserv_pass = nickserv_pass
         self.actor_urn = actor_urn
         self.rejoin_on_kick = rejoin_on_kick
+        self.auto_reconnect = auto_reconnect
+
+        self.backoff = 1
 
     def connect(self, *args, **kwargs):
         """
@@ -130,7 +134,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         This function runs when the bot successfully connects to the IRC server
         """
-
+        self.backoff = 1  # Assume we had a good connection and reset the backoff
         if self.nickserv:
             if Utilities.isNotEmpty(self.nickserv_pass):
                 self.identify(c, e, self.nickserv_pass)
@@ -152,6 +156,14 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
             time.sleep(2)
             c.join(e.target)
         return
+
+    def on_disconnect(self, c, e):
+        if self.auto_reconnect == True:
+            time.sleep(2 ** self.backoff)
+            try:
+                self._connect()
+            except:
+                self.backoff += 1
 
     def identify(self, c, e, password):
         c.privmsg('NickServ',
