@@ -47,7 +47,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
                  ircname=None,
                  nickserv=False,
                  nickserv_pass=None,
-                 rejoin_on_kick=True):
+                 rejoin_on_kick=True,
                  auto_reconnect=True):
         irc.bot.SingleServerIRCBot.__init__(self,
                                             [(server, port)],
