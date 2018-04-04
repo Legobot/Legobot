@@ -34,10 +34,20 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
     """
     Create bot instance
     """
-    def __init__(self, baseplate, channels, nickname, server, actor_urn,
-                 port=6667, use_ssl=False, password=None,
-                 username=None, ircname=None, nickserv=False,
-                 nickserv_pass=None):
+    def __init__(self,
+                 baseplate,
+                 channels,
+                 nickname,
+                 server,
+                 actor_urn,
+                 port=6667,
+                 use_ssl=False,
+                 password=None,
+                 username=None,
+                 ircname=None,
+                 nickserv=False,
+                 nickserv_pass=None,
+                 rejoin_on_kick=True):
         irc.bot.SingleServerIRCBot.__init__(self,
                                             [(server, port)],
                                             nickname,
@@ -57,6 +67,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.nickserv = nickserv
         self.nickserv_pass = nickserv_pass
         self.actor_urn = actor_urn
+        self.rejoin_on_kick = rejoin_on_kick
 
     def connect(self, *args, **kwargs):
         """
@@ -135,6 +146,12 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         for channel in self.my_channels:
             logger.debug('Attempting to join {0!s}'.format(channel))
             c.join(channel)
+
+    def on_kick(self, c, e):
+        if self.rejoin_on_kick is True:
+            time.sleep(2)
+            c.join(e.target)
+        return
 
     def identify(self, c, e, password):
         c.privmsg('NickServ',
