@@ -40,7 +40,8 @@ class RtmBot(threading.Thread, object):
         slack_client: initialized RTM client
     """
 
-    def __init__(self, baseplate, token, actor_urn, *args, **kwargs):
+    def __init__(self, baseplate, token, actor_urn, reconnect=True,
+                 *args, **kwargs):
         """Initializes RtmBot
 
         Args:
@@ -58,13 +59,16 @@ class RtmBot(threading.Thread, object):
         self.token = token
         self.last_ping = 0
         self.actor_urn = actor_urn
+        self.reconnect = reconnect
+        self.auto_reconnect = True
         # 'event':'method'
         self.supported_events = {'message': self.on_message}
         self.slack_client = SlackClient(self.token)
         threading.Thread.__init__(self)
 
     def connect(self):
-        self.slack_client.rtm_connect()
+        self.slack_client.rtm_connect(reconnect=self.reconnect,
+                                      auto_reconnect=self.auto_reconnect)
 
     def on_message(self, event):
         '''Runs when a message event is received
