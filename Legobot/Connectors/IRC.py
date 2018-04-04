@@ -134,7 +134,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         """
         This function runs when the bot successfully connects to the IRC server
         """
-        self.backoff = 1  # Assume we had a good connection and reset the backoff
+        self.backoff = 1  # Assume we had a good connection. Reset backoff.
         if self.nickserv:
             if Utilities.isNotEmpty(self.nickserv_pass):
                 self.identify(c, e, self.nickserv_pass)
@@ -158,7 +158,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         return
 
     def on_disconnect(self, c, e):
-        if self.auto_reconnect == True:
+        if self.auto_reconnect is True:
             time.sleep(2 ** self.backoff)
             try:
                 self._connect()
