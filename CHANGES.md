@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.2] 2018-04-06
+#### Added
+ - Rejoins IRC channels on kick (#190)
+   - Toggled by passing the `rejoin_on_kick` arg as a bool to the IRC connector
+ - Automatically attempts to reconnect to IRC after losing connection to server (#191)
+   - Toggled by passing the `auto_reconnect` arg as a bool to the IRC connector
+ - Implement Slack client's autoconnect and reconnect settings (#192)
+   - Toggled by passing the `auto_reconnect` arg as a bool to the Slack connector
+
 ## [1.2.1] 2018-04-03
 
 #### Fixed
