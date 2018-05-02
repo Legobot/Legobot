@@ -181,6 +181,8 @@ class RtmBot(threading.Thread, object):
             else:
                 metadata['is_private_message'] = False
 
+        metadata['source_connector'] = 'slack'
+
         return metadata
 
     def keepalive(self):
