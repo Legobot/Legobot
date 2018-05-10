@@ -172,7 +172,8 @@ class RtmBot(threading.Thread, object):
 
         if 'source_user' in metadata:
             metadata['user_id'] = metadata['source_user']
-            metadata['display_name'] = self.get_username(metadata['source_user'])
+            metadata['display_name'] = self.get_username(
+                                        metadata['source_user'])
 
         if 'channel' in message:
             metadata['source_channel'] = message['channel']
