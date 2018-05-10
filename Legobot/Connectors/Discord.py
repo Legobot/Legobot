@@ -213,6 +213,9 @@ class DiscoBot(threading.Thread, object):
             metadata['source_channel'] = None
         metadata['user_id'] = metadata['source_user']
         metadata['display_name'] = metadata['source_user']
+
+        metadata['source_connector'] = 'discord'
+
         return metadata
 
     @staticmethod
