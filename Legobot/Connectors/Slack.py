@@ -169,11 +169,13 @@ class RtmBot(threading.Thread, object):
             metadata['source_user'] = message['user']
         elif 'bot_id' in message:
             metadata['source_user'] = message['bot_id']
+        elif 'message' in message and 'user' in message['message']:
+            metadata['source_user'] = message['message']['user']
+        else:
+            metadata['source_user'] = None
 
-        if 'source_user' in metadata:
-            metadata['user_id'] = metadata['source_user']
-            metadata['display_name'] = self.get_username(
-                                        metadata['source_user'])
+        metadata['user_id'] = metadata['source_user']
+        metadata['display_name'] = self.get_username(metadata['source_user'])
 
         if 'channel' in message:
             metadata['source_channel'] = message['channel']
