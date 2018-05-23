@@ -138,6 +138,20 @@ class RtmBot(threading.Thread, object):
             if member['id'] == userid:
                 return member['name']
 
+    def get_userid_from_botid(self, botid):
+        '''Perform a lookup of bots.info to resolve a botid to a userid
+
+        Args:
+            botid (string): Slack botid to lookup.
+        Returns:
+            string: userid value
+        '''
+        botinfo = self.slack_client.api_call('bots.info', bot=botid)
+        if botinfo['ok'] is True:
+            return botinfo['bot']['user_id']
+        else:
+            return botid
+
     def _parse_metadata(self, message):
         '''Parse incoming messages to build metadata dict
         Lots of 'if' statements. It sucks, I know.
@@ -168,7 +182,12 @@ class RtmBot(threading.Thread, object):
         if 'user' in message:
             metadata['source_user'] = message['user']
         elif 'bot_id' in message:
-            metadata['source_user'] = message['bot_id']
+            metadata['source_user'] = self.get_userid_from_botid(
+                                      message['bot_id'])
+        elif 'message' in message and 'user' in message['message']:
+            metadata['source_user'] = message['message']['user']
+        else:
+            metadata['source_user'] = None
 
         metadata['user_id'] = metadata['source_user']
         metadata['display_name'] = self.get_username(metadata['source_user'])
