@@ -3,12 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.2.3] 2018-05-10
+## [1.2.3] 2018-05-23
 #### Added
  - Includes the `source_connector` in the metadata for Slack and Discord. IRC was already doing this.
  
 #### Fixed
  - Fixed bug #194 which surfaced after adding `username` and `display_name` to the metadata. Slack messages with no `source_user` will now be ignored for this functionality.
+ - Bot users were not having userids/display names properly resolved in Slack. Added function to fix this.
 
 ## [1.2.2] 2018-04-06
 #### Added
