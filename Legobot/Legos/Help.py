@@ -49,7 +49,14 @@ class Help(Lego):
             for lego in legos:
                 lego_proxy = lego.proxy()
                 if lego_proxy.get_name().get() == function:
-                    help_str = lego_proxy.get_help().get()
+                    try:
+                        subcommand = message['text'].split()[2]
+                        try:
+                            help_str = lego_proxy.get_help(sub=subcommand).get()
+                        except TypeError:
+                            help_str = function + ' does not have any further help regarding ' + subcommand
+                    except IndexError:
+                        help_str = lego_proxy.get_help().get()
 
         opts = {'target': target}
 
