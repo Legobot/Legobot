@@ -102,7 +102,7 @@ For a deeper dive into how Legobot works, see our [documentation](docs/intro.md)
 
 ### Contributing
 
-We hang out and do our dev chat on the [0x00sec IRC](https://irc.0x00sec.org/) in `#legobot`. Drop by and say hey!
+We hang out and do our dev chat on the [0x00sec IRC](https://webchat.0x00sec.org/) in `#legobot`. Drop by and say hey!
 
 #### Branches and Releases
 
