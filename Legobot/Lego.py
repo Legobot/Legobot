@@ -148,6 +148,24 @@ class Lego(ThreadingActor):
         else:
             raise("Tried to send message to nonexistent actor")
 
+    def build_reply_opts(self, message):
+        """
+        Convenience method for constructing default options for a
+        reply message.
+
+        :param message: the message to reply to
+        :return: opts
+        """
+        try:
+            source = message['metadata']['source_channel']
+            opts = {'target': source}
+        except IndexError:
+            source = None
+            opts = None
+            logger.error("Could not identify source from  message:{}\n"
+                         .format(str(message)))
+        return opts
+
     def get_name(self):
         """
         Return the name the Lego recognizes from the help function.
