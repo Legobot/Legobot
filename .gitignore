@@ -16,3 +16,5 @@ Legos/
 Source/
 Test/.cache/
 __pycache__/
+.cache/
+.DS_Store
