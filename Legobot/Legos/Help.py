@@ -50,11 +50,13 @@ class Help(Lego):
                 lego_proxy = lego.proxy()
                 if lego_proxy.get_name().get() == function:
                     try:
-                        subcommand = message['text'].split()[2]
+                        sub = message['text'].split()[2]
                         try:
-                            help_str = lego_proxy.get_help(sub=subcommand).get()
-                        except TypeError:
-                            help_str = function + ' does not have any further help regarding ' + subcommand
+                            help_str = lego_proxy.get_help(sub=sub).get()
+                        except (TypeError, KeyError):
+                            help_str = (function + 
+                                ' does not have any further help regarding ' +
+                                sub)
                     except IndexError:
                         help_str = lego_proxy.get_help().get()
 
