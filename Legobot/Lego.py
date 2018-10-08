@@ -159,7 +159,7 @@ class Lego(ThreadingActor):
         try:
             source = message['metadata']['source_channel']
             opts = {'target': source}
-        except IndexError:
+        except LookupError:
             source = None
             opts = None
             logger.error("Could not identify source from  message:{}\n"
