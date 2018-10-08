@@ -54,9 +54,9 @@ class Help(Lego):
                         try:
                             help_str = lego_proxy.get_help(sub=sub).get()
                         except (TypeError, KeyError):
-                            help_str = (function + 
-                                ' does not have any further help regarding ' +
-                                sub)
+                            help_str = (function +
+                                        ' has no information on ' +
+                                        sub)
                     except IndexError:
                         help_str = lego_proxy.get_help().get()
 
