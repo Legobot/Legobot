@@ -336,6 +336,16 @@ class Slack(Lego):
         logger.debug(message)
         if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
+            pattern = re.compile('@([a-zA-Z0-9._-]+)')
+            matches = re.findall(pattern, message['text'])
+            matches = set(matches)
+            for match in matches:
+                if not match.startswith('@'):
+                    match = '@' + match
+                message['text'] = message['text'].replace(match,
+                                                          '<{}>'.format(match))
+
+            logger.debug('MESSAGE TEXT: {}'.format(message['text']))
             if target.startswith('U'):
                 target = self.botThread.get_dm_channel(target)
             self.botThread.slack_client.rtm_send_message(target,
