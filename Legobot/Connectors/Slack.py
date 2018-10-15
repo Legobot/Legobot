@@ -11,6 +11,7 @@ Module lovingly built with inspiration from slackhq's RtmBot
 '''
 
 import logging
+import re
 import sys
 import threading
 import time
@@ -82,6 +83,8 @@ class RtmBot(threading.Thread, object):
         metadata = self._parse_metadata(event)
         message = Message(text=metadata['text'],
                           metadata=metadata).__dict__
+        if message.get('text'):
+            message['text'] = self.find_and_replace_userids(message['text'])
         return message
 
     def run(self):
@@ -102,14 +105,59 @@ class RtmBot(threading.Thread, object):
             time.sleep(0.1)
         return
 
+    def find_and_replace_userids(self, text):
+        '''Finds occurrences of Slack userids and attempts to replace them wtih
+           display names.
+
+        Args:
+            text (string): The message text
+        Returns:
+            string: The message text with userids replaced.
+        '''
+
+        match = True
+        pattern = re.compile('<@([A-Z0-9]+)>')
+        while match:
+            match = pattern.search(text)
+            if match:
+                name = self.get_user_display_name(match.group(1))
+                text = re.sub(re.compile(match.group(0)), '@' + name, text)
+
+        return text
+
     def get_users(self):
         '''Grabs all users in the slack team
+
+        This should should only be used for getting list of all users. Do not
+        use it for searching users. Use get_user_info instead.
+
+
 
         Returns:
             dict: Dict of users in Slack team.
                 See also: https://api.slack.com/methods/users.list
         '''
+
         return self.slack_client.api_call('users.list')
+
+    def get_user_display_name(self, userid):
+        '''Given a Slack userid, grabs user display_name from api.
+
+        Args:
+            userid (string): the user id of the user being queried
+        Returns:
+            dict: a dictionary of the api response
+        '''
+
+        user_info = self.slack_client.api_call('users.info', user=userid)
+        if user_info.get('ok'):
+            user = user_info.get('user')
+            if user.get('profile'):
+                return user.get('profile').get('display_name')
+            else:
+                return user.get('name')
+        else:
+            return userid
 
     def get_dm_channel(self, userid):
         '''Perform a lookup of users to resolve a userid to a DM channel
