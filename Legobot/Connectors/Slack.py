@@ -345,6 +345,9 @@ class Slack(Lego):
                 message['text'] = message['text'].replace(match,
                                                           '<{}>'.format(match))
 
+            if message['text'].find('<<@') != -1:
+                mesage['text'] = message['text'].replace('<<', '<')
+                mesage['text'] = message['text'].replace('>>', '>')
             logger.debug('MESSAGE TEXT: {}'.format(message['text']))
             if target.startswith('U'):
                 target = self.botThread.get_dm_channel(target)
