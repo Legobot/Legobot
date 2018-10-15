@@ -124,21 +124,49 @@ class RtmBot(threading.Thread, object):
                 text = re.sub(re.compile(match.group(0)), '@' + name, text)
 
         return text
+    
+    def get_user_id_by_name(self, name):
+        users = self.get_users(condensed=True)
+        if not users:
+            return name
 
-    def get_users(self):
+        if name.startswith('@'):
+            name = name[1:]
+
+        users_transform = {}
+        for user in users:
+            users_transform[user.get('name')] = user.get('id')
+            users_transform[user.get('display_name')] = user.get('id')
+
+        if name in users_transform.keys():
+            return users_transform[name]
+        else:
+            return name       
+
+    def get_users(self, condensed=False):
         '''Grabs all users in the slack team
 
         This should should only be used for getting list of all users. Do not
         use it for searching users. Use get_user_info instead.
 
-
+        Args:
+            condensed (bool): if true triggers list condensing functionality
 
         Returns:
             dict: Dict of users in Slack team.
                 See also: https://api.slack.com/methods/users.list
         '''
 
-        return self.slack_client.api_call('users.list')
+        user_list = self.slack_client.api_call('users.list')
+        if not user_list.get('ok'):
+            return None
+        if condensed:
+            users = [{'id': item.get('id'), 'name': item.get('name'),
+                     'display_name': item.get('profile').get('display_name')}
+                     for item in user_list.get('members')]
+            return users
+        else:
+            return user_list
 
     def get_user_display_name(self, userid):
         '''Given a Slack userid, grabs user display_name from api.
