@@ -85,6 +85,9 @@ class RtmBot(threading.Thread, object):
                           metadata=metadata).__dict__
         if message.get('text'):
             message['text'] = self.find_and_replace_userids(message['text'])
+            message['text'] = self.find_and_replace_channel_refs(
+                message['text']
+            )
         return message
 
     def run(self):
@@ -106,7 +109,7 @@ class RtmBot(threading.Thread, object):
         return
 
     def find_and_replace_userids(self, text):
-        '''Finds occurrences of Slack userids and attempts to replace them wtih
+        '''Finds occurrences of Slack userids and attempts to replace them with
            display names.
 
         Args:
@@ -122,6 +125,25 @@ class RtmBot(threading.Thread, object):
             if match:
                 name = self.get_user_display_name(match.group(1))
                 text = re.sub(re.compile(match.group(0)), '@' + name, text)
+
+        return text
+
+    def find_and_replace_channel_refs(self, text):
+        '''Find occurrences of Slack channel referenfces and attempts to
+           replace them with just channel names.
+
+        Args:
+            text (string): The message text
+        Returns:
+            string: The message text with channel references replaced.
+        '''
+
+        match = True
+        pattern = re.compile('<#([A-Z0-9]+)\|([A-Za-z0-9-]+)>')
+        while match:
+            match = pattern.search(text)
+            if match:
+                text = text.replace(match.group(0), '#' + match.group(2))
 
         return text
 
