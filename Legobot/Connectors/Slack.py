@@ -147,6 +147,18 @@ class RtmBot(threading.Thread, object):
 
         return text
 
+    def get_channel_id_by_name(self, name):
+        channels = self.get_channels(condensed=True)
+        if not channels:
+            return name
+
+        if name.startswith('#'):
+            name = name[1:]
+
+        channels_transform = {channel.get('name'): channel.get('id')
+                              for channel in channels}
+        return channels_transform.get(name)
+
     def get_user_id_by_name(self, name):
         users = self.get_users(condensed=True)
         if not users:
@@ -164,6 +176,28 @@ class RtmBot(threading.Thread, object):
             return users_transform[name]
         else:
             return name
+
+    def get_channels(self, condensed=False):
+        '''Grabs all channels in the slack team
+
+        Args:
+            condensed (bool): if true triggers list condensing functionality
+
+        Returns:
+            dic: Dict of channels in Slack team.
+                See also: https://api.slack.com/methods/channels.list
+        '''
+
+        channel_list = self.slack_client.api_call('channels.list')
+        if not channel_list.get('ok'):
+            return None
+
+        if condensed:
+            channels = [{'id': item.get('id'), 'name': item.get('name')}
+                        for item in channel_list.get('channels')]
+            return channels
+        else:
+            return channel_list
 
     def get_users(self, condensed=False):
         '''Grabs all users in the slack team
@@ -246,7 +280,7 @@ class RtmBot(threading.Thread, object):
         '''
         botinfo = self.slack_client.api_call('bots.info', bot=botid)
         if botinfo['ok'] is True:
-            return botinfo['bot']['user_id']
+            return botinfo['bot'].get('user_id')
         else:
             return botid
 
@@ -364,13 +398,30 @@ class Slack(Lego):
             for match in matches:
                 if not match.startswith('@'):
                     match = '@' + match
-                message['text'] = message['text'].replace(match,
-                                                          '<{}>'.format(match))
+                message['text'] = message['text'].replace(
+                    match,
+                    '<{}>'.format(match)
+                )
 
-            if message['text'].find('<<@') != -1:
+            pattern = re.compile('#([A-Za-z0-9-]+)')
+            matches = re.findall(pattern, message['text'])
+            matches = set(matches)
+            for match in matches:
+                channel_id = self.botThread.get_channel_id_by_name(match)
+                if channel_id:
+                    message['text'] = message['text'].replace(
+                        '#' + match,
+                        '<#{}|{}>'.format(
+                            channel_id,
+                            match
+                        )
+                    )
+
+            if (message['text'].find('<<@') != -1
+                    or message['text'].find('<<#') != -1):
                 message['text'] = message['text'].replace('<<', '<')
                 message['text'] = message['text'].replace('>>', '>')
-            logger.debug('MESSAGE TEXT: {}'.format(message['text']))
+
             if target.startswith('U'):
                 target = self.botThread.get_dm_channel(target)
             self.botThread.slack_client.rtm_send_message(target,
