@@ -124,7 +124,7 @@ class RtmBot(threading.Thread, object):
                 text = re.sub(re.compile(match.group(0)), '@' + name, text)
 
         return text
-    
+
     def get_user_id_by_name(self, name):
         users = self.get_users(condensed=True)
         if not users:
@@ -141,7 +141,7 @@ class RtmBot(threading.Thread, object):
         if name in users_transform.keys():
             return users_transform[name]
         else:
-            return name       
+            return name
 
     def get_users(self, condensed=False):
         '''Grabs all users in the slack team
@@ -346,8 +346,8 @@ class Slack(Lego):
                                                           '<{}>'.format(match))
 
             if message['text'].find('<<@') != -1:
-                mesage['text'] = message['text'].replace('<<', '<')
-                mesage['text'] = message['text'].replace('>>', '>')
+                message['text'] = message['text'].replace('<<', '<')
+                message['text'] = message['text'].replace('>>', '>')
             logger.debug('MESSAGE TEXT: {}'.format(message['text']))
             if target.startswith('U'):
                 target = self.botThread.get_dm_channel(target)
