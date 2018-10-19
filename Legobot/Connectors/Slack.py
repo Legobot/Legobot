@@ -80,6 +80,12 @@ class RtmBot(threading.Thread, object):
         Returns:
             Legobot.messge
         '''
+        #if event.get('files'):
+        #    del event['files']
+
+        #if event.get('attachments'):
+        #    del event['attachments']
+
         metadata = self._parse_metadata(event)
         message = Message(text=metadata['text'],
                           metadata=metadata).__dict__
@@ -266,9 +272,16 @@ class RtmBot(threading.Thread, object):
             string: Human-friendly name of the user
         '''
 
-        for member in self.get_users()['members']:
-            if member['id'] == userid:
-                return member['name']
+        username = userid
+        users = self.get_users()
+        if users:
+            members = users.get('members')
+            if members:
+                for member in members:
+                    if member.get('id') == userid:
+                        username = member.get('name')
+
+        return username
 
     def get_userid_from_botid(self, botid):
         '''Perform a lookup of bots.info to resolve a botid to a userid
