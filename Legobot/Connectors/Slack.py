@@ -80,11 +80,6 @@ class RtmBot(threading.Thread, object):
         Returns:
             Legobot.messge
         '''
-        #if event.get('files'):
-        #    del event['files']
-
-        #if event.get('attachments'):
-        #    del event['attachments']
 
         metadata = self._parse_metadata(event)
         message = Message(text=metadata['text'],
