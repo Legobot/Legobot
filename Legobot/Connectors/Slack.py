@@ -400,10 +400,17 @@ class Slack(Lego):
         logger.debug(message)
         if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
-            pattern = re.compile('@([a-zA-Z0-9._-]+)')
+            # pattern = re.compile('@([a-zA-Z0-9._-]+)')
+            pattern = re.compile('^@([a-zA-Z0-9._-]+)|\s@([a-zA-Z0-9._-]+)')
             matches = re.findall(pattern, message['text'])
             matches = set(matches)
+            logger.debug('MATCHES!!!!   {}'.format(matches))
             for match in matches:
+                if isinstance(match, tuple):
+                    if match[0] != '':
+                        match = match[0]
+                    else:
+                        match = match[1]
                 if not match.startswith('@'):
                     match = '@' + match
                 message['text'] = message['text'].replace(
