@@ -11,6 +11,7 @@ Module lovingly built with inspiration from slackhq's RtmBot
 '''
 
 import logging
+import re
 import sys
 import threading
 import time
@@ -79,9 +80,15 @@ class RtmBot(threading.Thread, object):
         Returns:
             Legobot.messge
         '''
+
         metadata = self._parse_metadata(event)
         message = Message(text=metadata['text'],
                           metadata=metadata).__dict__
+        if message.get('text'):
+            message['text'] = self.find_and_replace_userids(message['text'])
+            message['text'] = self.find_and_replace_channel_refs(
+                message['text']
+            )
         return message
 
     def run(self):
@@ -102,14 +109,140 @@ class RtmBot(threading.Thread, object):
             time.sleep(0.1)
         return
 
-    def get_users(self):
+    def find_and_replace_userids(self, text):
+        '''Finds occurrences of Slack userids and attempts to replace them with
+           display names.
+
+        Args:
+            text (string): The message text
+        Returns:
+            string: The message text with userids replaced.
+        '''
+
+        match = True
+        pattern = re.compile('<@([A-Z0-9]{9})>')
+        while match:
+            match = pattern.search(text)
+            if match:
+                name = self.get_user_display_name(match.group(1))
+                text = re.sub(re.compile(match.group(0)), '@' + name, text)
+
+        return text
+
+    def find_and_replace_channel_refs(self, text):
+        '''Find occurrences of Slack channel referenfces and attempts to
+           replace them with just channel names.
+
+        Args:
+            text (string): The message text
+        Returns:
+            string: The message text with channel references replaced.
+        '''
+
+        match = True
+        pattern = re.compile('<#([A-Z0-9]{9})\|([A-Za-z0-9-]+)>')
+        while match:
+            match = pattern.search(text)
+            if match:
+                text = text.replace(match.group(0), '#' + match.group(2))
+
+        return text
+
+    def get_channel_id_by_name(self, name):
+        channels = self.get_channels(condensed=True)
+        if not channels:
+            return name
+
+        if name.startswith('#'):
+            name = name[1:]
+
+        channels_transform = {channel.get('name'): channel.get('id')
+                              for channel in channels}
+        return channels_transform.get(name)
+
+    def get_user_id_by_name(self, name):
+        users = self.get_users(condensed=True)
+        if not users:
+            return name
+
+        if name.startswith('@'):
+            name = name[1:]
+
+        users_transform = {}
+        for user in users:
+            users_transform[user.get('name')] = user.get('id')
+            users_transform[user.get('display_name')] = user.get('id')
+
+        if name in users_transform.keys():
+            return users_transform[name]
+        else:
+            return name
+
+    def get_channels(self, condensed=False):
+        '''Grabs all channels in the slack team
+
+        Args:
+            condensed (bool): if true triggers list condensing functionality
+
+        Returns:
+            dic: Dict of channels in Slack team.
+                See also: https://api.slack.com/methods/channels.list
+        '''
+
+        channel_list = self.slack_client.api_call('channels.list')
+        if not channel_list.get('ok'):
+            return None
+
+        if condensed:
+            channels = [{'id': item.get('id'), 'name': item.get('name')}
+                        for item in channel_list.get('channels')]
+            return channels
+        else:
+            return channel_list
+
+    def get_users(self, condensed=False):
         '''Grabs all users in the slack team
+
+        This should should only be used for getting list of all users. Do not
+        use it for searching users. Use get_user_info instead.
+
+        Args:
+            condensed (bool): if true triggers list condensing functionality
 
         Returns:
             dict: Dict of users in Slack team.
                 See also: https://api.slack.com/methods/users.list
         '''
-        return self.slack_client.api_call('users.list')
+
+        user_list = self.slack_client.api_call('users.list')
+        if not user_list.get('ok'):
+            return None
+        if condensed:
+            users = [{'id': item.get('id'), 'name': item.get('name'),
+                     'display_name': item.get('profile').get('display_name')}
+                     for item in user_list.get('members')]
+            return users
+        else:
+            return user_list
+
+    def get_user_display_name(self, userid):
+        '''Given a Slack userid, grabs user display_name from api.
+
+        Args:
+            userid (string): the user id of the user being queried
+        Returns:
+            dict: a dictionary of the api response
+        '''
+
+        user_info = self.slack_client.api_call('users.info', user=userid)
+        if user_info.get('ok'):
+            user = user_info.get('user')
+            if user.get('profile'):
+                return user.get('profile').get('display_name')
+            else:
+                return user.get('name')
+        else:
+            return userid
 
     def get_dm_channel(self, userid):
         '''Perform a lookup of users to resolve a userid to a DM channel
@@ -134,9 +267,16 @@ class RtmBot(threading.Thread, object):
             string: Human-friendly name of the user
         '''
 
-        for member in self.get_users()['members']:
-            if member['id'] == userid:
-                return member['name']
+        username = userid
+        users = self.get_users()
+        if users:
+            members = users.get('members')
+            if members:
+                for member in members:
+                    if member.get('id') == userid:
+                        username = member.get('name')
+
+        return username
 
     def get_userid_from_botid(self, botid):
         '''Perform a lookup of bots.info to resolve a botid to a userid
@@ -148,7 +288,7 @@ class RtmBot(threading.Thread, object):
         '''
         botinfo = self.slack_client.api_call('bots.info', bot=botid)
         if botinfo['ok'] is True:
-            return botinfo['bot']['user_id']
+            return botinfo['bot'].get('user_id')
         else:
             return botid
 
@@ -260,6 +400,43 @@ class Slack(Lego):
         logger.debug(message)
         if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
+            # pattern = re.compile('@([a-zA-Z0-9._-]+)')
+            pattern = re.compile('^@([a-zA-Z0-9._-]+)|\s@([a-zA-Z0-9._-]+)')
+            matches = re.findall(pattern, message['text'])
+            matches = set(matches)
+            logger.debug('MATCHES!!!!   {}'.format(matches))
+            for match in matches:
+                if isinstance(match, tuple):
+                    if match[0] != '':
+                        match = match[0]
+                    else:
+                        match = match[1]
+                if not match.startswith('@'):
+                    match = '@' + match
+                message['text'] = message['text'].replace(
+                    match,
+                    '<{}>'.format(match)
+                )
+
+            pattern = re.compile('#([A-Za-z0-9-]+)')
+            matches = re.findall(pattern, message['text'])
+            matches = set(matches)
+            for match in matches:
+                channel_id = self.botThread.get_channel_id_by_name(match)
+                if channel_id:
+                    message['text'] = message['text'].replace(
+                        '#' + match,
+                        '<#{}|{}>'.format(
+                            channel_id,
+                            match
+                        )
+                    )
+
+            if (message['text'].find('<<@') != -1
+                    or message['text'].find('<<#') != -1):
+                message['text'] = message['text'].replace('<<', '<')
+                message['text'] = message['text'].replace('>>', '>')
+
             if target.startswith('U'):
                 target = self.botThread.get_dm_channel(target)
             self.botThread.slack_client.rtm_send_message(target,
