@@ -120,7 +120,7 @@ class RtmBot(threading.Thread, object):
         '''
 
         match = True
-        pattern = re.compile('<@([A-Z0-9]+)>')
+        pattern = re.compile('<@([A-Z0-9]{9})>')
         while match:
             match = pattern.search(text)
             if match:
@@ -140,7 +140,7 @@ class RtmBot(threading.Thread, object):
         '''
 
         match = True
-        pattern = re.compile('<#([A-Z0-9]+)\|([A-Za-z0-9-]+)>')
+        pattern = re.compile('<#([A-Z0-9]{9})\|([A-Za-z0-9-]+)>')
         while match:
             match = pattern.search(text)
             if match:
