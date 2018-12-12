@@ -29,8 +29,11 @@ _in planned order for support_
 - [x] IRC
 - [x] Slack
 - [x] Discord (beta)
+- [ ] Microsoft Teams
+- [ ] Mattermost
 - [ ] XMPP
 - [ ] Telegram
+- [ ] Websocket/JSON
 - [ ] FB Messenger
 - [ ] Cisco Spark
 
@@ -99,6 +102,18 @@ For a deeper dive into how Legobot works, see our [documentation](docs/intro.md)
 
 ### Contributing
 
-We hang out and do our dev chat on the [0x00sec IRC](http://irc.0x00sec.org/) in `#legobot`. Drop by and say hey!
+We hang out and do our dev chat on the [0x00sec IRC](https://webchat.0x00sec.org/) in `#legobot`. Drop by and say hey!
 
-TO DO: Expand contributing docs
+#### Branches and Releases
+
+If the repo has a Develop branch or specific feature branch, submit PRs against that. Otherwise you may submit them against Master. Maintainers will approve, modify, request changes, etc. as needed and will update the config to push new releases when appropriate.
+
+#### Builds
+
+We use Travis to automatically test builds (and deploy when appropriate.) Your build checks must pass for your contribution to be accepted. We use flake8/pep8 for syntax and formatting, and bandit for security and formatting. 
+
+Install with: `pip install bandit flake8 pep8-naming`
+
+Run with
+- `bandit -r .`
+- `flake8 .`

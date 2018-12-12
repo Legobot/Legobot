@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.4]
+#### Added
+- get opts convenience method
+- expanded get_help to allow help for sub commands / sub topics
+
+#### Updated
+- Contributing section of docs
+
 ## [1.2.3] 2018-05-23
 #### Added
  - Includes the `source_connector` in the metadata for Slack and Discord. IRC was already doing this.
