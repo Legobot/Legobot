@@ -148,6 +148,26 @@ class Lego(ThreadingActor):
         else:
             raise("Tried to send message to nonexistent actor")
 
+    def reply_attachment(self, message, text, attachment, opts=None):
+        """
+        Convenience method for formatting reply as attachment (if available)
+        and passing it on to the reply method. Individual connectors can then
+        deal with the attachment or simply pass it on as a regular message
+
+        :param message: the message to reply to
+        :param text: the text to reply with
+        :param attachment: the attachment link
+        :param opts: A dictionary of additional values to add to metadata
+        :return: None
+        """
+        if not opts:
+            opts = {}
+
+        opts['attachment'] = attachment
+        opts['fallback'] = text
+        text += '\n {}'.format(attachment)
+        self.reply(message, text, opts)
+
     def build_reply_opts(self, message):
         """
         Convenience method for constructing default options for a
