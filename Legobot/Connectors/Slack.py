@@ -389,6 +389,29 @@ class Slack(Lego):
 
         return str(self.botThread) != str(message['metadata']['source'])
 
+    def build_attachment(self, text, target):
+        '''Builds a slack attachment.
+
+        Args:
+            message (Legobot.Message): message w/ metadata to send.
+
+        Returns:
+            attachment (dict): attachment data.
+        '''
+
+        attachment = {
+            'as_user': True,
+            'text': text,
+            'channel': target,
+            'attachments': [
+                {
+                    'fallback': text,
+                    'image_url': 'https://files.slack.com/files-pri/T0H0EGV8F-F7YFCDRHC/moin.jpg'
+                }
+            ]
+        }
+        return attachment
+
     def handle(self, message):
         '''Attempts to send a message to the specified destination in Slack.
         Extends Legobot.Lego.handle()
