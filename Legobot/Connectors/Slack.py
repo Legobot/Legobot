@@ -257,6 +257,9 @@ class RtmBot(threading.Thread, object):
         dm_open = self.slack_client.api_call('im.open', user=userid)
         return dm_open['channel']['id']
 
+    def post_attachment(self, attachment):
+        self.slack_client.api_call('chat.postMessage', **attachment)
+
     def get_username(self, userid):
         '''Perform a lookup of users to resolve a userid to a username
 
@@ -389,7 +392,7 @@ class Slack(Lego):
 
         return str(self.botThread) != str(message['metadata']['source'])
 
-    def build_attachment(self, text, target):
+    def build_attachment(self, text, target, attachment):
         '''Builds a slack attachment.
 
         Args:
@@ -406,7 +409,7 @@ class Slack(Lego):
             'attachments': [
                 {
                     'fallback': text,
-                    'image_url': 'https://files.slack.com/files-pri/T0H0EGV8F-F7YFCDRHC/moin.jpg'
+                    'image_url': attachment
                 }
             ]
         }
@@ -462,8 +465,14 @@ class Slack(Lego):
 
             if target.startswith('U'):
                 target = self.botThread.get_dm_channel(target)
-            self.botThread.slack_client.rtm_send_message(target,
-                                                         message['text'])
+            attachment = message['metadata']['opts'].get('attachment')
+            if attachment:
+                text = message['metadata']['opts'].get('fallback')
+                attachment = self.build_attachment(text, target, attachment)
+                self.botThread.post_attachment(attachment)
+            else:
+                self.botThread.slack_client.rtm_send_message(target,
+                                                             message['text'])
 
     @staticmethod
     def get_name():
