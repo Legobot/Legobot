@@ -480,8 +480,8 @@ class Slack(Lego):
                 attachment = self.build_attachment(text, target, attachment)
                 self.botThread.post_attachment(attachment)
             else:
-                self.botThread.slack_client.rtm_send_message(target,
-                                                             message['text'])
+                self.botThread.slack_client.rtm_send_message(
+                    target, message['text'], thread=thread)
 
     @staticmethod
     def get_name():
