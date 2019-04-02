@@ -64,6 +64,7 @@ class RtmBot(threading.Thread, object):
         self.auto_reconnect = True
         # 'event':'method'
         self.supported_events = {'message': self.on_message}
+        self.user_map = {}
         self.slack_client = SlackClient(self.token)
         threading.Thread.__init__(self)
 
@@ -270,14 +271,20 @@ class RtmBot(threading.Thread, object):
             string: Human-friendly name of the user
         '''
 
-        username = userid
-        users = self.get_users()
-        if users:
-            members = users.get('members')
-            if members:
-                for member in members:
-                    if member.get('id') == userid:
-                        username = member.get('name')
+        username = self.user_map.get(userid)
+        if not username:
+            users = self.get_users()
+            if users:
+                members = {
+                    m['id']: m['name']
+                    for m in users.get('members', [{}])
+                    if m.get('id')
+                    and m.get('name')
+                }
+                if members:
+                    self.user_map.update(members)
+
+                username = self.user_map.get(userid, userid)
 
         return username
 
@@ -308,6 +315,7 @@ class RtmBot(threading.Thread, object):
 
         # Try to handle all the fields of events we care about.
         metadata = Metadata(source=self.actor_urn).__dict__
+        metadata['thread_ts'] = message.get('thread_ts')
         if 'presence' in message:
             metadata['presence'] = message['presence']
 
@@ -426,6 +434,7 @@ class Slack(Lego):
         logger.debug(message)
         if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
+            thread = message['metadata']['opts'].get('thread')
             # pattern = re.compile('@([a-zA-Z0-9._-]+)')
             pattern = re.compile('^@([a-zA-Z0-9._-]+)|\s@([a-zA-Z0-9._-]+)')
             matches = re.findall(pattern, message['text'])

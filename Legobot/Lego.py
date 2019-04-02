@@ -178,7 +178,8 @@ class Lego(ThreadingActor):
         """
         try:
             source = message['metadata']['source_channel']
-            opts = {'target': source}
+            thread = message['metadata'].get('thread_ts')
+            opts = {'target': source, 'thread': thread}
         except LookupError:
             source = None
             opts = None
