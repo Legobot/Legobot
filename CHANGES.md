@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Slack will now reply to threads instead of in the main channel, when a lego is invoked from a thread.
+- Updated requirements
+- Moved to cfg driven setup
 
 ### Fixed
 
