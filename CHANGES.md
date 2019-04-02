@@ -3,10 +3,22 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.5]
+#### Added
+- reply_attachment method
+  - Sends attachment data to the connector. Connectors must be updated to handle this. If reply_attachment is called and the connector isn't built to handle it, it will just pass through to reply method.
+  - build_attachment method in Slack connector
+
+#### Changed
+- Slack will now reply to threads instead of in the main channel, when a lego is invoked from a thread.
+
+#### Fixed
+- Slack connector now caches the user list to reduce calls to the Slack API. Repeated calls were causing rate limiting, resulting in exceptions.
+
 ## [1.2.4]
 #### Added
 - get opts convenience method
-- expanded get_help to allow help for sub commands / sub topics
+- Expanded get_help to allow help for sub commands / sub topics
 
 #### Updated
 - Contributing section of docs
