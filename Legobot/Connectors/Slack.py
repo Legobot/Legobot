@@ -258,6 +258,9 @@ class RtmBot(threading.Thread, object):
         dm_open = self.slack_client.api_call('im.open', user=userid)
         return dm_open['channel']['id']
 
+    def post_attachment(self, attachment):
+        self.slack_client.api_call('chat.postMessage', **attachment)
+
     def get_username(self, userid):
         '''Perform a lookup of users to resolve a userid to a username
 
@@ -397,6 +400,31 @@ class Slack(Lego):
 
         return str(self.botThread) != str(message['metadata']['source'])
 
+    def build_attachment(self, text, target, attachment, thread):
+        '''Builds a slack attachment.
+
+        Args:
+            message (Legobot.Message): message w/ metadata to send.
+
+        Returns:
+            attachment (dict): attachment data.
+        '''
+
+        attachment = {
+            'as_user': True,
+            'text': text,
+            'channel': target,
+            'attachments': [
+                {
+                    'fallback': text,
+                    'image_url': attachment
+                }
+            ]
+        }
+        if thread:
+            attachment['thread_ts'] = thread
+        return attachment
+
     def handle(self, message):
         '''Attempts to send a message to the specified destination in Slack.
         Extends Legobot.Lego.handle()
@@ -448,8 +476,15 @@ class Slack(Lego):
 
             if target.startswith('U'):
                 target = self.botThread.get_dm_channel(target)
-            self.botThread.slack_client.rtm_send_message(
-                target, message['text'], thread=thread)
+            attachment = message['metadata']['opts'].get('attachment')
+            if attachment:
+                text = message['metadata']['opts'].get('fallback')
+                attachment = self.build_attachment(
+                    text, target, attachment, thread)
+                self.botThread.post_attachment(attachment)
+            else:
+                self.botThread.slack_client.rtm_send_message(
+                    target, message['text'], thread=thread)
 
     @staticmethod
     def get_name():
