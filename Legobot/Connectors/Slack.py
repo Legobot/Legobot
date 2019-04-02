@@ -400,7 +400,7 @@ class Slack(Lego):
 
         return str(self.botThread) != str(message['metadata']['source'])
 
-    def build_attachment(self, text, target, attachment):
+    def build_attachment(self, text, target, attachment, thread):
         '''Builds a slack attachment.
 
         Args:
@@ -421,6 +421,8 @@ class Slack(Lego):
                 }
             ]
         }
+        if thread:
+            attachment['thread_ts'] = thread
         return attachment
 
     def handle(self, message):
@@ -477,7 +479,8 @@ class Slack(Lego):
             attachment = message['metadata']['opts'].get('attachment')
             if attachment:
                 text = message['metadata']['opts'].get('fallback')
-                attachment = self.build_attachment(text, target, attachment)
+                attachment = self.build_attachment(
+                    text, target, attachment, thread)
                 self.botThread.post_attachment(attachment)
             else:
                 self.botThread.slack_client.rtm_send_message(
