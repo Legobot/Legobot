@@ -305,6 +305,7 @@ class RtmBot(threading.Thread, object):
 
         # Try to handle all the fields of events we care about.
         metadata = Metadata(source=self.actor_urn).__dict__
+        metadata['thread_ts'] = message.get('thread_ts')
         if 'presence' in message:
             metadata['presence'] = message['presence']
 
@@ -400,6 +401,7 @@ class Slack(Lego):
         logger.debug(message)
         if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
+            thread = message['metadata']['opts'].get('thread')
             # pattern = re.compile('@([a-zA-Z0-9._-]+)')
             pattern = re.compile('^@([a-zA-Z0-9._-]+)|\s@([a-zA-Z0-9._-]+)')
             matches = re.findall(pattern, message['text'])
@@ -439,8 +441,8 @@ class Slack(Lego):
 
             if target.startswith('U'):
                 target = self.botThread.get_dm_channel(target)
-            self.botThread.slack_client.rtm_send_message(target,
-                                                         message['text'])
+            self.botThread.slack_client.rtm_send_message(
+                target, message['text'], thread=thread)
 
     @staticmethod
     def get_name():
