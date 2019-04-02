@@ -3,67 +3,86 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.2.5]
-#### Added
+## [1.2.5] 2019-04-02
+
+### Added
+
 - reply_attachment method
   - Sends attachment data to the connector. Connectors must be updated to handle this. If reply_attachment is called and the connector isn't built to handle it, it will just pass through to reply method.
   - build_attachment method in Slack connector
 
-#### Changed
+### Changed
+
 - Slack will now reply to threads instead of in the main channel, when a lego is invoked from a thread.
 
-#### Fixed
+### Fixed
+
 - Slack connector now caches the user list to reduce calls to the Slack API. Repeated calls were causing rate limiting, resulting in exceptions.
 
-## [1.2.4]
-#### Added
+## [1.2.4] 2018-12-12
+
+### Added
+
 - get opts convenience method
 - Expanded get_help to allow help for sub commands / sub topics
 
-#### Updated
+### Updated
+
 - Contributing section of docs
 
 ## [1.2.3] 2018-05-23
-#### Added
- - Includes the `source_connector` in the metadata for Slack and Discord. IRC was already doing this.
- 
-#### Fixed
- - Fixed bug #194 which surfaced after adding `username` and `display_name` to the metadata. Slack messages with no `source_user` will now be ignored for this functionality.
- - Bot users were not having userids/display names properly resolved in Slack. Added function to fix this.
+
+### Added
+
+- Includes the `source_connector` in the metadata for Slack and Discord. IRC was already doing this.
+
+### Fixed
+
+- Fixed bug #194 which surfaced after adding `username` and `display_name` to the metadata. Slack messages with no `source_user` will now be ignored for this functionality.
+- Bot users were not having userids/display names properly resolved in Slack. Added function to fix this.
 
 ## [1.2.2] 2018-04-06
-#### Added
- - Rejoins IRC channels on kick (#190)
-   - Toggled by passing the `rejoin_on_kick` arg as a bool to the IRC connector
- - Automatically attempts to reconnect to IRC after losing connection to server (#191)
-   - Toggled by passing the `auto_reconnect` arg as a bool to the IRC connector
- - Implement Slack client's autoconnect and reconnect settings (#192)
-   - Toggled by passing the `auto_reconnect` arg as a bool to the Slack connector
+
+### Added
+
+- Rejoins IRC channels on kick (#190)
+  - Toggled by passing the `rejoin_on_kick` arg as a bool to the IRC connector
+- Automatically attempts to reconnect to IRC after losing connection to server (#191)
+  - Toggled by passing the `auto_reconnect` arg as a bool to the IRC connector
+- Implement Slack client's autoconnect and reconnect settings (#192)
+  - Toggled by passing the `auto_reconnect` arg as a bool to the Slack connector
 
 ## [1.2.1] 2018-04-03
 
-#### Fixed
+### Fixed
+
 - Resolved issue where Legobot could not join registered channels at start time
 
-#### Added
+### Added
+
 - Added `metadata['user_id']` and `metadata['display_name']` to each connector to handle protocols where user IDs and display names differ (talking about you, Slack and Discord!)
 
 ## [1.2.0] 2018-01-02
 
 Happy New Year, Legobot users!
 
-#### Added
+### Added
+
 - Discord connector is live!
 
-#### Unfixed
+### Unfixed
+
 - I had to remove a lot of tests from travis :(
 
 ## [1.1.4] 2017-08-25
-#### Fixed
+
+### Fixed
+
 - Fixed Slack connector DMs. Slack api im.list didn't list all users. Switched to im.open. (#159)
 
 ## [1.1.3] 2017-08-21
-#### Fixed
+
+### Fixed
 
 - Fixed misleading error about NickServ when connecting to IRC (#154) (@Nitr4x)
 - Limited IRC messages to 256 chars. Long messages will be split and sent in chunks.
@@ -78,16 +97,19 @@ Happy New Year, Legobot users!
 - Slack connector now has methods to resolve a user-id to a username and a user-id to a DM channel id
 
 ## [1.1.2] 2017-02-08
+
 ### Fixed
 
 - Legobot will now respond with its actual name instead of `bot` in Slack
 
 ## [1.1.1] 2017-01-17
+
 ### Fixed
 
 - Missing package dep `slackclient` added
 
 ## [1.1.0] 2017-01-16
+
 ### Added
 
 - New Slack connector/backend
