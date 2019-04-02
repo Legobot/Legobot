@@ -21,12 +21,6 @@ class Help(Lego):
                 return False
 
     def handle(self, message):
-        logger.info(message)
-        try:
-            target = message['metadata']['source_channel']
-        except IndexError:
-            logger.error('Could not identify message source in message: {0!s}'
-                         .format(str(message)))
         try:
             function = message['text'].split()[1]
         except IndexError:
@@ -60,7 +54,7 @@ class Help(Lego):
                     except IndexError:
                         help_str = lego_proxy.get_help().get()
 
-        opts = {'target': target}
+        opts = self.build_reply_opts(message)
 
         self.reply(message, help_str, opts=opts)
 
