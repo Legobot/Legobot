@@ -1,6 +1,7 @@
 venv/*
 testbot.py
 *.pyc
+.python-version
 .idea/
 local/*
 Legobot/*.pyc
