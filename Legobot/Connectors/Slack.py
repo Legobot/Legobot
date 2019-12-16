@@ -317,6 +317,7 @@ class RtmBot(threading.Thread, object):
         # Try to handle all the fields of events we care about.
         metadata = Metadata(source=self.actor_urn).__dict__
         metadata['thread_ts'] = message.get('thread_ts')
+        metadata['ts'] = message.get('ts')
         if 'presence' in message:
             metadata['presence'] = message['presence']
 
@@ -352,6 +353,7 @@ class RtmBot(threading.Thread, object):
             else:
                 metadata['is_private_message'] = False
 
+        metadata['subtype'] = message.get('subtype')
         metadata['source_connector'] = 'slack'
 
         return metadata
