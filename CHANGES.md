@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.6] 2020-01-13
+
+### Added
+
+- Add timestamp and sub type to message metadata in Slack connector.
+
+### Changed
+- Safer and more reliable Slack user name handling
+- Help changes
+  - Only list Legos with names.
+  - Allow referencing Lego names in Help without regard to case.
+
 ## [1.2.5] 2019-04-03
 
 ### Added
