@@ -28,35 +28,36 @@ class Help(Lego):
 
         baseplate_proxy = self.baseplate.proxy()
         legos = baseplate_proxy.children.get()
-
-        help_str = 'No help is available. Sorry.'
-
-        # create a diction of legos that have names, indexed by lowercase name
-        legos = {
-            lego.proxy().get_name().get().lower(): {
-                'name': lego.proxy().get_name().get(),
-                'lego': lego
-            }
+        lego_names = [
+            lego.proxy().get_name().get()
             for lego in legos
             if lego.proxy().get_name().get()
             and lego.proxy().get_name().get() != '?'
-        }
-        lego_names = [v.get('name') for k, v in legos.items()]
+        ]
+
+        help_str = 'No help is available. Sorry.'
 
         if not function:
             help_str = 'Available functions: ' + ', '.join(lego_names)
 
-        if function and function.lower() in legos.keys():
-            lego = legos[function.lower()].get('lego')
-            try:
-                sub = message['text'].split()[2]
-                try:
-                    help_str = lego.proxy().get_help(sub=sub).get()
-                except (TypeError, KeyError):
-                    help_str = '{} has no information on {}'.format(
-                        function, sub)
-            except IndexError:
-                help_str = lego.proxy().get_help().get()
+        if function and function.lower() in [l.lower() for l in lego_names]:
+            help_strs = []
+            for lego in legos:
+                name = lego.proxy().get_name().get()
+                if name and name.lower() == function.lower():
+                    try:
+                        sub = message['text'].split()[2]
+                        try:
+                            temp = lego.proxy().get_help(sub=sub).get()
+                        except (TypeError, KeyError):
+                            temp = '{} has no information on {}'.format(
+                                function, sub)
+                    except IndexError:
+                        temp = lego.proxy().get_help().get()
+
+                    help_strs.append(temp)
+
+            help_str = '\n'.join(help_strs)
 
         opts = self.build_reply_opts(message)
 
