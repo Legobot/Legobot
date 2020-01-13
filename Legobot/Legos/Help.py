@@ -31,28 +31,32 @@ class Help(Lego):
 
         help_str = 'No help is available. Sorry.'
 
+        # create a diction of legos that have names, indexed by lowercase name
+        legos = {
+            lego.proxy().get_name().get().lower(): {
+                'name': lego.proxy().get_name().get(),
+                'lego': lego
+            }
+            for lego in legos
+            if lego.proxy().get_name().get()
+            and lego.proxy().get_name().get() != '?'
+        }
+        lego_names = [v.get('name') for k, v in legos.items()]
+
         if not function:
-            lego_names = []
-            for lego in legos:
-                lego_proxy = lego.proxy()
-                if lego_proxy.get_name().get() is not None:
-                    lego_names.append(lego_proxy.get_name().get())
             help_str = 'Available functions: ' + ', '.join(lego_names)
 
-        if function:
-            for lego in legos:
-                lego_proxy = lego.proxy()
-                if lego_proxy.get_name().get() == function:
-                    try:
-                        sub = message['text'].split()[2]
-                        try:
-                            help_str = lego_proxy.get_help(sub=sub).get()
-                        except (TypeError, KeyError):
-                            help_str = (function +
-                                        ' has no information on ' +
-                                        sub)
-                    except IndexError:
-                        help_str = lego_proxy.get_help().get()
+        if function and function.lower() in legos.keys():
+            lego = legos[function.lower()].get('lego')
+            try:
+                sub = message['text'].split()[2]
+                try:
+                    help_str = lego.proxy().get_help(sub=sub).get()
+                except (TypeError, KeyError):
+                    help_str = '{} has no information on {}'.format(
+                        function, sub)
+            except IndexError:
+                help_str = lego.proxy().get_help().get()
 
         opts = self.build_reply_opts(message)
 
