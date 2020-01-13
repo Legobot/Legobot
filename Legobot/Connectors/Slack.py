@@ -235,15 +235,16 @@ class RtmBot(threading.Thread, object):
             dict: a dictionary of the api response
         '''
 
+        out = userid
         user_info = self.slack_client.api_call('users.info', user=userid)
         if user_info.get('ok'):
             user = user_info.get('user')
-            if user.get('profile'):
-                return user.get('profile').get('display_name')
-            else:
-                return user.get('name')
+            out = user.get('profile', {}).get('display_name')
+            if not out:
+                out = user.get('name', userid)
         else:
             return userid
+        return out
 
     def get_dm_channel(self, userid):
         '''Perform a lookup of users to resolve a userid to a DM channel
@@ -316,6 +317,7 @@ class RtmBot(threading.Thread, object):
         # Try to handle all the fields of events we care about.
         metadata = Metadata(source=self.actor_urn).__dict__
         metadata['thread_ts'] = message.get('thread_ts')
+        metadata['ts'] = message.get('ts')
         if 'presence' in message:
             metadata['presence'] = message['presence']
 
@@ -351,6 +353,7 @@ class RtmBot(threading.Thread, object):
             else:
                 metadata['is_private_message'] = False
 
+        metadata['subtype'] = message.get('subtype')
         metadata['source_connector'] = 'slack'
 
         return metadata

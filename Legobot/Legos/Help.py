@@ -28,31 +28,36 @@ class Help(Lego):
 
         baseplate_proxy = self.baseplate.proxy()
         legos = baseplate_proxy.children.get()
+        lego_names = [
+            lego.proxy().get_name().get()
+            for lego in legos
+            if lego.proxy().get_name().get()
+            and lego.proxy().get_name().get() != '?'
+        ]
 
         help_str = 'No help is available. Sorry.'
 
         if not function:
-            lego_names = []
-            for lego in legos:
-                lego_proxy = lego.proxy()
-                if lego_proxy.get_name().get() is not None:
-                    lego_names.append(lego_proxy.get_name().get())
             help_str = 'Available functions: ' + ', '.join(lego_names)
 
-        if function:
+        if function and function.lower() in [l.lower() for l in lego_names]:
+            help_strs = []
             for lego in legos:
-                lego_proxy = lego.proxy()
-                if lego_proxy.get_name().get() == function:
+                name = lego.proxy().get_name().get()
+                if name and name.lower() == function.lower():
                     try:
                         sub = message['text'].split()[2]
                         try:
-                            help_str = lego_proxy.get_help(sub=sub).get()
+                            temp = lego.proxy().get_help(sub=sub).get()
                         except (TypeError, KeyError):
-                            help_str = (function +
-                                        ' has no information on ' +
-                                        sub)
+                            temp = '{} has no information on {}'.format(
+                                function, sub)
                     except IndexError:
-                        help_str = lego_proxy.get_help().get()
+                        temp = lego.proxy().get_help().get()
+
+                    help_strs.append(temp)
+
+            help_str = '\n'.join(help_strs)
 
         opts = self.build_reply_opts(message)
 
