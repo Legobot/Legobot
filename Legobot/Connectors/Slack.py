@@ -66,6 +66,7 @@ class RtmBot(threading.Thread, object):
         self.supported_events = {'message': self.on_message}
         self.user_map = {}
         self.slack_client = SlackClient(self.token)
+        self.get_channels()
         threading.Thread.__init__(self)
 
     def connect(self):
@@ -149,17 +150,21 @@ class RtmBot(threading.Thread, object):
 
         return text
 
+    def get_channel_name_by_id(self, id):
+        ch = self.channels_by_id.get(id, {})
+        if not ch:
+            self.get_channels()
+            ch = self.channels_by_id.get(id, {})
+
+        return ch.get('name')
+
     def get_channel_id_by_name(self, name):
-        channels = self.get_channels(condensed=True)
-        if not channels:
-            return name
+        ch = self.channels_by_name.get(name, {})
+        if not ch:
+            self.get_channels()
+            ch = self.channels_by_name.get(name, {})
 
-        if name.startswith('#'):
-            name = name[1:]
-
-        channels_transform = {channel.get('name'): channel.get('id')
-                              for channel in channels}
-        return channels_transform.get(name)
+        return ch.get('id')
 
     def get_user_id_by_name(self, name):
         users = self.get_users(condensed=True)
@@ -179,7 +184,7 @@ class RtmBot(threading.Thread, object):
         else:
             return name
 
-    def get_channels(self, condensed=False):
+    def get_channels(self):
         '''Grabs all channels in the slack team
 
         Args:
@@ -190,16 +195,25 @@ class RtmBot(threading.Thread, object):
                 See also: https://api.slack.com/methods/channels.list
         '''
 
-        channel_list = self.slack_client.api_call('channels.list')
-        if not channel_list.get('ok'):
-            return None
+        channels = []
+        cursor = None
+        params = {
+            'exclude_archived': False,
+            'limit': 50
+        }
+        while True:
+            if cursor:
+                params['cursor'] = cursor
+            channel_list = self.slack_client.api_call(
+                'conversations.list', **params)
+            channels += channel_list.get('channels', [])
+            cursor = channel_list.get(
+                'response_metadata', {}).get('next_cursor')
+            if not cursor:
+                break
 
-        if condensed:
-            channels = [{'id': item.get('id'), 'name': item.get('name')}
-                        for item in channel_list.get('channels')]
-            return channels
-        else:
-            return channel_list
+        self.channels_by_id = {ch.get('id'): ch for ch in channels}
+        self.channels_by_name = {ch.get('name'): ch for ch in channels}
 
     def get_users(self, condensed=False):
         '''Grabs all users in the slack team
@@ -352,6 +366,7 @@ class RtmBot(threading.Thread, object):
                 metadata['is_private_message'] = True
             else:
                 metadata['is_private_message'] = False
+            metadata['channel_display_name'] = self.get_channel_name_by_id(message['channel'])
 
         metadata['subtype'] = message.get('subtype')
         metadata['source_connector'] = 'slack'
