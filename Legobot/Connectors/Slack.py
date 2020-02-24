@@ -366,7 +366,8 @@ class RtmBot(threading.Thread, object):
                 metadata['is_private_message'] = True
             else:
                 metadata['is_private_message'] = False
-            metadata['channel_display_name'] = self.get_channel_name_by_id(message['channel'])
+            metadata['channel_display_name'] = self.get_channel_name_by_id(
+                message['channel'])
 
         metadata['subtype'] = message.get('subtype')
         metadata['source_connector'] = 'slack'
