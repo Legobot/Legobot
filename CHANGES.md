@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.0] 2020-02-25
+
+### Added
+
+- Add channel_display_name (friendly name) to message metadata.
+- Add dicts of channels by id and channels by name to Slack connector class as properties.
+
+### Changed
+
+- Slack connector get_channels fetches all org channels and stores them on invocation, no more "condensed" keyword.
+
 ## [1.2.6] 2020-01-13
 
 ### Added
