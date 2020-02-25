@@ -152,31 +152,45 @@ class RtmBot(threading.Thread, object):
 
         return text
 
-    def get_channel_name_by_id(self, id):
+    def get_channel_name_by_id(self, id, default=None):
+        '''Given a slack channel id return the channel's name.
+
+        Args:
+            id (string): The channel id
+            default: The default value to return if no match is found
+
+        Returns:
+            string | default: The channel name or default provided
+        '''
+
         ch = self.channels_by_id.get(id, {})
         if not ch:
             self.get_channels()
             ch = self.channels_by_id.get(id, {})
 
-        return ch.get('name')
+        return ch.get('name', default)
 
-    def get_channel_id_by_name(self, name):
+    def get_channel_id_by_name(self, name, default=None):
+        '''Given a slack channel name return the channel's id.
+
+        Args:
+            name (string): The channel name
+            default: The default value to return if no match is found
+
+        Returns:
+            string | default: The channel id or default provided
+        '''
+
         ch = self.channels_by_name.get(name, {})
         if not ch:
             self.get_channels()
             ch = self.channels_by_name.get(name, {})
 
-        return ch.get('id')
+        return ch.get('id', default)
 
     def get_channels(self):
-        '''Grabs all channels in the slack team
-
-        Args:
-            condensed (bool): if true triggers list condensing functionality
-
-        Returns:
-            dic: Dict of channels in Slack team.
-                See also: https://api.slack.com/methods/channels.list
+        '''Grabs all channels in the slack team. Stores them by name and by id
+           as class properties.
         '''
 
         channels = []
@@ -200,6 +214,16 @@ class RtmBot(threading.Thread, object):
         self.channels_by_name = {ch.get('name'): ch for ch in channels}
 
     def get_user_id_by_name(self, name, default=None):
+        '''Given a slack user name return the user's id.
+
+        Args:
+            name (string): The user name
+            default: The default value to return if no match is found
+
+        Returns:
+            string | default: The user id or default provided
+        '''
+
         if name.startswith('@'):
             name = name[1:]
 
@@ -212,7 +236,7 @@ class RtmBot(threading.Thread, object):
         return u.get('id', default)
 
     def get_user_name_by_id(self, id, return_display_name=None, default=None):
-        '''Given a Slack userid, grabs user name or display_name from.
+        '''Given a Slack userid, return user name or display_name.
 
         Args:
             id (string): the user id of the user being queried
