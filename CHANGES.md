@@ -9,10 +9,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Add channel_display_name (friendly name) to message metadata.
 - Add dicts of channels by id and channels by name to Slack connector class as properties.
+- Add helper utilities in slack connector getting channel info
+- Add dicts of users by id, users by name, users by display name to Slack connector class as properties.
 
 ### Changed
 
 - Slack connector get_channels fetches all org channels and stores them on invocation, no more "condensed" keyword.
+- Slack connector get_users fetches all org users and stores them on invocation, no more "condensed" keyword.
 
 ## [1.2.6] 2020-01-13
 
