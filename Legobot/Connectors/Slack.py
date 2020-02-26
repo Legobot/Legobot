@@ -66,6 +66,8 @@ class RtmBot(threading.Thread, object):
         self.supported_events = {'message': self.on_message}
         self.user_map = {}
         self.slack_client = SlackClient(self.token)
+        self.get_channels()
+        self.get_users()
         threading.Thread.__init__(self)
 
     def connect(self):
@@ -125,7 +127,8 @@ class RtmBot(threading.Thread, object):
         while match:
             match = pattern.search(text)
             if match:
-                name = self.get_user_display_name(match.group(1))
+                name = self.get_user_name_by_id(
+                    match.group(1), return_display_name=True, default='')
                 text = re.sub(re.compile(match.group(0)), '@' + name, text)
 
         return text
@@ -149,102 +152,137 @@ class RtmBot(threading.Thread, object):
 
         return text
 
-    def get_channel_id_by_name(self, name):
-        channels = self.get_channels(condensed=True)
-        if not channels:
-            return name
+    def get_channel_name_by_id(self, id, default=None):
+        '''Given a slack channel id return the channel's name.
 
-        if name.startswith('#'):
-            name = name[1:]
+        Args:
+            id (string): The channel id
+            default: The default value to return if no match is found
 
-        channels_transform = {channel.get('name'): channel.get('id')
-                              for channel in channels}
-        return channels_transform.get(name)
+        Returns:
+            string | default: The channel name or default provided
+        '''
 
-    def get_user_id_by_name(self, name):
-        users = self.get_users(condensed=True)
-        if not users:
-            return name
+        ch = self.channels_by_id.get(id, {})
+        if not ch:
+            self.get_channels()
+            ch = self.channels_by_id.get(id, {})
+
+        return ch.get('name', default)
+
+    def get_channel_id_by_name(self, name, default=None):
+        '''Given a slack channel name return the channel's id.
+
+        Args:
+            name (string): The channel name
+            default: The default value to return if no match is found
+
+        Returns:
+            string | default: The channel id or default provided
+        '''
+
+        ch = self.channels_by_name.get(name, {})
+        if not ch:
+            self.get_channels()
+            ch = self.channels_by_name.get(name, {})
+
+        return ch.get('id', default)
+
+    def get_channels(self):
+        '''Grabs all channels in the slack team. Stores them by name and by id
+           as class properties.
+        '''
+
+        channels = []
+        cursor = None
+        params = {
+            'exclude_archived': False,
+            'limit': 50
+        }
+        while True:
+            if cursor:
+                params['cursor'] = cursor
+            channel_list = self.slack_client.api_call(
+                'conversations.list', **params)
+            channels += channel_list.get('channels', [])
+            cursor = channel_list.get(
+                'response_metadata', {}).get('next_cursor')
+            if not cursor:
+                break
+
+        self.channels_by_id = {ch.get('id'): ch for ch in channels}
+        self.channels_by_name = {ch.get('name'): ch for ch in channels}
+
+    def get_user_id_by_name(self, name, default=None):
+        '''Given a slack user name return the user's id.
+
+        Args:
+            name (string): The user name
+            default: The default value to return if no match is found
+
+        Returns:
+            string | default: The user id or default provided
+        '''
 
         if name.startswith('@'):
             name = name[1:]
 
-        users_transform = {}
-        for user in users:
-            users_transform[user.get('name')] = user.get('id')
-            users_transform[user.get('display_name')] = user.get('id')
+        u = self.users_by_name.get(name, self.users_by_display_name.get(name))
+        if not u:
+            self.get_users()
+            u = self.users_by_name.get(name, self.users_by_display_name.get(
+                name, {}))
 
-        if name in users_transform.keys():
-            return users_transform[name]
-        else:
-            return name
+        return u.get('id', default)
 
-    def get_channels(self, condensed=False):
-        '''Grabs all channels in the slack team
+    def get_user_name_by_id(self, id, return_display_name=None, default=None):
+        '''Given a Slack userid, return user name or display_name.
 
         Args:
-            condensed (bool): if true triggers list condensing functionality
-
-        Returns:
-            dic: Dict of channels in Slack team.
-                See also: https://api.slack.com/methods/channels.list
-        '''
-
-        channel_list = self.slack_client.api_call('channels.list')
-        if not channel_list.get('ok'):
-            return None
-
-        if condensed:
-            channels = [{'id': item.get('id'), 'name': item.get('name')}
-                        for item in channel_list.get('channels')]
-            return channels
-        else:
-            return channel_list
-
-    def get_users(self, condensed=False):
-        '''Grabs all users in the slack team
-
-        This should should only be used for getting list of all users. Do not
-        use it for searching users. Use get_user_info instead.
-
-        Args:
-            condensed (bool): if true triggers list condensing functionality
-
-        Returns:
-            dict: Dict of users in Slack team.
-                See also: https://api.slack.com/methods/users.list
-        '''
-
-        user_list = self.slack_client.api_call('users.list')
-        if not user_list.get('ok'):
-            return None
-        if condensed:
-            users = [{'id': item.get('id'), 'name': item.get('name'),
-                     'display_name': item.get('profile').get('display_name')}
-                     for item in user_list.get('members')]
-            return users
-        else:
-            return user_list
-
-    def get_user_display_name(self, userid):
-        '''Given a Slack userid, grabs user display_name from api.
-
-        Args:
-            userid (string): the user id of the user being queried
+            id (string): the user id of the user being queried
+            return_display_name (bool): return profile display name instead of
+                user name
+            default: default value to return if no match is found
         Returns:
             dict: a dictionary of the api response
         '''
 
-        out = userid
-        user_info = self.slack_client.api_call('users.info', user=userid)
-        if user_info.get('ok'):
-            user = user_info.get('user')
-            out = user.get('profile', {}).get('display_name')
-            if not out:
-                out = user.get('name', userid)
+        u = self.users_by_id.get(id)
+        if not u:
+            self.get_users()
+            u = self.users_by_id.get(id, {})
+
+        if return_display_name:
+            return u.get('profile', {}).get('display_name', default)
         else:
-            return userid
-        return out
+            return u.get('name', default)
+
+    def get_users(self):
+        '''Grabs all users in the slack team and stores them in the connector.
+
+        This should should only be used for getting list of all users. Do not
+        use it for searching users. Use get_user_info instead.
+        '''
+
+        users = []
+        cursor = None
+        params = {
+            'include_locale': True,
+            'limit': 50
+        }
+        while True:
+            if cursor:
+                params['cursor'] = cursor
+            user_list = self.slack_client.api_call('users.list', **params)
+            users += user_list.get('members', [])
+            cursor = user_list.get('response_metadata', {}).get('next_cursor')
+            if not cursor:
+                break
+
+        self.users_by_id = {u.get('id'): u for u in users}
+        self.users_by_name = {u.get('name'): u for u in users}
+        self.users_by_display_name = {
+            u.get('profile', {}).get('display_name'): u for u in users}
 
     def get_dm_channel(self, userid):
         '''Perform a lookup of users to resolve a userid to a DM channel
@@ -261,33 +299,6 @@ class RtmBot(threading.Thread, object):
 
     def post_attachment(self, attachment):
         self.slack_client.api_call('chat.postMessage', **attachment)
-
-    def get_username(self, userid):
-        '''Perform a lookup of users to resolve a userid to a username
-
-        Args:
-            userid (string): Slack userid to lookup.
-
-        Returns:
-            string: Human-friendly name of the user
-        '''
-
-        username = self.user_map.get(userid)
-        if not username:
-            users = self.get_users()
-            if users:
-                members = {
-                    m['id']: m['name']
-                    for m in users.get('members', [{}])
-                    if m.get('id')
-                    and m.get('name')
-                }
-                if members:
-                    self.user_map.update(members)
-
-                username = self.user_map.get(userid, userid)
-
-        return username
 
     def get_userid_from_botid(self, botid):
         '''Perform a lookup of bots.info to resolve a botid to a userid
@@ -343,7 +354,11 @@ class RtmBot(threading.Thread, object):
             metadata['source_user'] = None
 
         metadata['user_id'] = metadata['source_user']
-        metadata['display_name'] = self.get_username(metadata['source_user'])
+        metadata['display_name'] = self.get_user_name_by_id(
+            metadata['source_user'],
+            return_display_name=True,
+            default=metadata['source_user']
+        )
 
         if 'channel' in message:
             metadata['source_channel'] = message['channel']
@@ -352,6 +367,8 @@ class RtmBot(threading.Thread, object):
                 metadata['is_private_message'] = True
             else:
                 metadata['is_private_message'] = False
+            metadata['channel_display_name'] = self.get_channel_name_by_id(
+                message['channel'])
 
         metadata['subtype'] = message.get('subtype')
         metadata['source_connector'] = 'slack'

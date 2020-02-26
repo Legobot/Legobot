@@ -103,6 +103,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         metadata = Metadata(source=self.actor_urn).__dict__
         metadata['source_connector'] = 'irc'
         metadata['source_channel'] = e.target
+        metadata['channel_display_name'] = e.target
         metadata['source_user'] = e.source
         metadata['source_username'] = e.source.split('!')[0]
         metadata['user_id'] = metadata['source_user']

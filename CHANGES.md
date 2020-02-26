@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.0] 2020-02-26
+
+### Added
+
+- Add channel_display_name (friendly name) to message metadata.
+- Add dicts of channels by id and channels by name to Slack connector class as properties.
+- Add helper utilities in slack connector getting channel info
+- Add dicts of users by id, users by name, users by display name to Slack connector class as properties.
+
+### Changed
+
+- Slack connector get_channels fetches all org channels and stores them on invocation, no more "condensed" keyword.
+- Slack connector get_users fetches all org users and stores them on invocation, no more "condensed" keyword.
+- Get user display name in Slack lego using get_user_by_id method.
+- Remove get_username method.
+
 ## [1.2.6] 2020-01-13
 
 ### Added
