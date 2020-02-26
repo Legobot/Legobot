@@ -300,33 +300,6 @@ class RtmBot(threading.Thread, object):
     def post_attachment(self, attachment):
         self.slack_client.api_call('chat.postMessage', **attachment)
 
-    def get_username(self, userid):
-        '''Perform a lookup of users to resolve a userid to a username
-
-        Args:
-            userid (string): Slack userid to lookup.
-
-        Returns:
-            string: Human-friendly name of the user
-        '''
-
-        username = self.user_map.get(userid)
-        if not username:
-            users = self.get_users()
-            if users:
-                members = {
-                    m['id']: m['name']
-                    for m in users.get('members', [{}])
-                    if m.get('id')
-                    and m.get('name')
-                }
-                if members:
-                    self.user_map.update(members)
-
-                username = self.user_map.get(userid, userid)
-
-        return username
-
     def get_userid_from_botid(self, botid):
         '''Perform a lookup of bots.info to resolve a botid to a userid
 
@@ -381,7 +354,11 @@ class RtmBot(threading.Thread, object):
             metadata['source_user'] = None
 
         metadata['user_id'] = metadata['source_user']
-        metadata['display_name'] = self.get_username(metadata['source_user'])
+        metadata['display_name'] = self.get_user_name_by_id(
+            metadata['source_user'],
+            return_display_name=True,
+            default=metadata['source_user']
+        )
 
         if 'channel' in message:
             metadata['source_channel'] = message['channel']

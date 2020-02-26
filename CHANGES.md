@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.3.0] 2020-02-25
+## [1.3.0] 2020-02-26
 
 ### Added
 
@@ -16,6 +16,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Slack connector get_channels fetches all org channels and stores them on invocation, no more "condensed" keyword.
 - Slack connector get_users fetches all org users and stores them on invocation, no more "condensed" keyword.
+- Get user display name in Slack lego using get_user_by_id method.
+- Remove get_username method.
 
 ## [1.2.6] 2020-01-13
 
