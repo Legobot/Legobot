@@ -29,7 +29,8 @@ class Lego(ThreadingActor):
         def run(self):
             self.handler(self.message)
 
-    def __init__(self, baseplate, lock: threading.Lock, log_file=None):
+    def __init__(
+            self, baseplate, lock: threading.Lock, log_file=None, acl=None):
         """
         :param baseplate: the baseplate Lego, which should be \
                           the same instance of Lego for all Legos
@@ -43,6 +44,7 @@ class Lego(ThreadingActor):
         self.children = []
         self.lock = lock
         self.log_file = log_file
+        self.acl = acl
 
     def on_receive(self, message):
         """
@@ -63,7 +65,7 @@ class Lego(ThreadingActor):
             with open(self.log_file, mode='w') as f:
                 f.write(json.dumps(message_copy))
             logger.info(message['metadata']['source'])
-        if self.listening_for(message):
+        if self.acl_check(message) and self.listening_for(message):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
         self.cleanup()
@@ -80,6 +82,35 @@ class Lego(ThreadingActor):
         logger.debug('Acquired lock in cleanup for ' + str(self))
         self.children = [child for child in self.children if child.is_alive()]
         self.lock.release()
+
+    def acl_check(self, message):
+        """
+        Return whether the message passes the ACL check for this Lego.
+
+        :param message: a Message object
+        :return: Boolean
+        """
+        user = message.get('metadata', {}).get('source_user')
+        acl_conditions = [
+            user,
+            isinstance(user, str),
+            self.acl,
+            isinstance(self.acl, dict)
+        ]
+        if all(acl_conditions):
+            whitelist = self.acl.get('whitelist', [])
+            if whitelist and user in whitelist:
+                return True
+            elif whitelist and user not in whitelist:
+                return False
+
+            blacklist = self.acl.get('blacklist', [])
+            if blacklist and user in blacklist:
+                return False
+            if blacklist and user not in blacklist:
+                return True
+
+        return True
 
     def listening_for(self, message):
         """
