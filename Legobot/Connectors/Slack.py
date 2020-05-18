@@ -430,20 +430,46 @@ class Slack(Lego):
             attachment (dict): attachment data.
         '''
 
-        attachment = {
+        out = {
             'as_user': True,
             'text': text,
-            'channel': target,
-            'attachments': [
+            'channel': target
+        }
+
+        if thread:
+            out['thread_ts'] = thread
+
+        if isinstance(attachment, dict):
+            out['blocks'] = [
+                {
+                    'type': 'section',
+                    'text': {
+                        'type': 'mrkdwn',
+                        'text': attachment.get('pre_text', ' ')
+                    }
+                },
+                {
+                    'type': 'image',
+                    'image_url': attachment.get('url', ''),
+                    'alt_text': attachment.get('pre_text', ' ')
+                },
+                {
+                    'type': 'section',
+                    'text': {
+                        'type': 'mrkdwn',
+                        'text': attachment.get('post_text', ' ')
+                    }
+                }
+            ]
+        else:
+            out['attachments'] = [
                 {
                     'fallback': text,
                     'image_url': attachment
                 }
             ]
-        }
-        if thread:
-            attachment['thread_ts'] = thread
-        return attachment
+
+        return out
 
     def handle(self, message):
         '''Attempts to send a message to the specified destination in Slack.
