@@ -4,7 +4,9 @@
 import json
 import logging
 import threading
+import time
 
+import jmespath
 from pykka import ThreadingActor, ActorRegistry
 
 from Legobot.LegoError import LegoError
@@ -29,13 +31,21 @@ class Lego(ThreadingActor):
         def run(self):
             self.handler(self.message)
 
-    def __init__(
-            self, baseplate, lock: threading.Lock, log_file=None, acl=None):
+    def __init__(self, baseplate, lock: threading.Lock, log_file=None,
+                 acl=None, rate_config=None):
         """
         :param baseplate: the baseplate Lego, which should be \
                           the same instance of Lego for all Legos
         :param lock: a threading lock, which should be the same \
                      instance of threading.Lock for all Legos
+        :param log_file str: a file path for writing logs to file
+        :param acl dict: a dict representing an access control list. \
+                         ex: {'whitelist': [list of source_users]}
+        :param rate_config dict: a dict representing the rate limite config. \
+                                 ex: {'rate_key': jmespath expr to get rate \
+                                        key value from message object, \
+                                      'rate_interval': the rate limit \
+                                        interval in seconds}
         """
         super().__init__()
         if not lock:
@@ -44,7 +54,21 @@ class Lego(ThreadingActor):
         self.children = []
         self.lock = lock
         self.log_file = log_file
-        self.acl = acl
+        self.acl = acl if acl else {}
+
+        # set rate limit items
+        self.set_rate_limit(rate_config)
+
+    def set_rate_limit(self, rate_config):
+        """
+        Set rate limit config for this Lego.
+
+        :param rate_config dict: dict representing the rate limit config
+        """
+        rate_config = rate_config if isinstance(rate_config, dict) else {}
+        self.rate_key = rate_config.get('rate_key')
+        self.rate_interval = rate_config.get('rate_interval')
+        self.rate_log = {}
 
     def on_receive(self, message):
         """
@@ -65,7 +89,9 @@ class Lego(ThreadingActor):
             with open(self.log_file, mode='w') as f:
                 f.write(json.dumps(message_copy))
             logger.info(message['metadata']['source'])
-        if self.acl_check(message) and self.listening_for(message):
+        if (self.acl_check(message)
+                and self.rate_check(message)
+                and self.listening_for(message)):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
         self.cleanup()
@@ -82,6 +108,26 @@ class Lego(ThreadingActor):
         logger.debug('Acquired lock in cleanup for ' + str(self))
         self.children = [child for child in self.children if child.is_alive()]
         self.lock.release()
+
+    def rate_check(self, message):
+        """
+        Return whether the message passes the rate limite check for this Lego.
+
+        :param message: a Message object
+        :return: Boolean
+        """
+        if not self.rate_key or not self.rate_interval:
+            return True
+
+        now = int(round(time.time()))
+        key = jmespath.search(self.rate_key, message)
+        last_invoke = self.rate_log.get(key, 0)
+
+        if now - last_invoke >= self.rate_interval:
+            self.rate_log[key] = now
+            return True
+        else:
+            return False
 
     def acl_check(self, message):
         """
