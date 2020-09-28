@@ -1,6 +1,5 @@
-irc==17.0
+irc==19.0.1
 jmespath==0.10.0
-pykka==1.2.1
-requests==2.21.0
-slackclient==1.3.1
-websocket-client==0.54.0
+pykka==2.0.2
+requests==2.24.0
+slackclient==1.3.2
