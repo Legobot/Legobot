@@ -11,21 +11,33 @@ Module lovingly built with inspiration from slackhq's RtmBot
 '''
 
 import logging
+import os
 import re
 import sys
 import threading
 import time
 
+import jmespath
 from slackclient import SlackClient
+import yaml
 
 from Legobot.Lego import Lego
-from Legobot.Message import Message, Metadata
+from Legobot.Message import Message
+from Legobot.Message import Metadata
+from Legobot.Utilities import JMESPATH_OPTIONS
 from Legobot.Utilities import Utilities
 
 logger = logging.getLogger(__name__)
 
 # I forgot why this is here, but it's very necessary.
 sys.dont_write_bytecode = True
+
+
+CONFIG_DIR = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)),
+    '..',
+    'Config'
+)
 
 
 class RtmBot(threading.Thread, object):
@@ -63,18 +75,67 @@ class RtmBot(threading.Thread, object):
         self.reconnect = reconnect
         self.auto_reconnect = True
         # 'event':'method'
-        self.supported_events = {'message': self.on_message}
         self.user_map = {}
         self.slack_client = SlackClient(self.token)
         self.get_channels()
         self.get_users()
+        self.parse_configs()
         threading.Thread.__init__(self)
+
+    def parse_configs(self):
+        with open(os.path.join(CONFIG_DIR, 'type_configs.yaml')) as f:
+            configs = yaml.safe_load(f)
+
+        self.supported_events = configs.keys()
+        self.meta_xforms = {}
+        self.meta_methods = {}
+        self.msg_kwargs = {}
+
+        for event_type, config in configs.items():
+            meta = config.get('metadata', {})
+            self.meta_xforms[event_type] = self.compile_transforms(
+                meta.get('transform'))
+            self.meta_methods[event_type] = meta.get('methods', {})
+            msg = config.get('message', {})
+            self.msg_kwargs[event_type] = msg.get('kwargs', {})
+
+    def compile_transforms(self, transform):
+        if not transform:
+            trans_str = '@'
+        else:
+            elements = [f'{k}: {v}' for k, v in transform.items()]
+            trans_str = '{' + ', '.join(elements) + '}'
+
+        return jmespath.compile(trans_str)
 
     def connect(self):
         self.slack_client.rtm_connect(reconnect=self.reconnect,
                                       auto_reconnect=self.auto_reconnect)
 
-    def on_message(self, event):
+    def parse_config_item(self, item, event, meta):
+        data_map = {
+            '$event': event,
+            '$metadata': meta
+        }
+        items = item.split('.')
+        if len(items) == 1:
+            return data_map.get(item, item)
+        else:
+            transform = jmespath.compile('.'.join(items[1:]))
+            data = data_map.get(items[0], {})
+            return transform.search(data, JMESPATH_OPTIONS)
+
+    def parse_method_args(self, args, event, meta):
+        out = []
+        for arg in args:
+            if isinstance(arg, str):
+                out.append(self.parse_config_item(arg, event, meta))
+            else:
+                out.append(arg)
+
+        return out
+
+    def on_event(self, event_type, event):
         '''Runs when a message event is received
 
         Args:
@@ -84,14 +145,27 @@ class RtmBot(threading.Thread, object):
             Legobot.messge
         '''
 
-        metadata = self._parse_metadata(event)
-        message = Message(text=metadata['text'],
-                          metadata=metadata).__dict__
-        if message.get('text'):
-            message['text'] = self.find_and_replace_userids(message['text'])
-            message['text'] = self.find_and_replace_channel_refs(
-                message['text']
-            )
+        metadata = Metadata(source=self.actor_urn).__dict__
+        transform = self.meta_xforms.get(event_type)
+        if transform:
+            metadata.update(transform.search(event, JMESPATH_OPTIONS))
+
+        for key, config in self.meta_methods.get(event_type, {}).items():
+            args = self.parse_method_args(config.get(
+                'args', []), event, metadata)
+            metadata[key] = getattr(self, config['method'])(*args)
+
+        msg_kwargs = {}
+        for k, v in self.msg_kwargs.get(event_type, {}).items():
+            msg_kwargs[k] = self.parse_config_item(v, event, metadata)
+
+        message = Message(**msg_kwargs).__dict__
+
+        text = message.get('text')
+        if text:
+            text = self.find_and_replace_userids(text)
+            message['text'] = self.find_and_replace_channel_refs(text)
+
         return message
 
     def run(self):
@@ -102,10 +176,9 @@ class RtmBot(threading.Thread, object):
         while True:
             for event in self.slack_client.rtm_read():
                 logger.debug(event)
-                if 'type' in event and event['type'] in self.supported_events:
-                    event_type = event['type']
-                    dispatcher = self.supported_events[event_type]
-                    message = dispatcher(event)
+                event_type = event.get('type', '')
+                if event_type in self.supported_events:
+                    message = self.on_event(event_type, event)
                     logger.debug(message)
                     self.baseplate.tell(message)
             self.keepalive()
@@ -308,72 +381,15 @@ class RtmBot(threading.Thread, object):
         Returns:
             string: userid value
         '''
+
+        if not botid:
+            return None
+
         botinfo = self.slack_client.api_call('bots.info', bot=botid)
         if botinfo['ok'] is True:
             return botinfo['bot'].get('user_id')
         else:
             return botid
-
-    def _parse_metadata(self, message):
-        '''Parse incoming messages to build metadata dict
-        Lots of 'if' statements. It sucks, I know.
-
-        Args:
-            message (dict): JSON dump of message sent from Slack
-
-        Returns:
-            Legobot.Metadata
-        '''
-
-        # Try to handle all the fields of events we care about.
-        metadata = Metadata(source=self.actor_urn).__dict__
-        metadata['thread_ts'] = message.get('thread_ts')
-        metadata['ts'] = message.get('ts')
-        if 'presence' in message:
-            metadata['presence'] = message['presence']
-
-        if 'text' in message:
-            metadata['text'] = message['text']
-        elif 'previous_message' in message:
-            # Try to handle slack links
-            if 'text' in message['previous_message']:
-                metadata['text'] = message['previous_message']['text']
-            else:
-                metadata['text'] = None
-        else:
-            metadata['text'] = None
-
-        if 'user' in message:
-            metadata['source_user'] = message['user']
-        elif 'bot_id' in message:
-            metadata['source_user'] = self.get_userid_from_botid(
-                                      message['bot_id'])
-        elif 'message' in message and 'user' in message['message']:
-            metadata['source_user'] = message['message']['user']
-        else:
-            metadata['source_user'] = None
-
-        metadata['user_id'] = metadata['source_user']
-        metadata['display_name'] = self.get_user_name_by_id(
-            metadata['source_user'],
-            return_display_name=True,
-            default=metadata['source_user']
-        )
-
-        if 'channel' in message:
-            metadata['source_channel'] = message['channel']
-            # Slack starts DM channel IDs with "D"
-            if message['channel'].startswith('D'):
-                metadata['is_private_message'] = True
-            else:
-                metadata['is_private_message'] = False
-            metadata['channel_display_name'] = self.get_channel_name_by_id(
-                message['channel'])
-
-        metadata['subtype'] = message.get('subtype')
-        metadata['source_connector'] = 'slack'
-
-        return metadata
 
     def keepalive(self):
         '''Sends a keepalive to Slack
