@@ -1,6 +1,25 @@
 # Legobot
 # Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
 
+from jmespath import functions
+from jmespath import Options
+
+
+class CustomFunctions(functions.Functions):
+
+    @functions.signature(
+        {'types': ['boolean']},
+        {'types': ['boolean', 'array', 'object', 'null', 'string', 'number']},
+        {'types': ['boolean', 'array', 'object', 'null', 'string', 'number']})
+    def _func_if_else(self, condition, val_1, val_2):
+        if condition:
+            return val_1
+        else:
+            return val_2
+
+
+JMESPATH_OPTIONS = Options(custom_functions=CustomFunctions())
+
 
 class Utilities():
     """
