@@ -52,7 +52,6 @@ def test_chatbot(mock_start):
 
     schema_draft = 'http://json-schema.org/draft-07/schema#'
     assert chatbot.schema['$schema'] == schema_draft
-    assert 'Slack' in chatbot.config['connectors']
     assert 'IRC' in chatbot.config['connectors']
 
     chatbot.initialize_baseplate()
