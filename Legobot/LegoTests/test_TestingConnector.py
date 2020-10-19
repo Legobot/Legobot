@@ -1,12 +1,10 @@
-# Legobot
-# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
-
 import threading
 import unittest
 
 from Legobot.Lego import Lego
 from Legobot.Legos.TestingConnector import TestingConnector
-from Legobot.Message import Message, Metadata
+from Legobot.Message import Message
+from Legobot.Message import Metadata
 
 
 class TestTestingConnector(unittest.TestCase):

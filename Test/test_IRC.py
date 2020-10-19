@@ -1,7 +1,8 @@
-import unittest
 import threading
-from Legobot.Lego import Lego
+import unittest
+
 from Legobot.Connectors.IRC import IRC
+from Legobot.Lego import Lego
 
 
 # Mock objects for testing

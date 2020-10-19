@@ -1,13 +1,15 @@
-from websocket import create_connection
 import json
 import logging
-import requests
 import sys
 import threading
 import time
 
+import requests
+from websocket import create_connection
+
 from Legobot.Lego import Lego
-from Legobot.Message import Message, Metadata
+from Legobot.Message import Message
+from Legobot.Message import Metadata
 from Legobot.Utilities import Utilities
 
 __author__ = "Bren Briggs (fraq)"
@@ -17,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class Heartbeat(threading.Thread, object):
-    """
-    Manage heartbeat connection to Discord
+    """Manage heartbeat connection to Discord
 
     Attributes:
         ws: Websocket connection to Discord
@@ -35,8 +36,7 @@ class Heartbeat(threading.Thread, object):
         threading.Thread.__init__(self)
 
     def send(self, ws, seq):
-        """
-        Sends heartbeat message to Discord
+        """Sends heartbeat message to Discord
 
         Attributes:
             ws: Websocket connection to discord
@@ -50,7 +50,7 @@ class Heartbeat(threading.Thread, object):
         return
 
     def update_sequence(self, seq):
-        """
+        """Updates the heartbeat sequence
 
         Attributes:
             seq (int): Sequence number of heartbeat
@@ -67,8 +67,8 @@ class Heartbeat(threading.Thread, object):
 
 
 class DiscoBot(threading.Thread, object):
-    """
-    Relays messages between Discord and the Legobot baseplate.
+    """Relays messages between Discord and the Legobot baseplate.
+
     Uses the REST API and Websockets. No plans to use async.
 
     Attibutes:
@@ -81,8 +81,7 @@ class DiscoBot(threading.Thread, object):
     """
 
     def __init__(self, baseplate, token, actor_urn, *args, **kwargs):
-        """
-        Initialize DiscoBot
+        """Initialize DiscoBot
 
         Args:
             baseplate (Legobot.Lego): The parent Pykka actor.
@@ -107,8 +106,7 @@ class DiscoBot(threading.Thread, object):
         return create_connection(self.get_ws_url())
 
     def create_message(self, channel_id, text):
-        """
-        Sends a message to a Discord channel or user via REST API
+        """Sends a message to a Discord channel or user via REST API
 
         Args:
             channel_id (string): ID of destingation Discord channel
@@ -122,8 +120,7 @@ class DiscoBot(threading.Thread, object):
                       data=json.dumps({'content': text}))
 
     def identify(self, token):
-        """
-        Identifies to the websocket endpoint
+        """Identifies to the websocket endpoint
 
         Args:
             token (string): Discord bot token
@@ -149,8 +146,7 @@ class DiscoBot(threading.Thread, object):
         return
 
     def on_hello(self, message):
-        """
-        Runs on a hello event from websocket connection
+        """Runs on a hello event from websocket connection
 
         Args:
             message (dict): Full message from Discord websocket connection"
@@ -164,8 +160,7 @@ class DiscoBot(threading.Thread, object):
         return
 
     def on_heartbeat(self, message):
-        """
-        Runs on a heartbeat event from websocket connection
+        """Runs on a heartbeat event from websocket connection
 
         Args:
             message (dict): Full message from Discord websocket connection"
@@ -177,8 +172,7 @@ class DiscoBot(threading.Thread, object):
         return
 
     def on_message(self, message):
-        """
-        Runs on a create_message event from websocket connection
+        """Runs on a create_message event from websocket connection
 
         Args:
             message (dict): Full message from Discord websocket connection"
@@ -192,8 +186,7 @@ class DiscoBot(threading.Thread, object):
             self.baseplate.tell(message)
 
     def _parse_metadata(self, message):
-        """
-        Sets metadata in Legobot message
+        """Sets metadata in Legobot message
 
         Args:
             message (dict): Full message from Discord websocket connection"
@@ -226,8 +219,7 @@ class DiscoBot(threading.Thread, object):
         return url + '?v=6&encoding=json'
 
     def handle(self, message):
-        """
-        Dispatches messages to appropriate handler based on opcode
+        """Dispatches messages to appropriate handler based on opcode
 
         Args:
             message (dict): Full message from Discord websocket connection
@@ -245,8 +237,8 @@ class DiscoBot(threading.Thread, object):
         return
 
     def run(self):
-        """
-        Overrides run method of threading.Thread.
+        """Overrides run method of threading.Thread.
+
         Called by DiscoBot.start(), inherited from threading.Thread
         """
 
@@ -255,13 +247,12 @@ class DiscoBot(threading.Thread, object):
             try:
                 data = json.loads(self.ws.recv())
                 self.handle(data)
-            except json.decoder.JSONDecodeError as e:
+            except json.decoder.JSONDecodeError:
                 logger.fatal("No data on socket...")
 
 
 class Discord(Lego):
-    '''
-    Lego that builds and connects Legobot.Connectors.Discord.DiscoBot
+    """Lego that builds and connects Legobot.Connectors.Discord.DiscoBot
 
     Args:
         baseplate (Legobot.Lego): baseplate/parent lego (Pykka Actor)
@@ -269,7 +260,7 @@ class Discord(Lego):
             All legos should share the same lock.
         *args: Variable length argument list.
         **kwargs: Arbitrary keyword arguments.
-    '''
+    """
 
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
@@ -277,15 +268,15 @@ class Discord(Lego):
                                   *args, **kwargs)
 
     def on_start(self):
-        '''
-        Extends pykka's on_start method to launch this as an actor
-        '''
+        """Extends pykka's on_start method to launch this as an actor
+
+        """
 
         self.botThread.start()
 
     def listening_for(self, message):
-        '''
-        Describe what this should listen for
+        """Describe what this should listen for
+
         (hint: everything not from ourself)
         Extends Legobot.Lego.listening_for()
 
@@ -294,18 +285,18 @@ class Discord(Lego):
 
         Returns:
             bool: True if lego is interested in the message.
-        '''
+        """
 
         return str(self.actor_urn) != str(message['metadata']['source'])
 
     def handle(self, message):
-        '''
-        Attempts to send a message to the specified destination in Discord.
+        """Attempts to send a message to the specified destination in Discord.
+
         Extends Legobot.Lego.handle()
 
         Args:
             message (Legobot.Message): message w/ metadata to send.
-        '''
+        """
 
         logger.debug(message)
         if Utilities.isNotEmpty(message['metadata']['opts']):
@@ -314,11 +305,10 @@ class Discord(Lego):
 
     @staticmethod
     def get_name():
-        '''
-        Called by built-in !help lego
+        """Called by built-in !help lego
 
         Returns name of Lego. Returns None because this is
         a non-interactive Lego
-        '''
+        """
 
         return None

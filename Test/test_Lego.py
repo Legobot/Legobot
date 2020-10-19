@@ -7,7 +7,8 @@ import unittest
 
 from Legobot.Lego import Lego
 from Legobot.LegoError import LegoError
-from Legobot.Message import Message, Metadata
+from Legobot.Message import Message
+from Legobot.Message import Metadata
 
 
 class TestLego(unittest.TestCase):

@@ -1,16 +1,10 @@
-# Legobot
-# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
-
-
 class Utilities():
-    """
-    Miscellaneous utilities for Legobot services
-    """
+    """Miscellaneous utilities for Legobot services
 
+    """
     @staticmethod
     def tokenize(text):
-        """
-        Returns text split along newlines.
+        """Returns text split along newlines.
 
         Args:
             text (str): The text to be tokenized
@@ -22,8 +16,7 @@ class Utilities():
 
     @staticmethod
     def truncate(text, length=255):
-        """
-        Splits the message into a list of strings of of length `length`
+        """Splits the message into a list of strings of of length `length`
 
         Args:
             text (str): The text to be divided
@@ -41,14 +34,13 @@ class Utilities():
                 lines.append(text[i:i+length])
                 i += length
 
-            except IndexError as e:
+            except IndexError:
                 lines.append(text[i:])
         return lines
 
     @staticmethod
     def isNotEmpty(text):
-        """
-        Check if the given text is empty.
+        """Check if the given text is empty.
 
         Args:
             text (str): The text to assess
