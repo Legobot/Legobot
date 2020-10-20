@@ -1,0 +1,19 @@
+connectors:
+  IRC:
+    enabled: false
+    path: Legobot.Connectors.IRC.IRC
+    kwargs:
+      channels:
+        - '#legobot'
+      nickname: legobot_tester
+      server: chat.freenode.net
+      port: 6667
+      use_ssl: false
+helpEnabled: true
+legos:
+  XKCD:
+    enabled: true
+    path: legos.xkcd.XKCD
+    kwargs:  # Not all Legos have key word arguments
+      some_arg: some arg value
+log_file: '/tmp/test.log'

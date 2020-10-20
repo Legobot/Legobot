@@ -1,15 +1,3 @@
-# Legobot
-# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
-
-'''
-.. module:: Legobot.Connectors.Slack
-  :synopsis: A backend for connecting Legobot to Slack
-
-.. moduleauthor:: Bren Briggs
-
-Module lovingly built with inspiration from slackhq's RtmBot
-'''
-
 import logging
 import re
 import sys
@@ -19,7 +7,8 @@ import time
 from slackclient import SlackClient
 
 from Legobot.Lego import Lego
-from Legobot.Message import Message, Metadata
+from Legobot.Message import Message
+from Legobot.Message import Metadata
 from Legobot.Utilities import Utilities
 
 logger = logging.getLogger(__name__)
@@ -29,8 +18,7 @@ sys.dont_write_bytecode = True
 
 
 class RtmBot(threading.Thread, object):
-    """
-    Creates a Slack bot using the Slackclient RTM API
+    """Creates a Slack bot using the Slackclient RTM API
 
     Attributes:
         baseplate: The parent pykka actor
@@ -75,14 +63,14 @@ class RtmBot(threading.Thread, object):
                                       auto_reconnect=self.auto_reconnect)
 
     def on_message(self, event):
-        '''Runs when a message event is received
+        """Runs when a message event is received
 
         Args:
             event: RTM API event.
 
         Returns:
             Legobot.messge
-        '''
+        """
 
         metadata = self._parse_metadata(event)
         message = Message(text=metadata['text'],
@@ -95,8 +83,9 @@ class RtmBot(threading.Thread, object):
         return message
 
     def run(self):
-        '''Extends the run() method of threading.Thread
-        '''
+        """Extends the run() method of threading.Thread
+
+        """
 
         self.connect()
         while True:
@@ -113,14 +102,13 @@ class RtmBot(threading.Thread, object):
         return
 
     def find_and_replace_userids(self, text):
-        '''Finds occurrences of Slack userids and attempts to replace them with
-           display names.
+        """Finds Slack user IDs attempts to replace them with display names.
 
         Args:
             text (string): The message text
         Returns:
             string: The message text with userids replaced.
-        '''
+        """
 
         match = True
         pattern = re.compile('<@([A-Z0-9]{9})>')
@@ -134,17 +122,16 @@ class RtmBot(threading.Thread, object):
         return text
 
     def find_and_replace_channel_refs(self, text):
-        '''Find occurrences of Slack channel referenfces and attempts to
-           replace them with just channel names.
+        """Find Slack channel refs and attempts to replace them channel names.
 
         Args:
             text (string): The message text
         Returns:
             string: The message text with channel references replaced.
-        '''
+        """
 
         match = True
-        pattern = re.compile('<#([A-Z0-9]{9})\|([A-Za-z0-9-]+)>')
+        pattern = re.compile(r'<#([A-Z0-9]{9})\|([A-Za-z0-9-]+)>')
         while match:
             match = pattern.search(text)
             if match:
@@ -153,7 +140,7 @@ class RtmBot(threading.Thread, object):
         return text
 
     def get_channel_name_by_id(self, id, default=None):
-        '''Given a slack channel id return the channel's name.
+        """Given a slack channel id return the channel's name.
 
         Args:
             id (string): The channel id
@@ -161,7 +148,7 @@ class RtmBot(threading.Thread, object):
 
         Returns:
             string | default: The channel name or default provided
-        '''
+        """
 
         ch = self.channels_by_id.get(id, {})
         if not ch:
@@ -171,7 +158,7 @@ class RtmBot(threading.Thread, object):
         return ch.get('name', default)
 
     def get_channel_id_by_name(self, name, default=None):
-        '''Given a slack channel name return the channel's id.
+        """Given a slack channel name return the channel's id.
 
         Args:
             name (string): The channel name
@@ -179,7 +166,7 @@ class RtmBot(threading.Thread, object):
 
         Returns:
             string | default: The channel id or default provided
-        '''
+        """
 
         ch = self.channels_by_name.get(name, {})
         if not ch:
@@ -189,9 +176,10 @@ class RtmBot(threading.Thread, object):
         return ch.get('id', default)
 
     def get_channels(self):
-        '''Grabs all channels in the slack team. Stores them by name and by id
-           as class properties.
-        '''
+        """Retrieves all channels in the slack team from the API.
+
+        Stores them by name and by id as class properties.
+        """
 
         channels = []
         cursor = None
@@ -214,7 +202,7 @@ class RtmBot(threading.Thread, object):
         self.channels_by_name = {ch.get('name'): ch for ch in channels}
 
     def get_user_id_by_name(self, name, default=None):
-        '''Given a slack user name return the user's id.
+        """Given a slack user name return the user's id.
 
         Args:
             name (string): The user name
@@ -222,7 +210,7 @@ class RtmBot(threading.Thread, object):
 
         Returns:
             string | default: The user id or default provided
-        '''
+        """
 
         if name.startswith('@'):
             name = name[1:]
@@ -236,7 +224,7 @@ class RtmBot(threading.Thread, object):
         return u.get('id', default)
 
     def get_user_name_by_id(self, id, return_display_name=None, default=None):
-        '''Given a Slack userid, return user name or display_name.
+        """Given a Slack userid, return user name or display_name.
 
         Args:
             id (string): the user id of the user being queried
@@ -245,7 +233,7 @@ class RtmBot(threading.Thread, object):
             default: default value to return if no match is found
         Returns:
             dict: a dictionary of the api response
-        '''
+        """
 
         u = self.users_by_id.get(id)
         if not u:
@@ -258,11 +246,11 @@ class RtmBot(threading.Thread, object):
             return u.get('name', default)
 
     def get_users(self):
-        '''Grabs all users in the slack team and stores them in the connector.
+        """Grabs all users in the slack team and stores them in the connector.
 
         This should should only be used for getting list of all users. Do not
         use it for searching users. Use get_user_info instead.
-        '''
+        """
 
         users = []
         cursor = None
@@ -285,14 +273,14 @@ class RtmBot(threading.Thread, object):
             u.get('profile', {}).get('display_name'): u for u in users}
 
     def get_dm_channel(self, userid):
-        '''Perform a lookup of users to resolve a userid to a DM channel
+        """Perform a lookup of users to resolve a userid to a DM channel
 
         Args:
             userid (string): Slack userid to lookup.
 
         Returns:
             string: DM channel ID of user
-        '''
+        """
 
         dm_open = self.slack_client.api_call('im.open', user=userid)
         return dm_open['channel']['id']
@@ -301,13 +289,13 @@ class RtmBot(threading.Thread, object):
         self.slack_client.api_call('chat.postMessage', **attachment)
 
     def get_userid_from_botid(self, botid):
-        '''Perform a lookup of bots.info to resolve a botid to a userid
+        """Perform a lookup of bots.info to resolve a botid to a userid
 
         Args:
             botid (string): Slack botid to lookup.
         Returns:
             string: userid value
-        '''
+        """
         botinfo = self.slack_client.api_call('bots.info', bot=botid)
         if botinfo['ok'] is True:
             return botinfo['bot'].get('user_id')
@@ -315,7 +303,8 @@ class RtmBot(threading.Thread, object):
             return botid
 
     def _parse_metadata(self, message):
-        '''Parse incoming messages to build metadata dict
+        """Parse incoming messages to build metadata dict
+
         Lots of 'if' statements. It sucks, I know.
 
         Args:
@@ -323,7 +312,7 @@ class RtmBot(threading.Thread, object):
 
         Returns:
             Legobot.Metadata
-        '''
+        """
 
         # Try to handle all the fields of events we care about.
         metadata = Metadata(source=self.actor_urn).__dict__
@@ -376,8 +365,10 @@ class RtmBot(threading.Thread, object):
         return metadata
 
     def keepalive(self):
-        '''Sends a keepalive to Slack
-        '''
+        """Sends a keepalive to Slack
+
+        """
+
         # hardcode the interval to 3 seconds
         now = int(time.time())
         if now > self.last_ping + 3:
@@ -386,7 +377,7 @@ class RtmBot(threading.Thread, object):
 
 
 class Slack(Lego):
-    '''Lego that builds and connects Legobot.Connectors.Slack.RtmBot
+    """Lego that builds and connects Legobot.Connectors.Slack.RtmBot
 
     Args:
         baseplate (Legobot.Lego): baseplate/parent lego (Pykka Actor)
@@ -394,7 +385,7 @@ class Slack(Lego):
             All legos should share the same lock.
         *args: Variable length argument list.
         **kwargs: Arbitrary keyword arguments.
-    '''
+    """
 
     def __init__(self, baseplate, lock, *args, **kwargs):
         super().__init__(baseplate, lock)
@@ -402,13 +393,15 @@ class Slack(Lego):
                                 *args, **kwargs)
 
     def on_start(self):
-        '''Extends pykka's on_start method to launch this as an actor
-        '''
+        """Extends pykka's on_start method to launch this as an actor
+
+        """
 
         self.botThread.start()
 
     def listening_for(self, message):
-        '''Describe what this should listen for (hint: everything)
+        """Describe what this should listen for (hint: everything)
+
         Extends Legobot.Lego.listening_for()
 
         Args:
@@ -416,19 +409,19 @@ class Slack(Lego):
 
         Returns:
             bool: True if lego is interested in the message.
-        '''
+        """
 
         return str(self.botThread) != str(message['metadata']['source'])
 
     def build_attachment(self, text, target, attachment, thread):
-        '''Builds a slack attachment.
+        """Builds a slack attachment.
 
         Args:
             message (Legobot.Message): message w/ metadata to send.
 
         Returns:
             attachment (dict): attachment data.
-        '''
+        """
 
         attachment = {
             'as_user': True,
@@ -446,19 +439,20 @@ class Slack(Lego):
         return attachment
 
     def handle(self, message):
-        '''Attempts to send a message to the specified destination in Slack.
+        """Attempts to send a message to the specified destination in Slack.
+
         Extends Legobot.Lego.handle()
 
         Args:
             message (Legobot.Message): message w/ metadata to send.
-        '''
+        """
 
         logger.debug(message)
         if Utilities.isNotEmpty(message['metadata']['opts']):
             target = message['metadata']['opts']['target']
             thread = message['metadata']['opts'].get('thread')
             # pattern = re.compile('@([a-zA-Z0-9._-]+)')
-            pattern = re.compile('^@([a-zA-Z0-9._-]+)|\s@([a-zA-Z0-9._-]+)')
+            pattern = re.compile(r'^@([a-zA-Z0-9._-]+)|\s@([a-zA-Z0-9._-]+)')
             matches = re.findall(pattern, message['text'])
             matches = set(matches)
             logger.debug('MATCHES!!!!   {}'.format(matches))
@@ -508,9 +502,11 @@ class Slack(Lego):
 
     @staticmethod
     def get_name():
-        '''Called by built-in !help lego
-        Returns name of Lego. Returns none because this is
-        a non-interactive Lego
-        '''
+        """Returns name of Lego.
+
+        Called by built-in !help lego
+
+        Returns none because this is a non-interactive Lego
+        """
 
         return None

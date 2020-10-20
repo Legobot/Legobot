@@ -1,6 +1,3 @@
-# Legobot
-# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
-
 import logging
 import ssl
 import threading
@@ -9,18 +6,19 @@ import time
 import irc.bot
 import irc.client
 import irc.connection
-
 from jaraco.stream import buffer
 
 from Legobot.Lego import Lego
-from Legobot.Message import Message, Metadata
+from Legobot.Message import Message
+from Legobot.Message import Metadata
 from Legobot.Utilities import Utilities
 
 logger = logging.getLogger(__name__)
 
 
 class IgnoreErrorsBuffer(buffer.DecodingLineBuffer):
-    """  Handle char decode errors better
+    """Handle char decode errors better
+
     """
     def handle_exception(self):
         pass
@@ -31,8 +29,8 @@ irc.client.SimpleIRCClient.buffer_class = IgnoreErrorsBuffer
 
 
 class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
-    """
-    Create bot instance
+    """Create bot instance
+
     """
     def __init__(self,
                  baseplate,
@@ -74,8 +72,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.backoff = 1
 
     def connect(self, *args, **kwargs):
-        """
-        Connect to a server.
+        """Connect to a server.
 
         This overrides the function in SimpleIRCClient
         to provide SSL functionality.
@@ -97,8 +94,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
                                 ircname=self.ircname)
 
     def set_metadata(self, e):
-        """
-        This function sets the metadata that is common between pub and priv
+        """Sets the metadata that is common between pub and priv
+
         """
         metadata = Metadata(source=self.actor_urn).__dict__
         metadata['source_connector'] = 'irc'
@@ -111,8 +108,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         return metadata
 
     def on_pubmsg(self, c, e):
-        """
-        This function runs when the bot receives a public message.
+        """Runs when the bot receives a public message.
+
         """
         text = e.arguments[0]
         metadata = self.set_metadata(e)
@@ -121,8 +118,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.baseplate.tell(message)
 
     def on_privmsg(self, c, e):
-        """
-        This function runs when the bot receives a private message (query).
+        """Runs when the bot receives a private message (query).
+
         """
         text = e.arguments[0]
         logger.debug('{0!s}'.format(e.source))
@@ -132,8 +129,8 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         self.baseplate.tell(message)
 
     def on_welcome(self, c, e):
-        """
-        This function runs when the bot successfully connects to the IRC server
+        """Runs when the bot successfully connects to the IRC server
+
         """
         self.backoff = 1  # Assume we had a good connection. Reset backoff.
         if self.nickserv:
@@ -163,7 +160,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
             time.sleep(2 ** self.backoff)
             try:
                 self._connect()
-            except:
+            except Exception:
                 self.backoff += 1
 
     def identify(self, c, e, password):
@@ -172,8 +169,7 @@ class IRCBot(threading.Thread, irc.bot.SingleServerIRCBot):
         return
 
     def run(self):
-        """
-        Run the bot in a thread.
+        """Run the bot in a thread.
 
         Implementing the IRC listener as a thread allows it to
         listen without blocking IRCLego's ability to listen
@@ -199,13 +195,13 @@ class IRC(Lego):
         return str(self.actor_urn) != str(message['metadata']['source'])
 
     def handle(self, message):
-        '''
-        Attempts to send a message to the specified destination in IRC
+        """Attempts to send a message to the specified destination in IRC
+
         Extends Legobot.Lego.handle()
 
         Args:
             message (Legobot.Message): message w/ metadata to send.
-        '''
+        """
 
         logger.debug(message)
         if Utilities.isNotEmpty(message['metadata']['opts']):

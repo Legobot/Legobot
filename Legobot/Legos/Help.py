@@ -40,7 +40,7 @@ class Help(Lego):
         if not function:
             help_str = 'Available functions: ' + ', '.join(lego_names)
 
-        if function and function.lower() in [l.lower() for l in lego_names]:
+        if function and function.lower() in [n.lower() for n in lego_names]:
             help_strs = []
             for lego in legos:
                 name = lego.proxy().get_name().get()

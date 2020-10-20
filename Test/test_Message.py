@@ -1,8 +1,9 @@
-import unittest
 import threading
+import unittest
 
 from Legobot.Lego import Lego
-from Legobot.Message import Message, Metadata
+from Legobot.Message import Message
+from Legobot.Message import Metadata
 
 
 class TestMetadata(unittest.TestCase):

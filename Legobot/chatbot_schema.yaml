@@ -1,0 +1,41 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  connectors:
+    $ref: '#/definitions/connectors'
+  helpEnabled:
+    type: boolean
+  legos:
+    $ref: '#/definitions/legos'
+  log_file:
+    type: string
+additionalProperties: false
+required:
+  - connectors
+  - helpEnabled
+  - legos
+
+definitions:
+  connectors:
+    type: object
+    patternProperties:
+      Discord|IRC|Slack:
+        $ref: '#/definitions/configObject'
+  legos:
+    type: object
+    patternProperties:
+      .*:
+        $ref: '#/definitions/configObject'
+  configObject:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+      kwargs:
+        type: object
+      path:
+        type: string
+    additionalProperties: false
+    required:
+      - enabled
+      - path
