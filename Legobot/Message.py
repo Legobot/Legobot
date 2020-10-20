@@ -1,9 +1,6 @@
-# Legobot
-# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
-
-
 class Message():
-    """
+    """Class for passing messages.
+
     Messages in pykka must be passed as dictionaries. This class provides
     fields corresponding to the keys in that dictionary to facilitate the
     construction of such messages.
@@ -16,7 +13,8 @@ class Message():
 
 
 class Metadata():
-    """
+    """Class for passing Message metadata.
+
     Message Metadata is passed as a dictionary. This class provides
     fields corresponding to the keys in that dictionary to facilitate
     the construction of such dictionaries.

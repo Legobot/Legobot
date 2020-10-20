@@ -1,24 +1,23 @@
-# Legobot
-# Copyright (C) 2016 Brenton Briggs, Kevin McCabe, and Drew Bronson
-
 import json
 import logging
 import threading
 import time
 
 import jmespath
-from pykka import ThreadingActor, ActorRegistry
+from pykka import ActorRegistry
+from pykka import ThreadingActor
 
 from Legobot.LegoError import LegoError
-from Legobot.Message import Message, Metadata
+from Legobot.Message import Message
+from Legobot.Message import Metadata
 
 logger = logging.getLogger(__name__)
 
 
 class Lego(ThreadingActor):
     class HandlerThread(threading.Thread):
-        """
-        This class provides a simple thread for running message handlers.
+        """This class provides a simple thread for running message handlers.
+
         It is used to ensure that message handlers do not block other Legos
         from running by simply taking too long to execute.
         """
@@ -33,7 +32,8 @@ class Lego(ThreadingActor):
 
     def __init__(self, baseplate, lock: threading.Lock, log_file=None,
                  acl=None, rate_config=None):
-        """
+        """Initializes the thread
+
         :param baseplate: the baseplate Lego, which should be \
                           the same instance of Lego for all Legos
         :param lock: a threading lock, which should be the same \
@@ -60,8 +60,7 @@ class Lego(ThreadingActor):
         self.set_rate_limit(rate_config)
 
     def set_rate_limit(self, rate_config):
-        """
-        Set rate limit config for this Lego.
+        """Set rate limit config for this Lego.
 
         :param rate_config dict: dict representing the rate limit config
         """
@@ -71,8 +70,7 @@ class Lego(ThreadingActor):
         self.rate_log = {}
 
     def on_receive(self, message):
-        """
-        Handle being informed of a message.
+        """Handle being informed of a message.
 
         This function is called whenever a Lego receives a message, as
         specified in the pykka documentation.
@@ -99,8 +97,7 @@ class Lego(ThreadingActor):
             child.tell(message)
 
     def cleanup(self):
-        """
-        Clean up finished children.
+        """Clean up finished children.
 
         :return: None
         """
@@ -110,8 +107,7 @@ class Lego(ThreadingActor):
         self.lock.release()
 
     def rate_check(self, message):
-        """
-        Return whether the message passes the rate limite check for this Lego.
+        """Return whether the message passes the rate limit check for this Lego
 
         :param message: a Message object
         :return: Boolean
@@ -130,8 +126,7 @@ class Lego(ThreadingActor):
             return False
 
     def acl_check(self, message):
-        """
-        Return whether the message passes the ACL check for this Lego.
+        """Return whether the message passes the ACL check for this Lego.
 
         :param message: a Message object
         :return: Boolean
@@ -159,8 +154,7 @@ class Lego(ThreadingActor):
         return True
 
     def listening_for(self, message):
-        """
-        Return whether this Lego is listening for the provided Message.
+        """Return whether this Lego is listening for the provided Message.
 
         All Legos should override this function.
 
@@ -170,8 +164,7 @@ class Lego(ThreadingActor):
         return False
 
     def handle(self, message):
-        """
-        Handle the provided Message.
+        """Handle the provided Message.
 
         All Legos should override this function.
 
@@ -181,8 +174,7 @@ class Lego(ThreadingActor):
         return
 
     def add_child(self, child_type, *args, **kwargs):
-        """
-        Initialize and keep track of a child.
+        """Initialize and keep track of a child.
 
         :param child_type: a class inheriting from Lego to initialize \
                            an instance of
@@ -192,22 +184,20 @@ class Lego(ThreadingActor):
         """
         try:
             baseplate = kwargs['baseplate']
-        except:
+        except Exception:
             if self.baseplate is None:
                 baseplate = self.actor_ref
             else:
                 baseplate = self.baseplate
         try:
             lock = kwargs['lock']
-        except:
+        except Exception:
             lock = self.lock
         child = child_type.start(baseplate, lock, *args, **kwargs)
         self.children.append(child)
 
     def reply(self, message, text, opts=None):
-        """
-        Reply to the sender of the provided message with a message \
-        containing the provided text.
+        """Reply to the sender of the message with a containing the text
 
         :param message: the message to reply to
         :param text: the text to reply with
@@ -226,9 +216,9 @@ class Lego(ThreadingActor):
             raise("Tried to send message to nonexistent actor")
 
     def reply_attachment(self, message, text, attachment, opts=None):
-        """
-        Convenience method for formatting reply as attachment (if available)
-        and passing it on to the reply method. Individual connectors can then
+        """Convenience method for formatting reply as attachment (if available)
+
+        Passes attachment on to the reply method. Individual connectors can
         deal with the attachment or simply pass it on as a regular message
 
         :param message: the message to reply to
@@ -246,9 +236,7 @@ class Lego(ThreadingActor):
         self.reply(message, text, opts)
 
     def build_reply_opts(self, message):
-        """
-        Convenience method for constructing default options for a
-        reply message.
+        """Convenience method for constructing default options for a reply
 
         :param message: the message to reply to
         :return: opts
@@ -265,16 +253,14 @@ class Lego(ThreadingActor):
         return opts
 
     def get_name(self):
-        """
-        Return the name the Lego recognizes from the help function.
+        """Return the name the Lego recognizes from the help function.
 
         :return: a string
         """
         return '?'
 
     def get_help(self):
-        """
-        Return a helpstring for the function.
+        """Return a helpstring for the function.
 
         :return: a string
         """

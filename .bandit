@@ -1,2 +1,2 @@
 [bandit]
-exclude: /venv
+exclude: /venv,/Test/test_Chatbot.py

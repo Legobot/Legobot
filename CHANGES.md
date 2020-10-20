@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.3] 2020-10-19
+
+### Added
+
+- Added a Chatbot class that automatically builds and runs a bot based on a config file.
+
+### Changed
+
+- Updated code to match style guide.
+- Updated Travis config to test 3.6, 3.7, 3.8 and deploy 3.8
+
 ## [1.3.2] 2020-08-07
 
 ### Added
