@@ -4,6 +4,7 @@ import sys
 import threading
 import time
 
+from requests.exceptions import ConnectionError
 from slackclient import SlackClient
 
 from Legobot.Lego import Lego
@@ -89,16 +90,20 @@ class RtmBot(threading.Thread, object):
 
         self.connect()
         while True:
-            for event in self.slack_client.rtm_read():
-                logger.debug(event)
-                if 'type' in event and event['type'] in self.supported_events:
-                    event_type = event['type']
-                    dispatcher = self.supported_events[event_type]
-                    message = dispatcher(event)
-                    logger.debug(message)
-                    self.baseplate.tell(message)
-            self.keepalive()
-            time.sleep(0.1)
+            try:
+                for event in self.slack_client.rtm_read():
+                    logger.debug(event)
+                    if 'type' in event and event['type'] in self.supported_events:
+                        event_type = event['type']
+                        dispatcher = self.supported_events[event_type]
+                        message = dispatcher(event)
+                        logger.debug(message)
+                        self.baseplate.tell(message)
+                self.keepalive()
+                time.sleep(0.1)
+            except ConnectionError:
+                sleep(3)
+                break
         return
 
     def find_and_replace_userids(self, text):
