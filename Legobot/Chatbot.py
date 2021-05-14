@@ -13,14 +13,23 @@ DIR = Path(__file__).resolve().parent
 HELP_PATH = 'Legobot.Legos.Help.Help'
 
 
-def build_logger(log_file=None):
+def build_logger(log_file=None, level=None):
+    if (
+        not level
+        or not isinstance(level, str)
+        or level.upper() not in ['INFO', 'DEBUG', 'ERROR']
+    ):
+        level = 'DEBUG'
+
+    level = getattr(logging, level.upper())
+
     if log_file:
         logging.basicConfig(filename=log_file)
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(level)
     ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    ch.setLevel(level)
 
     # create formatter and add it to the handlers
     formatter = logging.Formatter(
@@ -60,7 +69,8 @@ class Chatbot(object):
         self.schema = load_yaml_file(
             DIR.joinpath('chatbot_schema.yaml'), raise_ex=True)
         self.config = self.load_config(config_path)
-        self.logger = build_logger(self.config.get('log_file'))
+        self.logger = build_logger(
+            self.config.get('log_file'), self.config.get('log_level'))
         self.baseplate = None
         self.baseplate_proxy = None
         self.connectors = []
