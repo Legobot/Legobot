@@ -9,15 +9,6 @@ properties:
     $ref: '#/definitions/legos'
   log_file:
     type: string
-  log_level:
-    type: string
-    enum:
-      - debug
-      - DEBUG
-      - info
-      - INFO
-      - error
-      - ERROR
 additionalProperties: false
 required:
   - connectors
