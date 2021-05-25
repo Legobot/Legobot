@@ -1,0 +1,36 @@
+name: Test Legobot
+on:
+  - push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - 3.6
+          - 3.7
+          - 3.8
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - name: Cache pip -- Python ${{ matrix.python-version }}
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+      - name: Install dependencies -- Python ${{ matrix.python-version }}
+        run: python -m pip install -U pip && pip install -r requirements-dev.txt
+      - name: Security Test -- Python ${{ matrix.python-version }}
+        run: |
+          python -m bandit -r .
+      - name: Lint Test -- Python ${{ matrix.python-version }}
+        run: python -m flake8 .
+      - name: Unit Test -- Python ${{ matrix.python-version }}
+        run: python -m pytest -v Test/test_Chatbot.py
