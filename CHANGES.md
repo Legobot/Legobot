@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.5] 2021-05-24
+
+### Changed
+
+- Use GitHub actions instead of Travis CI
+
 ## [1.3.4] 2021-05-14
 
 ### Changed
