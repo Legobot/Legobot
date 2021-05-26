@@ -1,4 +1,5 @@
 from mock import patch
+import os
 from pathlib import Path
 import sys
 
@@ -42,6 +43,25 @@ def test_load_yaml(caplog):
     with pytest.raises(Exception) as e:
         resp = Chatbot.load_yaml_file('bad_file.yaml', raise_ex=True)
     assert 'No such file or directory' in str(e)
+
+
+def test_replace_vars():
+    assert Chatbot.replace_vars(None) is None
+    assert Chatbot.replace_vars(True) is True
+    assert Chatbot.replace_vars(1) == 1
+
+    data = ['abc', '123']
+    assert Chatbot.replace_vars(data) == data
+
+    data = {'abc': '123'}
+    assert Chatbot.replace_vars(data) == data
+
+    data = '${{ENV::TEST}}'
+    os.environ['TEST'] = 'TEST DATA'
+    assert Chatbot.replace_vars(data) == 'TEST DATA'
+
+    data = '${{LIST::ITEM1, ITEM2}}'
+    assert Chatbot.replace_vars(data) == ['ITEM1', 'ITEM2']
 
 
 @patch('pykka.ThreadingActor.start')
