@@ -1,6 +1,8 @@
 import logging
+import os
 from pathlib import Path
 from pydoc import locate
+import re
 import threading
 
 from jsonschema import validate
@@ -64,6 +66,36 @@ def load_yaml_file(path, default=None, raise_ex=None, logger=None):
     return out
 
 
+def replace_vars(data):
+    if isinstance(data, dict):
+        for k, v in data.items():
+            data[k] = replace_vars(v)
+
+    elif isinstance(data, list):
+        for i in range(len(data)):
+            data[i] = replace_vars(data[i])
+
+    elif isinstance(data, str):
+        for var in re.findall(r'\$\{\{[a-zA-Z0-9._:, -]+\}\}', data):
+            var_items = var[3:-2].split('::')
+            var_str = var_items.pop(-1)
+
+            for cmd in reversed(var_items):
+                if cmd == 'ENV':
+                    var_str = os.environ.get(var_str, var_str)
+                elif cmd == 'LIST':
+                    var_str = [v.strip() for v in var_str.split(',')]
+
+            var_str = replace_vars(var_str)
+
+            if isinstance(var_str, list):
+                data = var_str
+            else:
+                data = data.replace(var, var_str)
+
+    return data
+
+
 class Chatbot(object):
     def __init__(self, config_path=None):
         self.schema = load_yaml_file(
@@ -78,6 +110,7 @@ class Chatbot(object):
 
     def load_config(self, config_path):
         config = load_yaml_file(config_path, raise_ex=True)
+        config = replace_vars(config)
         validate(config, self.schema)
         return config
 
