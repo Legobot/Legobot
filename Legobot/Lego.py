@@ -87,9 +87,12 @@ class Lego(ThreadingActor):
             with open(self.log_file, mode='w') as f:
                 f.write(json.dumps(message_copy))
             logger.info(message['metadata']['source'])
-        if (self.acl_check(message)
-                and self.rate_check(message)
-                and self.listening_for(message)):
+        if (
+            self.acl_check(message)
+            and self.rate_check(message)
+            and self.listening_for(message)
+            and self.check_types(message)
+        ):
             self_thread = self.HandlerThread(self.handle, message)
             self_thread.start()
         self.cleanup()
@@ -105,6 +108,10 @@ class Lego(ThreadingActor):
         logger.debug('Acquired lock in cleanup for ' + str(self))
         self.children = [child for child in self.children if child.is_alive()]
         self.lock.release()
+
+    def check_types(self, message):
+        return str(message.get('metadata', {}).get('subtype')) not in [
+            'message_changed', 'message_deleted']
 
     def rate_check(self, message):
         """Return whether the message passes the rate limit check for this Lego

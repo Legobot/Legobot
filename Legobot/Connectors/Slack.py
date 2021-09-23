@@ -102,7 +102,7 @@ class RtmBot(threading.Thread, object):
                 self.keepalive()
                 time.sleep(0.1)
             except ConnectionError:
-                sleep(3)
+                time.sleep(3)
                 break
         return
 
