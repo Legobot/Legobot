@@ -12,7 +12,7 @@ to go to the new app page.
    and then "Allow". It will redirect to a page with your token, you want
    the "Bot User OAuth Token"
 5. Setup a basic `config.yaml` file and put the token in it.
-   Here is a mimumal example config:
+   Here is a minimal example config:
    ```yaml
 connectors:
   Slack:
@@ -27,7 +27,7 @@ legos:
     path: legos.TestingConnector
    ```
 6. Setup a basic `chatbot.py` file and put the token in it.
-   Here is a mimumal example:
+   Here is a minimal example:
    ```python
    from pathlib import Path
    from Legobot.Chatbot import Chatbot
