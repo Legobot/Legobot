@@ -1,16 +1,16 @@
 # Connecting to Slack
-1. Create a Slack app. Click [here](https://api.slack.com/apps?new_app=1)
+1. Create a Slack app. Click [here](https://api.slack.com/apps?new_classic_app=1)
 to go to the new app page.
 2. Configure your app's name and the workspace it will live in
 3. Create a token for your bot
    After you configure the bot it should drop you at the "Basic Information"
    page. Click "Bot" and it'll jump to the App Home page where you can define
-   the bot's scope and get a token. Legobot's scope is largely up to you, however
-   at a minimum you'll want `channel:history`, `channel:read`,
-   `chat:write` to give Legobot a minimal amount of interactability.
-4. Go to "Install App" on the sidebar and then click "Install to Workspace".
-   Legobot isn't setup for multi-workspace / OAuth, so we just can skip that
-   stuff and go right to collecting our token.
+   the bot's scope and get a token. Legobot is a "classic" app and requires
+   the "Legacy Bot User" scope (also called 'bot' in the Oauth scope page).
+   Click the "Add Legacy Bot User" and fill in the name of the bot.
+4. Go to "Install App" on the sidebar and then click "Install to Workspace"
+   and then "Allow". It will redirect to a page with your token, you want
+   the "Bot User OAuth Token"
 5. Setup a basic `config.yaml` file and put the token in it.
    Here is a mimumal example config:
    ```yaml
