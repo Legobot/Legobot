@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.7] 2021-10-07
+
+### Added
+
+- Default entrypoint
+- Added `--config`/`-c` flag to specify a path to a config
+
 ## [1.3.6] 2021-05-26
 
 ### Added

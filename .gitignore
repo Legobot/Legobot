@@ -20,3 +20,5 @@ __pycache__/
 .DS_Store
 .cache/
 .vscode/
+test_config.yaml
+config.yaml
